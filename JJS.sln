@@ -26,6 +26,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "jjs-web", "jjs-web\", "{21B
 		SlnRelativePath = "jjs-web\"
 	EndProjectSection
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{747E72CC-FC89-43D0-B4D1-D78409C6FE07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,12 @@ Global
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
