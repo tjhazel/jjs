@@ -1,17 +1,22 @@
 using JJS.Api.Middleware;
 using JJS.Api.Models;
 using JJS.Api.Models.Configuration;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
+
 
 namespace JJS.Api
 {
@@ -49,6 +54,30 @@ namespace JJS.Api
          RegisterAppConfiguration(services);
          RegisterAppServices(services);
 
+         services.AddAuthentication()
+           .AddGoogle(options =>
+           {
+              IConfigurationSection googleAuthNSection =
+                  Configuration.GetSection("AppSetting");
+
+              options.ClientId = googleAuthNSection["GoogleClientId"];
+              options.ClientSecret = googleAuthNSection["GoogleClientSecret"];
+           });
+
+         //services.AddAuthentication();
+         //   .AddJwtBearer(cfg =>
+         //{
+         //   cfg.RequireHttpsMetadata = false;
+         //   cfg.SaveToken = true;
+
+         //   {
+         //      ValidateIssuerSigningKey = true,
+         //      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:JwtSecret"])),
+         //      ValidateIssuer = false,
+         //      ValidateAudience = false
+         //   };
+         //});
+
          services.AddControllers(mvc =>
          {
             //var policy = new AuthorizationPolicyBuilder()
@@ -75,12 +104,17 @@ namespace JJS.Api
                //Expose ui as site root
                options.RoutePrefix = string.Empty;
 
-               options.SwaggerEndpoint("/swagger/v1/swagger.json", "Assistpoint API");
+               options.SwaggerEndpoint("/swagger/v1/swagger.json", "John, Jeri, & Sidney API");
             });
          }
 
          app.UseRouting();
          app.UseCors("AllowCors");
+         app.UseAuthentication();
+
+         app.UseAuthorization();
+
+         app.UseUserValidationMiddleware();
 
          app.UseEndpoints(endpoints =>
          {
@@ -100,6 +134,8 @@ namespace JJS.Api
          {
             DatabaseConnectionString = Configuration[DATABASE_CONNECTION_STRING]
          });
+
+         services.AddSingleton<AppSetting>(y => Configuration.GetSection("AppSetting").Get<AppSetting>());
       }
 
       private void RegisterAppServices(IServiceCollection services)
