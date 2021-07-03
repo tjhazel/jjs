@@ -1,6 +1,11 @@
+using Google.Apis.Auth.AspNetCore3;
 using JJS.Api.Middleware;
 using JJS.Api.Models;
 using JJS.Api.Models.Configuration;
+using JJS.Api.Services.Cache;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -26,16 +32,17 @@ namespace JJS.Api
       {
          Configuration = configuration;
 
-//#if DEBUG
-//         // Using to get more explicit exception details when auth has failed
-//         IdentityModelEventSource.ShowPII = true;
-//#endif
+#if DEBUG
+         // Using to get more explicit exception details when auth has failed
+         IdentityModelEventSource.ShowPII = true;
+#endif
       }
 
       // This method gets called by the runtime. Use this method to add services to the container.
       // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
       public void ConfigureServices(IServiceCollection services)
       {
+         AddAuthentication(services);
          services.AddSwaggerGen();
 
          //Set up cors
@@ -53,30 +60,6 @@ namespace JJS.Api
 
          RegisterAppConfiguration(services);
          RegisterAppServices(services);
-
-         services.AddAuthentication()
-           .AddGoogle(options =>
-           {
-              IConfigurationSection googleAuthNSection =
-                  Configuration.GetSection("AppSetting");
-
-              options.ClientId = googleAuthNSection["GoogleClientId"];
-              options.ClientSecret = googleAuthNSection["GoogleClientSecret"];
-           });
-
-         //services.AddAuthentication();
-         //   .AddJwtBearer(cfg =>
-         //{
-         //   cfg.RequireHttpsMetadata = false;
-         //   cfg.SaveToken = true;
-
-         //   {
-         //      ValidateIssuerSigningKey = true,
-         //      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:JwtSecret"])),
-         //      ValidateIssuer = false,
-         //      ValidateAudience = false
-         //   };
-         //});
 
          services.AddControllers(mvc =>
          {
@@ -126,6 +109,87 @@ namespace JJS.Api
          });
       }
 
+      private void AddAuthentication(IServiceCollection services)
+      {
+         //// This configures Google.Apis.Auth.AspNetCore3 for use in this app.
+         //services
+         //    .AddAuthentication(o =>
+         //    {
+         //       // This forces challenge results to be handled by Google OpenID Handler, so there's no
+         //       // need to add an AccountController that emits challenges for Login.
+         //       o.DefaultChallengeScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
+         //       // This forces forbid results to be handled by Google OpenID Handler, which checks if
+         //       // extra scopes are required and does automatic incremental auth.
+         //       o.DefaultForbidScheme = GoogleOpenIdConnectDefaults.AuthenticationScheme;
+         //       // Default scheme that will handle everything else.
+         //       // Once a user is authenticated, the OAuth2 token info is stored in cookies.
+         //       o.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+         //    })
+         //    .AddCookie()
+         //    .AddGoogleOpenIdConnect(options =>
+         //    {
+         //       IConfigurationSection googleAuthNSection =
+         //                Configuration.GetSection("AppSetting");
+
+         //       options.ClientId = googleAuthNSection["GoogleClientId"];
+         //       options.ClientSecret = googleAuthNSection["GoogleClientSecret"];
+         //    });
+
+         //services.AddAuthentication()
+         //  .AddGoogle(options =>
+         //  {
+         //     IConfigurationSection googleAuthNSection =
+         //         Configuration.GetSection("AppSetting");
+
+         //     options.ClientId = googleAuthNSection["GoogleClientId"];
+         //     options.ClientSecret = googleAuthNSection["GoogleClientSecret"];
+         //  });
+
+         //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+         // .AddJwtBearer(jwt => jwt.UseGoogle(
+         //     clientId: "<client-id-from-Google-API-console>",
+         //     hostedDomain: "<optional-hosted-domain>"));
+
+         //services.AddIdentity(options => 
+         //{
+         //   options.de
+         //});
+
+         services.AddAuthentication(options =>
+         {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+           // options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+         })
+         .AddJwtBearer(options =>
+         {
+            options.SecurityTokenValidators.Clear();
+            options.SecurityTokenValidators.Add(new GoogleTokenValidator());
+         });
+
+         //services.AddAuthentication(sharedOptions =>
+         //{
+         //   sharedOptions.DefaultScheme = GoogleDefaults.AuthenticationScheme;
+         //})
+         //.AddJwtBearer(GoogleDefaults.AuthenticationScheme, options =>
+         // {
+         //    var authSettings = Configuration.GetSection("AppSetting").Get<AppSetting>();
+         //    options.Audience = authSettings.GoogleClientId;
+         //    //options.Authority = authSettings.Authority;
+
+         //    options.TokenValidationParameters = new TokenValidationParameters()
+         //    {
+         //       ValidateLifetime = false,
+         //       ValidateAudience = false,
+         //       ValidAudience = authSettings.GoogleClientId,
+         //       ValidateIssuer = false,
+         //       ValidateIssuerSigningKey = false,
+         //    };
+         // });
+
+      }
+
       private void RegisterAppConfiguration(IServiceCollection services)
       {
          const string DATABASE_CONNECTION_STRING = "ConnectionStrings:DatabaseConnectionString";
@@ -140,6 +204,9 @@ namespace JJS.Api
 
       private void RegisterAppServices(IServiceCollection services)
       {
+         //Specify which caching provider to use
+         services.AddSingleton<ICacheService, MemoryCacheService>();
+
          //Manually register services
          services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         // services.AddTransient<IAppContextService, AppContextService>();

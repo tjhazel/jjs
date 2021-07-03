@@ -3,6 +3,7 @@ namespace JJS.Api.Models.Configuration
 {
     public class AppSetting
     {
+        public string JwtIssuer { get; set;}
         public string JwtSecret {get; set;}
         public string GoogleClientId  {get; set;}
         public string GoogleClientSecret  {get; set;}

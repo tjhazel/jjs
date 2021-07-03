@@ -15,17 +15,20 @@ using System.Security.Claims;
 using System.Text;
 using JJS.Api.Models.Configuration;
 using System.Security.Principal;
+using JJS.Api.Services.Cache;
 
 namespace JJS.Api.Services
 {
    [ServiceImplementation(typeof(UserService))]
    public class UserService
    {
+      private readonly ICacheService _cacheService;
       private readonly IUserRepository _userRepository;
       private readonly AppSetting _appSetting;
 
-      public UserService(IUserRepository userRepository, AppSetting appSetting)
+      public UserService(ICacheService cacheService, IUserRepository userRepository, AppSetting appSetting)
       {
+         _cacheService = cacheService;
          _userRepository = userRepository;
          _appSetting = appSetting;
       }
@@ -37,12 +40,18 @@ namespace JJS.Api.Services
 
       public async Task<User> Get(string email)
       {
-         return await _userRepository.Get(email);
+         return await _cacheService.GetCachedValue(_userRepository.Get, email, GetCacheKey(email));
       }
 
       public async Task Merge(User user)
       {
+         await _cacheService.Clear(GetCacheKey(user.Email));
          await _userRepository.Merge(user);
+      }
+
+      private string GetCacheKey(string email)
+      {
+         return $"user/{email}";
       }
    }
 }

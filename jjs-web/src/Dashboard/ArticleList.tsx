@@ -1,9 +1,13 @@
 ﻿import React from 'react';
 //import * as Model from '../Model/Article';
 import Article from './Article';
-import { useArticleList } from './DataFetcher';
+//import { useArticleList } from './DataFetcher';
 import { PostCategorySummary } from '../Model/Api/ArticleApi';
 import { Container } from '@material-ui/core';
+
+//import { WithHttpClient } from '../Data/WithHttpClient';
+import { useArticleList } from '../Data/ArticleFetcher';
+
 const ArticleList: React.FunctionComponent = (props) => {
 
    const { data, isLoading, error } = useArticleList();

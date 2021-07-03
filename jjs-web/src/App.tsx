@@ -48,7 +48,7 @@ const App: React.FC = () => {
                 <button onClick={signIn}>Login</button>
                )}
             />
-            <Route exact path='*' component={DashboardIndex} />
+            <Route exact path='/' component={DashboardIndex} />
          </Switch>
      </Container>
   </Router>

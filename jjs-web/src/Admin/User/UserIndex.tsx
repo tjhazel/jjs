@@ -1,8 +1,8 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import { GoogleAuthProvider, useGoogleAuth } from '../Auth/AuthProvider';
-import { useArticleList } from '../Data/ArticleFetcher';
+import { GoogleAuthProvider, useGoogleAuth } from '../../Auth/AuthProvider';
+import { useArticleList } from '../../Data/ArticleFetcher';
 
 const AdminIndex: React.FC = () => {
 
@@ -16,13 +16,9 @@ const AdminIndex: React.FC = () => {
       return <>data  is not...</>;
    if (error)
       return <>error: {error}</>;
-   //https://material-ui.com/getting-started/templates/
-   //https://material-ui.com/getting-started/templates/dashboard/
 
-  //https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
    const html = (
-      <Box my={4}>
-         
+       <Box my={4}>
          <img src="/images/logopig.png" className="App-logo" alt="logo" />
          <Typography variant="h4" component="h1" gutterBottom>
             Here is AdminIndex {googleUser?.profileObj?.name}

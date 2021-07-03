@@ -10,7 +10,7 @@ export const PrivateRoute: React.FC<RouteProps> = props => {
    if (isSignedIn) {
       return <Route {...props} />;
    } else {
-      const renderComponent = () => <Redirect to='/' />;
+      const renderComponent = () => <Redirect to='/Admin/AdminLogin' />;
       return <Route {...props} component={renderComponent} render={undefined} />;
    }
 };

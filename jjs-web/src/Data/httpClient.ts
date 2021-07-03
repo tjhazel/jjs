@@ -1,8 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import { HttpError } from '../Model/Http';
 
-export const httpGet = async<T>(url: string, requiresToken: boolean = true) => {
+export const httpGet = async<T>(url: string, getToken: () => string) => {
    return new Promise<T>(async(resolve, reject) => {
-      const options: AxiosRequestConfig = await getConfig(requiresToken);
+      const options: AxiosRequestConfig = await getConfig(getToken);
       axios
          .get(url, options)
          .then((response: any) => {
@@ -15,9 +16,9 @@ export const httpGet = async<T>(url: string, requiresToken: boolean = true) => {
    })
 };
 
-export const httpPost = async<T>(url: string, body?: object) => {
+export const httpPost = async<T>(url: string, getToken: () => string, body?: object) => {
    return new Promise<T>(async(resolve, reject) => {
-      const options: AxiosRequestConfig = await getConfig(true);
+      const options: AxiosRequestConfig = await getConfig(getToken);
       axios
          .post(url, JSON.stringify(body), options)
          .then((response: any) => {
@@ -55,7 +56,7 @@ const handleError = (err: AxiosError): HttpError => {
    return error;
 }
 
-const getConfig = async (requiresToken: boolean = false) : Promise<AxiosRequestConfig> => {
+const getConfig = async (getToken: () => string) : Promise<AxiosRequestConfig> => {
 
     // axios request options like headers etc
     const options: AxiosRequestConfig = {
@@ -65,17 +66,10 @@ const getConfig = async (requiresToken: boolean = false) : Promise<AxiosRequestC
    }
 
    // if API endpoint requires a token, we'll need to add a way to add this.
-   if (requiresToken) {
-      const token = 'FAKE_TOKEN';
+   if (getToken) {
+      const token = await getToken();
       options.headers['Authorization'] = `Bearer ${token}`;
    }
    return options;
 };
 
-
-export interface HttpError {
-   httpErrorCode?: string;
-   responseStatus?: number;
-   responseData?: any;
-   message: string;
-}

@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Auth;
+using JJS.Api.Models.Configuration;
 using JJS.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using JJS.Api.Extensions;
 
 namespace JJS.Api.Controllers
 {
@@ -19,10 +21,12 @@ namespace JJS.Api.Controllers
    public class AuthController : ControllerBase
    {
       private readonly UserService _userService;
+      private readonly AppSetting _appSetting;
 
-      public AuthController(UserService userService)
+      public AuthController(UserService userService, AppSetting appSetting)
       {
          _userService = userService;
+         _appSetting = appSetting;
       }
 
       [AllowAnonymous]
@@ -31,15 +35,29 @@ namespace JJS.Api.Controllers
       {
          try
          {
-            var user = User.GetUserFromClaims();
+            var authTime = DateTime.UtcNow;
+            var payload = GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings()).Result;
+            
+            var user = await _userService.Get(payload.Email);
+            user.LastActivityDate = authTime;
 
-            //var user = await _userService.GetUserByExternalObjectId(externalObjectId);
-            //var user = _userService.Get();
-            //var token = await _userService.GetJwtToken(tokenId);
-            //return Ok(new
-            //{
-            //   token = new JwtSecurityTokenHandler().WriteToken(token)
-            //});
+            var claims = user.GeClaimsFromUser();
+
+            await _userService.Merge(user);
+
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSetting.JwtSecret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(_appSetting.JwtIssuer,
+              user.Role,
+              claims,
+              expires: DateTime.Now.AddDays(1),
+              signingCredentials: creds);
+
+            return Ok(new
+            {
+               token = new JwtSecurityTokenHandler().WriteToken(token)
+            });
          }
          catch (Exception ex)
          {

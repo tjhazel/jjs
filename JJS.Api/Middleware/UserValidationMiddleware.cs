@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using JJS.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
+using JJS.Api.Extensions;
 
 namespace JJS.Api.Middleware
 {
@@ -19,24 +21,32 @@ namespace JJS.Api.Middleware
       public async Task Invoke(HttpContext httpContext,
           UserService userService)
       {
-         var userPrincipal = httpContext.User.GetUserFromClaims();
+         //string token = null;
+         //if (!string.IsNullOrWhiteSpace(httpContext.Request.Headers[HeaderNames.Authorization]))
+         //{
+         //   token = httpContext.Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+         //}
 
-         if (httpContext.User.Identity.IsAuthenticated && userPrincipal != null)
+         var claimsUser = httpContext.User.GetUserFromClaims();
+
+         if (httpContext.User.Identity.IsAuthenticated && claimsUser != null && !string.IsNullOrWhiteSpace(claimsUser.Email))
          {
             //Want to validate logged in user maps to a record in the database - if not try to add user to system
             //If unable to add user or user is disabled then return 403 to client
-            var user = await userService.Get(userPrincipal.Email);
+            var user = await userService.Get(claimsUser.Email);
             var invalidUser = false;
             if (user == null)
             {
+               var name = httpContext.User.GetNameFromClaims();
+
                user = new Models.User.User
                {
                   Id = Guid.NewGuid(),
-                  Email = userPrincipal.Email,
-                  DisplayName = userPrincipal.DisplayName ?? userPrincipal.Email,
+                  Email = claimsUser.Email,
+                  DisplayName = claimsUser.DisplayName ?? claimsUser.Email,
                   IsDisabled = false,
-                  LastActivityDate = DateTime.UtcNow,
-                  Role = "guest"
+                  LastActivityDate = claimsUser.LastActivityDate,
+                  Role = claimsUser.Role ?? "guest"
                };
                await userService.Merge(user);
 

@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JJS.Api.Extensions;
 
 namespace JJS.Api.Middleware
 {
@@ -16,7 +17,7 @@ namespace JJS.Api.Middleware
       public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
       {
          //Database always stores UTC
-         writer.WriteStringValue(value.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ssZ"));
+         writer.WriteStringValue(value.ToUtcString());
       }
    }
 }

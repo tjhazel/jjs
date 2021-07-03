@@ -65,7 +65,6 @@ const Article: React.SFC<Props> = (props) => {
                   <Typography variant="h5" color="inherit" paragraph>
                      <div dangerouslySetInnerHTML={{ __html: `${props.article.body}` }} />
                   </Typography>
-                  
                </div>
             </Grid>
          </Grid>
