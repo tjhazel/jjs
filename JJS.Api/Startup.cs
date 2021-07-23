@@ -28,9 +28,10 @@ namespace JJS.Api
 {
    public class Startup
    {
-      public Startup(IConfiguration configuration)
+      public Startup(IConfiguration configuration, IWebHostEnvironment env)
       {
          Configuration = configuration;
+         WebHostEnvironment = env;
 
 #if DEBUG
          // Using to get more explicit exception details when auth has failed
@@ -72,6 +73,7 @@ namespace JJS.Api
       }
 
       public IConfiguration Configuration { get; }
+      public IWebHostEnvironment WebHostEnvironment { get; }
 
       // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
       public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -196,7 +198,8 @@ namespace JJS.Api
  
          services.AddSingleton(new AppConfig
          {
-            DatabaseConnectionString = Configuration[DATABASE_CONNECTION_STRING]
+            DatabaseConnectionString = Configuration[DATABASE_CONNECTION_STRING],
+            RootPath = WebHostEnvironment.ContentRootPath
          });
 
          services.AddSingleton<AppSetting>(y => Configuration.GetSection("AppSetting").Get<AppSetting>());
