@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace JJS.Api.Models.Album
 {
@@ -8,8 +9,10 @@ namespace JJS.Api.Models.Album
       public string Comment { get; set; }
 
       public string Name { get; set; }
+      [JsonIgnore]
       public string FullName { get; set; }
       public string RelativePath { get; set; }
+      public string HttpPath { get; set; }
 
       public DateTime CreatedOn { get; set; }
       public DateTime ModifiedOn { get; set; }

@@ -6,5 +6,6 @@ namespace JJS.Api.Models.Configuration
    {
       public string DatabaseConnectionString { get; set; }
       public string RootPath { get; set; }
+     // public string HttpPath { get; set; }
    }
 }

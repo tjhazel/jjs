@@ -13,6 +13,7 @@ export interface Folder {
  export interface File {
     name: string;   
     relativePath?: string;
+    httpPath?: string;
     createdOn?: Date;
     modifiedOn?: Date;
     lastAccessTime?: Date;

@@ -11,13 +11,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -92,6 +95,30 @@ namespace JJS.Api
                options.SwaggerEndpoint("/swagger/v1/swagger.json", "John, Jeri, & Sidney API");
             });
          }
+         ////app.UseStaticFiles();
+         //// Set up custom content types - associating file extension to MIME type
+         //var provider = new FileExtensionContentTypeProvider();
+         //// Add new mappings
+         //provider.Mappings[".jpg"] = "image/jpeg";
+         //provider.Mappings[".gif"] = "image/gif";
+         //provider.Mappings[".png"] = "image/png";
+         //provider.Mappings[".image"] = "image/png";
+
+         //var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Album");
+
+         //app.UseStaticFiles(new StaticFileOptions
+         //{
+         //   FileProvider = new PhysicalFileProvider(imgDir),
+         //   RequestPath = "/Image",
+         //   ContentTypeProvider = provider
+         //});
+         var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Album");
+         app.UseFileServer(new FileServerOptions
+         {
+            FileProvider = new PhysicalFileProvider(imgDir),
+            RequestPath = "/Image",
+            EnableDefaultFiles = true,
+         });
 
          app.UseRouting();
          app.UseCors("AllowCors");
@@ -199,7 +226,8 @@ namespace JJS.Api
          services.AddSingleton(new AppConfig
          {
             DatabaseConnectionString = Configuration[DATABASE_CONNECTION_STRING],
-            RootPath = WebHostEnvironment.ContentRootPath
+            RootPath = WebHostEnvironment.ContentRootPath,
+       //     HttpPath = WebHostEnvironment.WebRootPath
          });
 
          services.AddSingleton<AppSetting>(y => Configuration.GetSection("AppSetting").Get<AppSetting>());

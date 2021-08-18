@@ -2,6 +2,7 @@
 using JJS.Api.Models.Album;
 using JJS.Api.Models.Configuration;
 using JJS.Api.Services.External;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,15 +15,22 @@ namespace JJS.Api.Services
    {
       private readonly ITagData _tagData;
       private readonly AppConfig _appConfig;
+      private readonly IHttpContextAccessor _httpContextAccessor;
+
+
       private readonly string _albumRoot;
+      private readonly string _siteRoot;
       private string[] _filters = new[] { "*.jpg", "*.png", "*.gif" };
 
       public AlbumService(ITagData tagData,
-         AppConfig appConfig)
+         AppConfig appConfig,
+         IHttpContextAccessor httpContextAccessor)
       {
          _tagData = tagData;
          _appConfig = appConfig;
+         _httpContextAccessor = httpContextAccessor;
          _albumRoot = Path.Combine(appConfig.RootPath, "Album");
+         _siteRoot = appConfig.RootPath;
       }
 
       public Folder Get()
@@ -77,11 +85,14 @@ namespace JJS.Api.Services
       private Models.Album.File GetPhotoInfo(FileInfo fileInfo)
       {
          var tagData = _tagData.GetMetadata(fileInfo.FullName);
+         var relativePath = GetRelativePath(fileInfo.FullName);
+
          var photo = new Models.Album.File
          {
             Name = fileInfo.Name,
             FullName = fileInfo.FullName,
-            RelativePath = GetRelativePath(fileInfo.FullName),
+            RelativePath = relativePath,
+            HttpPath = GetHttpPath(relativePath),
             CreatedOn = fileInfo.CreationTimeUtc,
             ModifiedOn = fileInfo.LastWriteTimeUtc,
             LastAccessTime = fileInfo.LastAccessTimeUtc,
@@ -92,9 +103,58 @@ namespace JJS.Api.Services
          return photo;
       }
 
-      private string GetRelativePath(string path)
+      public string GetRelativePath(string path)
       {
-         return path.Replace(_albumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/');
+         var relativePath = $"/Image/{path.Replace(_albumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/')}";
+         return relativePath;
+      }
+
+      public string GetHttpPath(string path)
+      {
+         var request = _httpContextAccessor.HttpContext.Request;
+         var baseURL = $"{request.Scheme}://{request.Host}";
+         var relativePath = $"{path.Replace(_albumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/')}";
+         var fullUrl = $"{baseURL}/{relativePath}";
+         return fullUrl;
+      }
+
+      public string GetFullFilePath(string relativePath)
+      {
+         string newPath = Path.Combine(_albumRoot, relativePath);
+         return newPath;
+      }
+
+      public string GetContentType(string path)
+      {
+         var ext = (Path.GetExtension(path)??".").ToLower();
+         string contentType = "image/jpeg";
+         switch (ext) 
+         {
+            case ".jpg":
+            {
+                  contentType = "image/jpeg";
+                  break;
+            }
+            case ".gif":
+               {
+                  contentType = "image/gif";
+                  break;
+               }
+            case ".png":
+               {
+                  contentType = "image/png";
+                  break;
+               }
+         }
+         return contentType;
+      }
+
+      private string GetBaseUrl()
+      {
+         var request = _httpContextAccessor.HttpContext.Request;
+         var baseURL = $"{request.Scheme}://{request.Host}";
+
+         return baseURL;
       }
    }
 }
