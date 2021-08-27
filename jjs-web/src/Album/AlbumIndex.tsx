@@ -9,8 +9,18 @@ import IconButton from '@material-ui/core/IconButton';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import ImageListItemBar from '@material-ui/core/ImageListItemBar';
 import { useAlbumList } from '../Data/AlbumFetcher';
+import FolderMenu from './FolderMenu';
+import ImageStrip from './ImageStrip';
 
 import { makeStyles } from '@material-ui/core/styles';
+
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 
 const useStyles = makeStyles((theme) => ({
    root: {
@@ -47,47 +57,19 @@ const AlbumIndex: React.FC<RouteProps> = (props) => {
 
    const html = (
       <>
-      <Box my={4}>
-         <img src="/images/logopig.png" className="App-logo" alt="logo" />
-         <Typography variant="h4" component="h1" gutterBottom>
-            Here is AlbumIndex!
-         </Typography>
-      </Box>
-      
-      {data && data.folders &&
-
-         data.folders.map((folder) => (
-            <div>{folder.name}</div>
-         ))         
-      }
-
-      <hr />
-      {data && data.files &&
-
-         <div className={classes.root}>
-            <ImageList className={classes.imageList} cols={2.5}>
-               {data.files.map((file, idx)  => (
-                  <ImageListItem key={file.relativePath??idx}>
-                  <img src={file.httpPath} alt={file.title} />
-                  <ImageListItemBar
-                  title={file.title}
-                  classes={{
-                     root: classes.titleBar,
-                     title: classes.title,
-                  }}
-                  actionIcon={
-                     <IconButton aria-label={`star ${file.title}`}>
-                        <StarBorderIcon className={classes.title} />
-                     </IconButton>
-                  }
-                  />
-               </ImageListItem>
-               ))}
-            </ImageList>
-         </div>
-      }
-
-      <hr />
+         <Box my={4}>
+            <img src="/images/logopig.png" className="App-logo" alt="logo" />
+            <Typography variant="h4" component="h1" gutterBottom>
+               Photo Album
+            </Typography>
+         </Box>
+         {data && data.folders &&
+            <FolderMenu folders={data.folders} />
+         }
+         <hr />
+         {data && data.files &&
+            <ImageStrip files={data.files} />
+         }
       </>
    )
 
