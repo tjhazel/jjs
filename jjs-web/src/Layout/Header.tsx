@@ -17,15 +17,15 @@ import {
   const headersData = [
     {
       label: "Albums",
-        href: "/Albums",
+        href: "/Album",
     },
     {
       label: "Recipes",
-       href: "/Recipes",
+       href: "/Recipe",
     },
     {
       label: "Links",
-       href: "/Links",
+       href: "/Link",
     },
     {
       label: "My Account",

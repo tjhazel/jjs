@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, BrowserRouter as Router, Switch //, useHistory, useLocation 
+import { Route, BrowserRouter as Router, Switch, useHistory, useLocation, useRouteMatch 
   // , RouteComponentProps 
 } from 'react-router-dom';
 //import { makeStyles } from '@material-ui/core/styles';
@@ -11,6 +11,7 @@ import LinkIndex from './Link/LinkIndex';
 import AlbumIndex from './Album/AlbumIndex';
 import DashboardIndex from './Dashboard/DashboardIndex';
 import AdminIndex from './Admin/AdminIndex';
+import Box from '@material-ui/core/Box';
 
 import PrivateRoute from './Auth/PrivateRoute';
 import { GoogleAuthProvider, useGoogleAuth } from './Auth/AuthProvider';
@@ -24,6 +25,8 @@ import { GoogleAuthProvider, useGoogleAuth } from './Auth/AuthProvider';
 
 const App: React.FC = () => {
 
+  
+
   // const classes = useStyles();
   const { signIn, signOut, googleUser, isSignedIn } = useGoogleAuth();
   //const history = useHistory();
@@ -36,10 +39,11 @@ const App: React.FC = () => {
     <Router>
        <Container maxWidth="xl">
           <Header/>
+          <Box my={4}>spacer</Box>
          <Switch>
-            <Route exact path='/Albums' component={AlbumIndex} />
-            <Route exact path='/Recipes' component={RecipeIndex} />
-            <Route exact path='/Links' component={LinkIndex} />
+            <Route path='/Album' component={AlbumIndex} />
+            <Route exact path='/Recipe' component={RecipeIndex} />
+            <Route exact path='/Link' component={LinkIndex} />
             <PrivateRoute
                path='/Admin'
                render={() => (

@@ -2,7 +2,7 @@
 
 export interface Folder {   
     name: string; 
-    relativePath?: string;
+    relativePath: string;
     createdOn?: Date;
     modifiedOn?: Date;
     lastAccessTime?: Date;

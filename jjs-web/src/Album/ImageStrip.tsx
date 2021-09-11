@@ -7,6 +7,7 @@ import ImageListItemBar from '@material-ui/core/ImageListItemBar';
 import { File } from '../Model/Api/AlbumApi';
 
 import { makeStyles } from '@material-ui/core/styles';
+import { BorderStyle } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
    root: {
@@ -17,9 +18,19 @@ const useStyles = makeStyles((theme) => ({
      backgroundColor: theme.palette.background.paper,
    },
    imageList: {
-     flexWrap: 'nowrap',
-     // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-     transform: 'translateZ(0)',
+      width:  'vw100',
+      height: 'vh100',
+   //   flexWrap: 'nowrap',
+   //   // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
+      transform: 'translateZ(0)',
+   },
+   imagehvr: {
+      borderWidth: "5px",
+      "&:hover": {
+         borderColor:"#008080",
+         borderStyle: "solid",
+       //  transform: "scale(1.5)"
+     }
    },
    title: {
      color: theme.palette.primary.light,
@@ -28,6 +39,7 @@ const useStyles = makeStyles((theme) => ({
      background:
        'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
    },
+   
  }));
 
 interface IProps {
@@ -42,21 +54,24 @@ const ImageStrip: React.FC<IProps> = (props) => {
 
    return (
      <div className={classes.root}>
-         <ImageList className={classes.imageList} cols={2.5}>
+         <ImageList rowHeight={200} className={classes.imageList} cols={4}>
             {files.map((file, idx)  => (
-               <ImageListItem key={file.relativePath??idx}>
-               <img src={file.httpPath} alt={file.title} />
-               <ImageListItemBar
-               title={file.title}
+               <ImageListItem key={file.relativePath??idx} title={file.comment}
                classes={{
-                  root: classes.titleBar,
-                  title: classes.title,
-               }}
-               actionIcon={
-                  <IconButton aria-label={`star ${file.title}`}>
-                     <StarBorderIcon className={classes.title} />
-                  </IconButton>
-               }
+                  root: classes.imagehvr
+               }}>
+                  <img src={file.httpPath} alt={file.comment} />
+                  <ImageListItemBar
+                  title={file.comment}
+                  classes={{
+                     root: classes.titleBar,
+                     title: classes.title,
+                  }}
+                  // actionIcon={
+                  //    <IconButton aria-label={`star ${file.title}`}>
+                  //       <StarBorderIcon className={classes.title} />
+                  //    </IconButton>
+                  // }
                />
             </ImageListItem>
             ))}

@@ -1,17 +1,18 @@
 import React from 'react';
-import ImageList from '@material-ui/core/ImageList';
-import ImageListItem from '@material-ui/core/ImageListItem';
-import IconButton from '@material-ui/core/IconButton';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
-import ImageListItemBar from '@material-ui/core/ImageListItemBar';
+import {  useLocation, useRouteMatch 
+   // , RouteComponentProps 
+ } from 'react-router-dom';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 
 import { Folder } from '../Model/Api/AlbumApi';
-
+import { useAlbum } from './AlbumContext';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,37 +34,28 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface IProps {
-   folders: Folder[];
+   folder: Folder | undefined;
 }
 
 const FolderMenu: React.FC<IProps> = (props) => {
    const classes = useStyles();
-  
-   const folders = props.folders;
-   const preventDefault = (event: React.SyntheticEvent) => event.preventDefault();
-   return (
-      <Paper className={classes.paper}>
-      {folders.map((folder) => (
-         <Grid container spacing={1} className={classes.title}>
-            <Typography className={classes.title} variant="h5" id="tableTitle" component="div">
-               <Link href="#" onClick={preventDefault}>
-                  {folder.name}
-               </Link>
-            </Typography>
-            {folder.folders && folder.folders.length > 0 && folder.folders.map((child) => (              
-                <Grid item xs={3} spacing={3}>
+   return (<>
+      {props.folder &&
+         <Paper className={classes.paper}>
+            <List dense={true}>
+            {props.folder.folders && props.folder.folders.length > 0 && props.folder.folders.map((child) => (              
+               <ListItem>
                   <Typography  id="folder" component="div">
-                     <Link href="#" onClick={preventDefault}>
+                     <Link href={`/Album${child.relativePath}`}>
                         {child.name}
                      </Link>
                   </Typography>
-               </Grid>
+               </ListItem>
             ))}
-
-         </Grid>
-      ))}
-      </Paper>
-   )
+          </List>
+      </Paper>     
+      }
+   </>)
 
 }
 

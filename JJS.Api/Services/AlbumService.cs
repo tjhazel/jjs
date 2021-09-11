@@ -1,12 +1,14 @@
 ﻿using JJS.Api.Models;
 using JJS.Api.Models.Album;
 using JJS.Api.Models.Configuration;
+using JJS.Api.Services.Cache;
 using JJS.Api.Services.External;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace JJS.Api.Services
 {
@@ -16,7 +18,7 @@ namespace JJS.Api.Services
       private readonly ITagData _tagData;
       private readonly AppConfig _appConfig;
       private readonly IHttpContextAccessor _httpContextAccessor;
-
+      private readonly ICacheService _cacheService;
 
       private readonly string _albumRoot;
       private readonly string _siteRoot;
@@ -24,22 +26,25 @@ namespace JJS.Api.Services
 
       public AlbumService(ITagData tagData,
          AppConfig appConfig,
-         IHttpContextAccessor httpContextAccessor)
+         IHttpContextAccessor httpContextAccessor,
+         ICacheService cacheService)
       {
          _tagData = tagData;
          _appConfig = appConfig;
          _httpContextAccessor = httpContextAccessor;
          _albumRoot = Path.Combine(appConfig.RootPath, "Album");
          _siteRoot = appConfig.RootPath;
+         _cacheService = cacheService;
       }
 
       public Folder Get()
       {
-         var rootFolder = GetFolderFromPath(_albumRoot);
+         var folder = _cacheService.GetCachedValue(GetFolderFromPath, _albumRoot, _albumRoot);
+         var rootFolder = folder.Result;
          return rootFolder;
       }
 
-      private Folder GetFolderFromPath(string path)
+      private Task<Folder> GetFolderFromPath(string path)
       {
          DirectoryInfo dirInfo = new DirectoryInfo(path);
          Folder folder = new Folder
@@ -70,7 +75,7 @@ namespace JJS.Api.Services
          foreach (var dir in dirInfo.GetDirectories())
          {
             // recursion to same function.
-            Folder subfolder = GetFolderFromPath(dir.FullName);
+            Folder subfolder = GetFolderFromPath(dir.FullName).Result;
            // subfolder.RelativePath = GetRelativePath(dir.FullName);
             subFolders.Add(subfolder);
          }
@@ -79,7 +84,7 @@ namespace JJS.Api.Services
             folder.Folders = subFolders;
          }
 
-         return folder;
+         return Task.FromResult(folder);
       }
 
       private Models.Album.File GetPhotoInfo(FileInfo fileInfo)
