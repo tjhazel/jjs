@@ -5,9 +5,15 @@ import IconButton from '@material-ui/core/IconButton';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import ImageListItemBar from '@material-ui/core/ImageListItemBar';
 import { File } from '../Model/Api/AlbumApi';
-
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardMedia from '@material-ui/core/CardMedia';
+import CardContent from '@material-ui/core/CardContent';
 import { makeStyles } from '@material-ui/core/styles';
 import { BorderStyle } from '@material-ui/icons';
+import Dialog from '@material-ui/core/Dialog';
+import Typography from '@material-ui/core/Typography';
+
 
 const useStyles = makeStyles((theme) => ({
    root: {
@@ -39,6 +45,10 @@ const useStyles = makeStyles((theme) => ({
      background:
        'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
    },
+   media: {
+      height: 0,
+      paddingTop: '56.25%', // 16:9
+    },
    
  }));
 
@@ -49,8 +59,17 @@ interface IProps {
 
 const ImageStrip: React.FC<IProps> = (props) => {
    const classes = useStyles();
-  
+   const [previewFile, setPreviewFile] = React.useState<File>(null);
+
    const files = props.files;
+
+   const handleClick = (file: File) => {
+      setPreviewFile(file);
+    };
+
+    const handleClose = () => {
+      setPreviewFile(undefined);
+    }
 
    return (
      <div className={classes.root}>
@@ -60,7 +79,9 @@ const ImageStrip: React.FC<IProps> = (props) => {
                classes={{
                   root: classes.imagehvr
                }}>
-                  <img src={file.httpPath} alt={file.comment} />
+                  <img src={file.httpPath} 
+                     alt={file.comment}
+                     onClick={() => handleClick(file)} />
                   <ImageListItemBar
                   title={file.comment}
                   classes={{
@@ -71,11 +92,31 @@ const ImageStrip: React.FC<IProps> = (props) => {
                   //    <IconButton aria-label={`star ${file.title}`}>
                   //       <StarBorderIcon className={classes.title} />
                   //    </IconButton>
+                  //
                   // }
                />
             </ImageListItem>
             ))}
          </ImageList>
+
+         <Dialog onClose={handleClose} open={previewFile?true:false}>
+            {previewFile &&
+            <Card className={classes.root}>
+               <img src={previewFile.httpPath} 
+                     alt={previewFile.comment}/>
+               <CardMedia
+               className={classes.media}
+               image={previewFile.httpPath}
+               title={previewFile.name}
+               />
+               <CardContent>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                     {previewFile.comment??''}
+                  </Typography>
+               </CardContent>
+            </Card>
+            }
+         </Dialog>
       </div>
    )
 
