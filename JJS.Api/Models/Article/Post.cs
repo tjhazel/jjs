@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace JJS.Api.Models.Article
 {
    public class Post
    {
-      public int PostId { get; set; }
+      public int? PostId { get; set; }
       public string Title { get; set; }
       public string PreviewText { get; set; }
       public int Body { get; set; }
@@ -17,5 +18,7 @@ namespace JJS.Api.Models.Article
       public string CreatedByFk { get; set; }
       public DateTime ModifiedDate { get; set; }
       public string ModifiedByFk { get; set; }
+
+      public virtual IEnumerable<Category> Categories { get; set; }
    }
 }

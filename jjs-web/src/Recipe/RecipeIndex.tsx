@@ -10,7 +10,7 @@ const RecipeIndex: React.SFC<RouteProps> = (props) => {
          <img src="/images/logopig.png" className="App-logo" alt="logo" />
          <Typography variant="h4" component="h1" gutterBottom>
             Here is RecipeIndex
-            </Typography>
+         </Typography>
       </Box>
    )
 

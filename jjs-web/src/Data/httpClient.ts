@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { HttpError } from '../Model/Http';
 
-export const httpGet = async<T>(url: string, getToken: () => string) => {
+export const httpGet = async<T>(url: string, getToken: () => Promise<string>) => {
    return new Promise<T>(async(resolve, reject) => {
       const options: AxiosRequestConfig = await getConfig(getToken);
       axios
@@ -16,7 +16,7 @@ export const httpGet = async<T>(url: string, getToken: () => string) => {
    })
 };
 
-export const httpPost = async<T>(url: string, getToken: () => string, body?: object) => {
+export const httpPost = async<T>(url: string, getToken: () => Promise<string>, body?: object) => {
    return new Promise<T>(async(resolve, reject) => {
       const options: AxiosRequestConfig = await getConfig(getToken);
       axios
@@ -31,7 +31,7 @@ export const httpPost = async<T>(url: string, getToken: () => string, body?: obj
 };
 
 
-const handleError = (err: AxiosError): HttpError => {
+export const handleError = (err: AxiosError): HttpError => {
    const error: HttpError = {
       httpErrorCode: err.code,
       message: err.message
@@ -56,7 +56,7 @@ const handleError = (err: AxiosError): HttpError => {
    return error;
 }
 
-const getConfig = async (getToken: () => string) : Promise<AxiosRequestConfig> => {
+const getConfig = async (getToken: () => Promise<string>) : Promise<AxiosRequestConfig> => {
 
     // axios request options like headers etc
     const options: AxiosRequestConfig = {

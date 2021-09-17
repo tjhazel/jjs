@@ -1,36 +1,70 @@
 import React from 'react';
+import { Link, Switch, Route, useRouteMatch } from 'react-router-dom';
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import { GoogleAuthProvider, useGoogleAuth } from '../Auth/AuthProvider';
-import { useArticleList } from '../Data/ArticleFetcher';
+import { makeStyles } from '@material-ui/core/styles';
+import MenuList from '@material-ui/core/MenuList';
+import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Icon from '@material-ui/core/Icon';
+import Grid from '@material-ui/core/Grid';
+import Container from '@material-ui/core/Container';
+
+import { useGoogleAuth } from '../Auth/AuthProvider';
+import AlbumList from './AlbumList';
+import ArticleList from './ArticleList';
+
+const useStyles = makeStyles({
+   root: {
+     width: 230,
+   },
+ });
 
 const AdminIndex: React.FC = () => {
 
    const { signIn, signOut, googleUser, isSignedIn } = useGoogleAuth();
+   const match = useRouteMatch;
 
-   const { data, isLoading, error } = useArticleList();
-
-   if (isLoading)
-      return <>loading...</>;
-   if (!data)
-      return <>data  is not...</>;
-   if (error)
-      return <>error: {error}</>;
-   //https://material-ui.com/getting-started/templates/
-   //https://material-ui.com/getting-started/templates/dashboard/
-
-  //https://github.com/mui-org/material-ui/blob/master/docs/src/pages/getting-started/templates/dashboard/Dashboard.js
-   const html = (
-      <Box my={4}>
-         
-         <img src="/images/logopig.png" className="App-logo" alt="logo" />
-         <Typography variant="h4" component="h1" gutterBottom>
-            Here is AdminIndex {googleUser?.profileObj?.name}
-         </Typography>
-      </Box>
-   )
-
-   return html;
+   const classes = useStyles();
+   
+     return (
+   <Grid container spacing={3}>
+      <Grid item xs={2} spacing={3}>
+         <Paper className={classes.root}>
+            <MenuList>
+            <MenuItem>
+               <ListItemIcon>
+               <Icon className="fa fa-newspaper" />
+               </ListItemIcon>
+               <Typography variant="inherit">
+                  <Link to={`/Admin/ArticleList`}>
+                     Articles
+                  </Link>
+               </Typography>
+            </MenuItem>
+            <MenuItem>
+               <ListItemIcon>
+               <Icon className="fa fa-plus-circle" />
+               </ListItemIcon>
+               <Typography variant="inherit" noWrap>                  
+                  <Link to={`/Admin/AlbumList`}>
+                     Edit Album
+                  </Link>
+               </Typography>
+            </MenuItem>
+            </MenuList>
+         </Paper>
+      </Grid>
+      <Grid item xs={10}>
+      <Container>
+      <Switch>
+         <Route path={`/Admin/ArticleList`} component={ArticleList}/>
+         <Route path={`/Admin/AlbumList`} component={AlbumList}/>
+        </Switch>
+      </Container>
+      </Grid>
+   </Grid>
+  );
 }
 
 export default AdminIndex;

@@ -3,6 +3,9 @@ import {
    useGoogleLogin,
    GoogleLoginHookReturnValue,
 } from 'react-use-googlelogin'
+import {User} from '../Model/Api/UserApi';
+import {httpGet} from '../Data/httpClient';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 
 interface ContextValue
    extends Omit<
@@ -14,7 +17,8 @@ interface ContextValue
       inupt: RequestInfo,
       init?: RequestInit
    ) => Promise<Response>
-   signIn: GoogleLoginHookReturnValue['grantOfflineAccess']
+   signIn: GoogleLoginHookReturnValue['grantOfflineAccess'],
+   currentUser?: User
 }
 
 /**
@@ -40,6 +44,8 @@ const createContext = <A extends {} | null>() => {
 const [useGoogleAuth, AuthProvider] = createContext<ContextValue>();
 
 export const GoogleAuthProvider: React.FC = ({ children }) => {
+   const [currentUser, setCurrentUser] = React.useState<User>();
+
    const {
       googleUser,
       isInitialized,
@@ -72,6 +78,10 @@ export const GoogleAuthProvider: React.FC = ({ children }) => {
       return `${accessToken}`;
    }
 
+   // const __getToken = async () => {
+   //    return await getToken();
+   // }
+
    /**
     * A wrapper function around `fetch` that handles automatically refreshing
     * our `accessToken` if it is within 5 minutes of expiring.
@@ -101,6 +111,53 @@ export const GoogleAuthProvider: React.FC = ({ children }) => {
       })
    }
 
+   React.useEffect(() => {  
+      if (!currentUser) {    
+         setUserInContext();
+      }
+   }, [googleUser]);
+
+   const setUserInContext = async () => {
+      const url: string = `${process.env.REACT_APP_API_URL}/api/Auth/GetCurrentUser`;
+      return httpGet<User>(url, getToken).then((response) => {
+                           setCurrentUser(response);
+                        });      
+  }
+
+
+//    const setUserInContext = async () => {
+//       try {
+//          const url: string = `${process.env.REACT_APP_API_URL}/api/Auth`;
+//          const token = await getToken();
+//          const options: AxiosRequestConfig = {
+//             headers: {
+//                'Content-Type': 'application/json',
+//                'Authorization': `Bearer ${token}`
+//             }
+//          }
+
+//          return new Promise<User>(async(resolve, reject) => {
+//             axios
+//                .get(url, options)
+//                .then((response: any) => {
+//                   const theUser = response.data as User;
+//                   setCurrentUser(theUser);
+//                   resolve(theUser)
+//                })
+//                .catch((response: AxiosError) => {
+//                   console.error("Failed to get current user!");
+//                   console.error(response);
+//                   reject(response);
+//                });
+//          })
+
+//     } catch (err) {
+//         console.error("Failed to set current user in context!");
+//         console.error(err);
+//         throw err; 
+//     }
+//   }
+
    return (
       <AuthProvider
          value={{
@@ -111,6 +168,7 @@ export const GoogleAuthProvider: React.FC = ({ children }) => {
             signOut,
             getToken,
             fetchWithRefresh,
+            currentUser
          }}
       >
          {children}

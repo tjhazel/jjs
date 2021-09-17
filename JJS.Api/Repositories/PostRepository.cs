@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace JJS.Api.Repositories
 {
    [ServiceImplementation(typeof(IPostRepository))]
-   public class PostRepository : IPostRepository
+   public partial class PostRepository : IPostRepository
    {
       private readonly AppConfig _appConfig;
 
@@ -20,46 +20,64 @@ namespace JJS.Api.Repositories
          _appConfig = appConfig;
       }
 
-      const string GET_BY_ID_SQL = "SELECT * FROM Posts WHERE PostId = @postId";
-
-      public async Task<Post> Get(int id)
+      public async Task<IEnumerable<Post>> Get(int? id = null)
       {
-         using (var db = new SqlConnection(_appConfig.DatabaseConnectionString))
-         {
-
-            await db.OpenAsync();
-            var result = await db.QueryFirstAsync<Post>(GET_BY_ID_SQL, new { postId = id });
-            return result;
-         }
+         await using var db = new SqlConnection(_appConfig.DatabaseConnectionString);
+         await db.OpenAsync();
+         return await db.QueryAsync<Post>(GET_BY_ID_SQL, new { postId = id });
       }
 
-      const string GET_PostCategorySummary_SQL = @"SELECT * FROM vw_cust_PostCategorySummary;";
-
-      public async Task<IEnumerable<PostCategorySummary>> GetAll()
+      public async Task<IEnumerable<PostCategorySummary>> GetPostCategorySummaries(int? id = null)
       {
-         using (var db = new SqlConnection(_appConfig.DatabaseConnectionString))
-         {
-            await db.OpenAsync();
-            return await db.QueryAsync<PostCategorySummary>(GET_PostCategorySummary_SQL);
-         }
+         await using var db = new SqlConnection(_appConfig.DatabaseConnectionString);
+         await db.OpenAsync();
+         return await db.QueryAsync<PostCategorySummary>(GET_PostCategorySummary_SQL, new { id = id });
       }
-
-      const string SEARCH_PostCategorySummary_SQL = @"SELECT * FROM vw_cust_PostCategorySummary WHERE CategoryId in @categoryIds;";
 
       public async Task<IEnumerable<PostCategorySummary>> Search(int[] categoryIds)
       {
-         using (var db = new SqlConnection(_appConfig.DatabaseConnectionString))
+         await using var db = new SqlConnection(_appConfig.DatabaseConnectionString);
+         await db.OpenAsync();
+         return await db.QueryAsync<PostCategorySummary>(SEARCH_PostCategorySummary_SQL, new { categoryIds = categoryIds });
+      }
+
+      public async Task<int> Save(Post post)
+      {
+         await using var db = new SqlConnection(_appConfig.DatabaseConnectionString);
+         await db.OpenAsync();
+         return await db.ExecuteScalarAsync<int>(MERGE_SQL, post);
+      }
+
+      public async Task DeleteCategories(int postId, IEnumerable<int> exceptCategoryIds)
+      {
+         await using var db = new SqlConnection(_appConfig.DatabaseConnectionString);
+         await db.OpenAsync();
+         await db.ExecuteAsync(DELETE_POSTCATEGORIES_SQL, new
          {
-            await db.OpenAsync();
-            return await db.QueryAsync<PostCategorySummary>(SEARCH_PostCategorySummary_SQL, new { categoryIds = categoryIds });
-         }
+            postFk = postId,
+            categoryFks = exceptCategoryIds
+         });
+      }
+
+      public async Task<int> SaveCategory(int postId, int categoryId)
+      {
+         await using var db = new SqlConnection(_appConfig.DatabaseConnectionString);
+         await db.OpenAsync();
+         return await db.ExecuteScalarAsync<int>(MERGE_POSTCATEGORIES_SQL, new
+         {
+            postFk = postId,
+            categoryFk = categoryId
+         });
       }
    }
 
    public interface IPostRepository
    {
-      Task<Post> Get(int id);
-      Task<IEnumerable<PostCategorySummary>> GetAll();
+      Task<IEnumerable<Post>> Get(int? id = null);
+      Task<IEnumerable<PostCategorySummary>> GetPostCategorySummaries(int? id = null);
       Task<IEnumerable<PostCategorySummary>> Search(int[] categoryIds);
+      Task<int> Save(Post post);
+      Task DeleteCategories(int postId, IEnumerable<int> exceptCategoryIds);
+      Task<int> SaveCategory(int postId, int categoryId);
    }
 }

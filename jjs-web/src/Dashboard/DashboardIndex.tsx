@@ -23,20 +23,16 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const DashboardIndex: React.FunctionComponent<RouteComponentProps> = (props) => {
+const DashboardIndex: React.FC<RouteComponentProps> = (props) => {
    const classes = useStyles();
 
   
    const html = (
       <>
-         <img src="/images/logopig.png" className="App-logo" alt="logo" />
          <Typography variant="h4" component="h1" gutterBottom>
             DashboardIndex
-        </Typography>
+         </Typography>
          <ArticleMain {...props} />
-         <Typography variant="subtitle1" component="h1" gutterBottom>
-            End of Articles
-        </Typography>
       </>
       );
    return html;

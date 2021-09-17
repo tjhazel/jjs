@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using JJS.Api.Extensions;
+using JJS.Api.Models.User;
 
 namespace JJS.Api.Controllers
 {
@@ -22,48 +23,58 @@ namespace JJS.Api.Controllers
    {
       private readonly UserService _userService;
       private readonly AppSetting _appSetting;
+      private readonly IHttpContextAccessor _httpContext;
 
-      public AuthController(UserService userService, AppSetting appSetting)
+      public AuthController(UserService userService, AppSetting appSetting, IHttpContextAccessor httpContext)
       {
          _userService = userService;
          _appSetting = appSetting;
+         _httpContext = httpContext;
       }
 
-      [AllowAnonymous]
-      [HttpGet("Current")]
-      public async Task<IActionResult> GetCurrentUser([FromBody] string tokenId)
+      //[AllowAnonymous]
+      //[Route("[action]")]
+      //public async Task<IActionResult> GetToken([FromBody] string tokenId)
+      //{
+      //   try
+      //   {
+      //      var authTime = DateTime.UtcNow;
+      //      var payload = GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings()).Result;
+
+      //      var user = await _userService.Get(payload.Email);
+      //      user.LastActivityDate = authTime;
+
+      //      var claims = user.GeClaimsFromUser();
+
+      //      await _userService.Merge(user);
+
+      //      var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSetting.JwtSecret));
+      //      var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+      //      var token = new JwtSecurityToken(_appSetting.JwtIssuer,
+      //        user.Role,
+      //        claims,
+      //        expires: DateTime.Now.AddDays(1),
+      //        signingCredentials: creds);
+
+      //      return Ok(new
+      //      {
+      //         token = new JwtSecurityTokenHandler().WriteToken(token)
+      //      });
+      //   }
+      //   catch (Exception ex)
+      //   {
+      //      BadRequest(ex.Message);
+      //   }
+      //   return BadRequest();
+      //}
+
+      [HttpGet]
+      [Route("[action]")]
+      public async Task<User> GetCurrentUser()
       {
-         try
-         {
-            var authTime = DateTime.UtcNow;
-            var payload = GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings()).Result;
-            
-            var user = await _userService.Get(payload.Email);
-            user.LastActivityDate = authTime;
-
-            var claims = user.GeClaimsFromUser();
-
-            await _userService.Merge(user);
-
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSetting.JwtSecret));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(_appSetting.JwtIssuer,
-              user.Role,
-              claims,
-              expires: DateTime.Now.AddDays(1),
-              signingCredentials: creds);
-
-            return Ok(new
-            {
-               token = new JwtSecurityTokenHandler().WriteToken(token)
-            });
-         }
-         catch (Exception ex)
-         {
-            BadRequest(ex.Message);
-         }
-         return BadRequest();
+         var email = _httpContext.HttpContext.User.GetEmailFromClaims();
+         return await _userService.Get(email);
       }
    }
 }

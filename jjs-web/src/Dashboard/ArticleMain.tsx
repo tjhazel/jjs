@@ -5,13 +5,10 @@ import ArticleList from './ArticleList';
 import ArticleNav from './ArticleNav';
 
 
-const ArticleMain: React.FunctionComponent = (props) => {
+const ArticleMain: React.FC = (props) => {
 
    const html = (
       <>
-         <Typography variant="h4" component="h1" gutterBottom>
-            ArticleMain view
-        </Typography>
          <ArticleList  {...props} />
          <ArticleNav {...props} />
       </>

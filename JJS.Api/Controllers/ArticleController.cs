@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JJS.Api.Extensions;
+using JJS.Api.Models.Article;
 
 namespace JJS.Api.Controllers
 {
@@ -37,12 +38,18 @@ namespace JJS.Api.Controllers
          return await _articleService.GetAll();
       }
 
-
       [HttpPost]
       [Route("[action]")]
       public async Task<IEnumerable<PostCategorySummary>> Search(PostCategorySummarySearch request)
       {
          return await _articleService.Search(request);
+      }
+
+      [HttpPost, HttpPut]
+      [Route("[action]")]
+      public async Task<Post> Save(Post request)
+      {
+         return await _articleService.Save(request);
       }
    }
 }

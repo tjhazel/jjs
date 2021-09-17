@@ -8,7 +8,7 @@ import { Container } from '@material-ui/core';
 //import { WithHttpClient } from '../Data/WithHttpClient';
 import { useArticleList } from '../Data/ArticleFetcher';
 
-const ArticleList: React.FunctionComponent = (props) => {
+const ArticleList: React.FC = (props) => {
 
    const { data, isLoading, error } = useArticleList();
    
@@ -21,11 +21,9 @@ const ArticleList: React.FunctionComponent = (props) => {
 
    const html = (
       <>
-         Here is ArticleList
          {data.map((article: PostCategorySummary, index: number) => {
             return (
                <Container  key={`${index}_${article.postId}`}>
-               <div>Article: {article.title}</div>
                <Article article={article} />
                </Container>
            )

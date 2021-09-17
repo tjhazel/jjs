@@ -1,12 +1,14 @@
 import useSWR, { SWRResponse, SWRConfiguration } from 'swr'
-import { httpGet } from './httpClient';
-import { PostCategorySummary } from '../Model/Api/ArticleApi';
+import { httpGet, httpPost } from './httpClient';
+import { PostCategorySummary, Post } from '../Model/Api/ArticleApi';
 import { GoogleAuthProvider, useGoogleAuth } from '../Auth/AuthProvider';
 
 
 const articleBaseUrl: string = `${process.env.REACT_APP_API_URL}/api/Article`;
 const articleGetAllUrl: string = `${articleBaseUrl}/GetAll`;
 const articleGetAllSecureUrl: string = `${articleBaseUrl}/GetAllSecure`;
+
+const savePost: string = `${articleBaseUrl}/Save`;
 
 
 const swrOptions = {
@@ -30,6 +32,12 @@ export const useArticleList = () => {
       isLoading: !error && !data,
       error: error
   };
+}
+
+export const useSaveArticle = async (post: Post) => {
+   const { getToken } = useGoogleAuth();
+   const token = await getToken();
+   return await httpPost<Post>(savePost, getToken);
 }
 
 
