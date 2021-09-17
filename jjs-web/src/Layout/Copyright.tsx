@@ -1,11 +1,11 @@
-import { Typography, Link, } from "@material-ui/core";
+import { Typography, Link, } from "@mui/material";
 import React from "react";
 
 
 function Copyright() {
    return (
       <Typography variant="body2" color="textSecondary" align="center">
-         {'Copyright © '}
+         {'Copyright ï¿½ '}
          <Link color="inherit" href="https://material-ui.com/">
             Your Website
       </Link>{' '}

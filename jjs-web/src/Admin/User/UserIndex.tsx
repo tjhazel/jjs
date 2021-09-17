@@ -1,6 +1,5 @@
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
+import { Typography, Box } from '@mui/material';
 import { GoogleAuthProvider, useGoogleAuth } from '../../Auth/AuthProvider';
 import { useArticleList } from '../../Data/ArticleFetcher';
 

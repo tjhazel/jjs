@@ -3,7 +3,7 @@ import { Route, BrowserRouter as Router, Switch, useHistory, useLocation, useRou
   // , RouteComponentProps 
 } from 'react-router-dom';
 //import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
+import { Container, Box } from '@mui/material';
 //import Box from '@material-ui/core/Box';
 import Header from './Layout/Header';
 import RecipeIndex from './Recipe/RecipeIndex';
@@ -11,7 +11,6 @@ import LinkIndex from './Link/LinkIndex';
 import AlbumIndex from './Album/AlbumIndex';
 import DashboardIndex from './Dashboard/DashboardIndex';
 import AdminIndex from './Admin/AdminIndex';
-import Box from '@material-ui/core/Box';
 
 import PrivateRoute from './Auth/PrivateRoute';
 import { GoogleAuthProvider, useGoogleAuth } from './Auth/AuthProvider';

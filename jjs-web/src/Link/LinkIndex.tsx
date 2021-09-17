@@ -1,11 +1,10 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Switch, RouteProps } from 'react-router-dom';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
+import { Typography, Box } from '@mui/material';
 import ProTip from '../Shared/ProTip';
 import Copyright from '../Layout/Copyright';
 
-const LinkIndex: React.SFC<RouteProps> = (props) => {
+const LinkIndex: React.FC<RouteProps> = (props) => {
 
    const html = (
        <Box my={4}>

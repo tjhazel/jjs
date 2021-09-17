@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route, BrowserRouter as Router, Switch, RouteProps } from 'react-router-dom';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
+import {Typography, Box} from '@mui/material';
 
 const RecipeIndex: React.SFC<RouteProps> = (props) => {
 

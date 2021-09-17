@@ -7,9 +7,11 @@ import {
     IconButton,
     Drawer,
     Link,
-    MenuItem,
-  } from "@material-ui/core";
-  import MenuIcon from "@material-ui/icons/Menu";
+    MenuItem
+  } from "@mui/material";
+
+  import MenuIcon from '@mui/icons-material/Menu';
+
   import React, { useState, useEffect } from "react";
   import { Link as RouterLink } from "react-router-dom";
   import { GoogleAuthProvider, useGoogleAuth } from '../Auth/AuthProvider';
@@ -32,38 +34,10 @@ import {
       href: "/Admin",
     }
   ];
-  
-  const useStyles = makeStyles(() => ({
-    header: {
-      backgroundColor: "#008080",
-      paddingRight: "79px",
-      paddingLeft: "118px",
-      "@media (max-width: 900px)": {
-        paddingLeft: 0,
-      },
-    },
-    logo: {
-      fontFamily: "Work Sans, sans-serif",
-      fontWeight: 600,
-      color: "#FFFEFE",
-      textAlign: "left",
-    },
-    menuButton: {
-      fontFamily: "Open Sans, sans-serif",
-      fontWeight: 700,
-      size: "18px",
-      marginLeft: "38px",
-    },
-    toolbar: {
-      display: "flex",
-      justifyContent: "space-between",
-    },
-    drawerContainer: {
-      padding: "20px 30px",
-    },
-  }));
+
   
   function Header() {
+
     const { signIn, signOut, googleUser, isSignedIn } = useGoogleAuth();
     const signInFunc = () => {
       
@@ -72,9 +46,6 @@ import {
       console.log('end sign in');
     }
 
-
-    const { header, logo, menuButton, toolbar, drawerContainer } = useStyles();
-  
     const [state, setState] = useState({
       mobileView: false,
       drawerOpen: false,
@@ -96,8 +67,10 @@ import {
   
     const displayDesktop = () => {
       return (
-        <Toolbar className={toolbar}>
-          {femmecubatorLogo}
+        <Toolbar 
+        //className={toolbar}
+        >
+          {logoDisplay}
           <div>{getMenuButtons()}</div>
         </Toolbar>
       );
@@ -130,10 +103,12 @@ import {
               onClose: handleDrawerClose,
             }}
           >
-            <div className={drawerContainer}>{getDrawerChoices()}</div>
+            <div 
+            //className={drawerContainer}
+            >{getDrawerChoices()}</div>
           </Drawer>
   
-          <div>{femmecubatorLogo}</div>
+          <div>{logoDisplay}</div>
         </Toolbar>
       );
     };
@@ -172,9 +147,9 @@ import {
       });
     };
   
-     const femmecubatorLogo = (
+     const logoDisplay = (
        <Link href="\">
-         <Typography variant="h6" component="h1" className={logo}>
+         <Typography variant="h6" component="h1">
             John, Jeri, &amp; Sidney
          </Typography>
       </Link>
@@ -190,7 +165,6 @@ import {
                 color: "inherit",
                 to: href,
                 onClick: signInFunc,
-                className: menuButton,
               }}
             >
             {label}
@@ -204,7 +178,7 @@ import {
               color: "inherit",
               to: href,
               component: RouterLink,
-              className: menuButton,
+            //  className: menuButton,
             }}
           >
             {isSignedIn&&href==='/Admin'?googleUser?.profileObj?.givenName : label}
@@ -215,7 +189,9 @@ import {
   
     return (
       <header>
-        <AppBar className={header}>
+        <AppBar 
+        //className={header}
+        >
           {mobileView ? displayMobile() : displayDesktop()}
         </AppBar>
       </header>

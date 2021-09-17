@@ -1,10 +1,10 @@
 import React from 'react';
 import { RouteProps } from 'react-router-dom';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Link from '@material-ui/core/Link';
-import { makeStyles } from '@material-ui/core/styles';
+import {Typography, Grid, Breadcrumbs, Link, } from '@mui/material';
+// import Grid from '@material-ui/core/Grid';
+// import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+// import Link from '@material-ui/core/Link';
+// import { makeStyles } from '@material-ui/core/styles';
 import { AlbumContextProvider, useAlbum} from './AlbumContext';
 import FolderMenu from './FolderMenu';
 import ImageStrip from './ImageStrip';
