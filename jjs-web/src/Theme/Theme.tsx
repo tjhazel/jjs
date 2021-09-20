@@ -1,6 +1,7 @@
 import { createTheme } from '@mui/material';
 import { red, blue, teal } from '@mui/material/colors';
 
+//see: https://mui.com/customization/theming/#custom-variables
 // declare module '@mui/material' {
 //   interface Theme {
 //     status: {
@@ -24,9 +25,9 @@ const Theme = createTheme({
     secondary: {
       main: teal[500], //'#19857b',
     },
-    //error: {
-     // main: red,
-   // },
+    error: {
+     main: red.A400,
+   },
     background: {
       default: '#fff',
     },

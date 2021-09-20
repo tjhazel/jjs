@@ -1,32 +1,25 @@
 import React from 'react';
-import { Route, BrowserRouter as Router, Switch, useHistory, useLocation, useRouteMatch 
-  // , RouteComponentProps 
+import { Route, BrowserRouter as Router, Switch
+  // , RouteComponentProps , useHistory, useLocation, useRouteMatch 
 } from 'react-router-dom';
-//import { makeStyles } from '@material-ui/core/styles';
-import { Container, Box } from '@mui/material';
+import { Container, Box, Theme } from '@mui/material';
+//import { makeStyles } from '@mui/styles';
+
 //import Box from '@material-ui/core/Box';
 import Header from './Layout/Header';
 import RecipeIndex from './Recipe/RecipeIndex';
 import LinkIndex from './Link/LinkIndex';
 import AlbumIndex from './Album/AlbumIndex';
+// import PostIndex from './Admin/Post/PostIndex';
+// import PostEditor from './Admin/Post/PostEditor';
+
 import DashboardIndex from './Dashboard/DashboardIndex';
 import AdminIndex from './Admin/AdminIndex';
-
 import PrivateRoute from './Auth/PrivateRoute';
 import { GoogleAuthProvider, useGoogleAuth } from './Auth/AuthProvider';
 
-//const useStyles = makeStyles((theme) => ({
-//   markdown: {
-//      ...theme.typography.body2,
-//      padding: theme.spacing(3, 0),
-//   },
-//}));
 
 const App: React.FC = () => {
-
-  
-
-  // const classes = useStyles();
   const { signIn, signOut, googleUser, isSignedIn } = useGoogleAuth();
   //const history = useHistory();
   //const location = useLocation();
@@ -43,14 +36,16 @@ const App: React.FC = () => {
             <Route path='/Album' component={AlbumIndex} />
             <Route exact path='/Recipe' component={RecipeIndex} />
             <Route exact path='/Link' component={LinkIndex} />
-            <PrivateRoute
+            <Route path='/Admin' component={AdminIndex} />
+            {/* <PrivateRoute
                path='/Admin'
                render={() => (
                 isSignedIn ?
                 <AdminIndex />:
                 <button onClick={signIn}>Login</button>
                )}
-            />
+            > 
+            </PrivateRoute>*/}
             <Route exact path='/' component={DashboardIndex} />
          </Switch>
      </Container>

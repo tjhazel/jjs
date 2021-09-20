@@ -1,32 +1,26 @@
 import React from 'react';
 import { Link, Switch, Route, useRouteMatch } from 'react-router-dom';
-import { makeStyles, Typography , MenuList, MenuItem, Paper,
+import { Typography , MenuList, MenuItem, Paper,
    ListItemIcon, Icon, Grid, Container } from '@mui/material';
-// import { makeStyles } from '@material-ui/core/styles';
-// import MenuList from '@material-ui/core/MenuList';
-// import MenuItem from '@material-ui/core/MenuItem';
-// import Paper from '@material-ui/core/Paper';
-// import ListItemIcon from '@material-ui/core/ListItemIcon';
-// import Icon from '@material-ui/core/Icon';
-// import Grid from '@material-ui/core/Grid';
-// import Container from '@material-ui/core/Container';
+import { makeStyles } from '@mui/styles';
 
 import { useGoogleAuth } from '../Auth/AuthProvider';
 import AlbumList from './AlbumList';
-import ArticleList from './ArticleList';
+import PostIndex from './Post/PostIndex';
+import PostEditor from './Post/PostEditor';
 
-// const useStyles = makeStyles({
-//    root: {
-//      width: 230,
-//    },
-//  });
+const useStyles = makeStyles({
+   root: {
+     width: 230,
+   },
+ });
 
 const AdminIndex: React.FC = () => {
 
    const { signIn, signOut, googleUser, isSignedIn } = useGoogleAuth();
    const match = useRouteMatch;
 
-   //const classes = useStyles();
+   const classes = useStyles();
    
      return (
    <Grid container spacing={3}>
@@ -40,7 +34,7 @@ const AdminIndex: React.FC = () => {
                <Icon className="fa fa-newspaper" />
                </ListItemIcon>
                <Typography variant="inherit">
-                  <Link to={`/Admin/ArticleList`}>
+                  <Link to={`/Admin/Post`}>
                      Articles
                   </Link>
                </Typography>
@@ -60,10 +54,11 @@ const AdminIndex: React.FC = () => {
       </Grid>
       <Grid item xs={10}>
       <Container>
-      <Switch>
-         <Route path={`/Admin/ArticleList`} component={ArticleList}/>
-         <Route path={`/Admin/AlbumList`} component={AlbumList}/>
-        </Switch>
+         <Switch>
+            <Route exact path='/Admin/Post' component={PostIndex} />                       
+            <Route path='/Admin/Post/:postIdProp' component={PostEditor} />
+            <Route path={`/Admin/AlbumList`} component={AlbumList}/>
+         </Switch>
       </Container>
       </Grid>
    </Grid>
