@@ -3,7 +3,7 @@ import { Route, Switch, RouteComponentProps, withRouter } from "react-router";
 import { makeStyles, Typography, Grid } from '@mui/material';
 
 
-import ArticleMain from './ArticleMain';
+//import ArticleMain from './ArticleMain';
 import ArticleNav from './ArticleNav';
 import ArticleList from './ArticleList';
 

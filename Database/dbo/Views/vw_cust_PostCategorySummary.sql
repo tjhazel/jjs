@@ -14,9 +14,9 @@ select p.*
 	,c.Title CategoryTitle
 	,c.[Description]
 	,c.ImageUrl
-	,(select count(cmt.CommentId) 
-		from Comments cmt 
-		where cmt.PostFk = p.PostId) as 'CommentCount'
+	,isnull((select count(cmt.CommentId) 
+			from Comments cmt 
+			where cmt.PostFk = p.PostId),0) as 'CommentCount'
 	,cu.DisplayName as 'CreatedBy'
 	,mu.DisplayName as 'ModifiedBy'
 	,Left(CONVERT(varchar(255), p.Title), 255) as [FriendlyName]

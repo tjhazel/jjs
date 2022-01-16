@@ -21,8 +21,7 @@ namespace JJS.Api.Controllers
       }
 
       [HttpGet]
-      [Route("[action]")]
-      public async Task<IEnumerable<PostCategorySummary>> GetAll()
+      public async Task<IEnumerable<PostCategorySummary>> Get()
       {
          //var user = HttpContext.User.GetUserFromClaims();
 
