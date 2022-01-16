@@ -1,9 +1,10 @@
 import React from 'react';
 
+
 const ArticleNav: React.FunctionComponent = (props) => {
 
    const html = (
-      <div className="dashboard-container">
+      <div>
          Here is ArticleNav
       </div>
    )

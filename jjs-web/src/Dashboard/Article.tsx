@@ -57,14 +57,14 @@ const Article: React.SFC<Props> = (props) => {
    const html = (
       <Paper 
       //className={classes.mainFeaturedPost} 
-      style={{ backgroundImage: `url(${props.article.imageUrl})` }}>
+      style={{ backgroundImage: `url(${props.article.imageUrl??'./images/heri-bg.png'})` }}>
          {/* Increase the priority of the hero background image */}
          {<img style={{ display: 'none' }} src={props.article.imageUrl} />}
          <div 
          //className={classes.overlay} 
          />
          <Grid container>
-            <Grid item md={6}>
+            <Grid item>
                <div 
                //className={classes.mainFeaturedPostContent}
                >
