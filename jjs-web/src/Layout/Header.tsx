@@ -2,12 +2,12 @@ import {
     AppBar,
     Toolbar,
     Typography,
-    makeStyles,
     Button,
     IconButton,
     Drawer,
     Link,
-    MenuItem
+    MenuItem,
+    Paper, Box, Grid
   } from "@mui/material";
 
   import MenuIcon from '@mui/icons-material/Menu';
@@ -67,11 +67,10 @@ import {
   
     const displayDesktop = () => {
       return (
-        <Toolbar 
-        //className={toolbar}
-        >
+        <Toolbar>
           {logoDisplay}
           <div>{getMenuButtons()}</div>
+          {/* <div style={{ maxHeight: '50px', maxWidth: '100%', backgroundImage:'./Images/header.jpg' }}></div> */}
         </Toolbar>
       );
     };
@@ -149,9 +148,7 @@ import {
   
      const logoDisplay = (
        <Link href="\">
-         <Typography variant="h6" component="h1">
-            John, Jeri, &amp; Sidney
-         </Typography>
+         <img style={{ maxHeight: '50px' }} src='./Images/logo.png' alt='John, Jeri, and Sidney' />
       </Link>
     );
   

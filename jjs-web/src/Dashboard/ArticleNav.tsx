@@ -51,8 +51,7 @@ const ArticleNav: React.FunctionComponent = (props) => {
    }, [data, isLoading, catData, catLoading]);
 
    const html = (
-      <Grid item xs={12} md={4}>
-         <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.200' }}>
+      <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.200' }}>
             <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
                Categories
             </Typography>
@@ -65,7 +64,6 @@ const ArticleNav: React.FunctionComponent = (props) => {
                </>
             })}
          </Paper>
-    </Grid>
 
    )
 

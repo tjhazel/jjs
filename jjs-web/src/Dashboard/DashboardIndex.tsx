@@ -1,11 +1,12 @@
 import React from 'react';
 import { Route, Switch, RouteComponentProps, withRouter } from "react-router";
-import { makeStyles, Typography, Grid } from '@mui/material';
+import { Container, Grid } from '@mui/material';
 
 
 //import ArticleMain from './ArticleMain';
 import ArticleNav from './ArticleNav';
 import ArticleList from './ArticleList';
+import MainFeature from './MainFeature';
 
 import DashbaordCarousel from './DashbaordCarousel';
 
@@ -23,8 +24,14 @@ const DashboardIndex: React.FC<RouteComponentProps> = (props) => {
    //const classes = useStyles();
   
    const html = (
+      <>
+      <Container >
+         <MainFeature />
+      </Container>
+
       <Grid container spacing={2} border={0}>
-         <Grid item xs={9}>
+         <Grid xs={1} />
+         <Grid item xs={7}>
             <Grid container
                direction="row"
                justifyContent="space-evenly"
@@ -32,16 +39,14 @@ const DashboardIndex: React.FC<RouteComponentProps> = (props) => {
                <DashbaordCarousel {...props} />
             </Grid>
             <Grid alignItems={'center'}>
-               <Typography variant="h4" component="h1" gutterBottom>
-                  Welcome to John, Jeri, and Sidney's site
-               </Typography>
                <ArticleList  {...props} />
             </Grid>
          </Grid>
-         <Grid item xs={3}>
+         <Grid xs={2}>
             <ArticleNav {...props} />
          </Grid>
       </Grid>
+      </>
       );
    return html;
 }
