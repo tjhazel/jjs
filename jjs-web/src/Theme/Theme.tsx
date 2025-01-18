@@ -1,37 +1,28 @@
-import { createTheme } from '@mui/material';
-import { red, blue, teal } from '@mui/material/colors';
+import { ThemeProvider, PartialTheme } from '@fluentui/react';
 
-//see: https://mui.com/customization/theming/#custom-variables
-// declare module '@mui/material' {
-//   interface Theme {
-//     status: {
-//       danger: string;
-//     };
-//   }
-//   // allow configuration using `createTheme`
-//   interface ThemeOptions {
-//     status?: {
-//       danger?: string;
-//     };
-//   }
-// }
-
-// A custom theme for this app
-const Theme = createTheme({
-  palette: {
-    primary: {
-      main: blue[500], //'#556cd6',
-    },
-    secondary: {
-      main: teal[500], //'#19857b',
-    },
-    error: {
-     main: red.A400,
-   },
-    background: {
-      default: '#fff',
-    },
-  },
-});
-
-export default Theme;
+export const appTheme: PartialTheme = {
+    palette: {
+        themePrimary: '#008080',
+        themeLighterAlt: '#f0fafa',
+        themeLighter: '#c5ebeb',
+        themeLight: '#98d9d9',
+        themeTertiary: '#47b3b3',
+        themeSecondary: '#118f8f',
+        themeDarkAlt: '#007373',
+        themeDark: '#006161',
+        themeDarker: '#004747',
+        neutralLighterAlt: '#faf9f8',
+        neutralLighter: '#f3f2f1',
+        neutralLight: '#edebe9',
+        neutralQuaternaryAlt: '#e1dfdd',
+        neutralQuaternary: '#d0d0d0',
+        neutralTertiaryAlt: '#c8c6c4',
+        neutralTertiary: '#a19f9d',
+        neutralSecondary: '#605e5c',
+        neutralPrimaryAlt: '#3b3a39',
+        neutralPrimary: '#323130',
+        neutralDark: '#201f1e',
+        black: '#000000',
+        white: '#ffffff',
+    }
+};

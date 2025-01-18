@@ -2,16 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import Theme from './Theme/Theme';
+import { appTheme } from './Theme/Theme';
+import { ThemeProvider } from '@fluentui/react';
+
 import reportWebVitals from './reportWebVitals';
 import { GoogleAuthProvider } from './Auth/AuthProvider';
 
 ReactDOM.render(
   <React.StrictMode>
-     <ThemeProvider theme={Theme}>
-       {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-         <CssBaseline />
+        <ThemeProvider theme={appTheme}>
          <GoogleAuthProvider>
             <App />
          </GoogleAuthProvider>

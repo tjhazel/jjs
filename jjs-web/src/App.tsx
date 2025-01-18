@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, BrowserRouter as Router, Switch
   // , RouteComponentProps , useHistory, useLocation, useRouteMatch 
 } from 'react-router-dom';
-import { Container, Box } from '@mui/material';
+import { initializeIcons, Fabric } from "@fluentui/react";
 
 import Header from './Layout/Header';
 import RecipeIndex from './Recipe/RecipeIndex';
@@ -22,11 +22,12 @@ const App: React.FC = () => {
 //console.log(history.location);
 //console.log(location.pathname);
 
+    initializeIcons();
   return (
     <Router>
-       <Container maxWidth="xl">
+      <Fabric>
+        <div style={{ padding: "10px" }}>
           <Header/>
-          <Box my={4}>spacer</Box>
           <main>
           <Switch>
               <Route path='/Album' component={AlbumIndex} />
@@ -45,7 +46,8 @@ const App: React.FC = () => {
               <Route exact path='/' component={DashboardIndex} />
           </Switch>
           </main>
-     </Container>
+        </div>
+    </Fabric>
   </Router>
   );
 }

@@ -1,7 +1,0 @@
-JJS
-Your Client ID: 341131754174-cbaa5qsi8g59g9qvg44mrr11enopnhip.apps.googleusercontent.com
-Your Client Secret: ICpAP8IWBDwxdDWZrzqu1fKA
-
-
-Google API KeyAIzaSyCRrPq-YRrAUrLqwJAbCDVgEPNUwr6MksQ
-AIzaSyCRrPq-YRrAUrLqwJAbCDVgEPNUwr6MksQ
