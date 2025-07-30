@@ -177,11 +177,11 @@ import { IOverflowSetItemProps, OverflowSet } from '@fluentui/react/lib/Overflow
   
     return (
       <header>
-        <AppBar 
-        //className={header}
-        >
-          {mobileView ? displayMobile() : displayDesktop()}
-        </AppBar>
+        {/*<AppBar */}
+        {/*//className={header}*/}
+        {/*>*/}
+        {/*  {mobileView ? displayMobile() : displayDesktop()}*/}
+        {/*</AppBar>*/}
       </header>
     );
   }
@@ -189,95 +189,95 @@ import { IOverflowSetItemProps, OverflowSet } from '@fluentui/react/lib/Overflow
   
 export default Header;
 
-const noOp = () => undefined;
+//const noOp = () => undefined;
 
-const onRenderItem = (item: IOverflowSetItemProps): JSX.Element => {
-    return (
-        <Link role="menuitem" styles={{ root: { marginRight: 10 } }} onClick={item.onClick}>
-            {item.name}
-        </Link>
-    );
-};
+//const onRenderItem = (item: IOverflowSetItemProps): JSX.Element => {
+//    return (
+//        <Link role="menuitem" styles={{ root: { marginRight: 10 } }} onClick={item.onClick}>
+//            {item.name}
+//        </Link>
+//    );
+//};
 
-const onRenderOverflowButton = (overflowItems: any[] | undefined): JSX.Element => {
-    const buttonStyles: Partial<IButtonStyles> = {
-        root: {
-            minWidth: 0,
-            padding: '0 4px',
-            alignSelf: 'stretch',
-            height: 'auto',
-        },
-    };
-    return (
-        <IconButton
-            role="menuitem"
-            title="More options"
-            styles={buttonStyles}
-            menuIconProps={{ iconName: 'More' }}
-            menuProps={{ items: overflowItems! }}
-        />
-    );
-};
+//const onRenderOverflowButton = (overflowItems: any[] | undefined): JSX.Element => {
+//    const buttonStyles: Partial<IButtonStyles> = {
+//        root: {
+//            minWidth: 0,
+//            padding: '0 4px',
+//            alignSelf: 'stretch',
+//            height: 'auto',
+//        },
+//    };
+//    return (
+//        <IconButton
+//            role="menuitem"
+//            title="More options"
+//            styles={buttonStyles}
+//            menuIconProps={{ iconName: 'More' }}
+//            menuProps={{ items: overflowItems! }}
+//        />
+//    );
+//};
 
 
-const headersData = [
-    {
-        label: "Albums",
-        href: "/Album",
-    },
-    {
-        label: "Recipes",
-        href: "/Recipe",
-    },
-    {
-        label: "Links",
-        href: "/Link",
-    },
-    {
-        label: "My Account",
-        href: "/Admin",
-    }
-];
+//const headersData = [
+//    {
+//        label: "Albums",
+//        href: "/Album",
+//    },
+//    {
+//        label: "Recipes",
+//        href: "/Recipe",
+//    },
+//    {
+//        label: "Links",
+//        href: "/Link",
+//    },
+//    {
+//        label: "My Account",
+//        href: "/Admin",
+//    }
+//];
 
-const OverflowSetBasicExample: React.FunctionComponent = () => (
-    <OverflowSet
-        aria-label="Basic Menu Example"
-        role="menubar"
-        items={[
-            {
-                key: 'Albums',
-                name: 'Albums',
-                onClick: noOp,
-            },
-            {
-                key: 'Recipes',
-                name: 'Recipes',
-                onClick: noOp,
-            },
-            {
-                key: 'Things',
-                name: 'Things',
-                onClick: noOp,
-            },
-            {
-                key: 'My Account',
-                name: 'Admin',
-                onClick: noOp,
-            },
-        ]}
-        overflowItems={[
-            {
-                key: 'item4',
-                name: 'Overflow Link 1',
-                onClick: noOp,
-            },
-            {
-                key: 'item5',
-                name: 'Overflow Link 2',
-                onClick: noOp,
-            },
-        ]}
-        onRenderOverflowButton={onRenderOverflowButton}
-        onRenderItem={onRenderItem}
-    />
-);
+//const OverflowSetBasicExample: React.FunctionComponent = () => (
+//    <OverflowSet
+//        aria-label="Basic Menu Example"
+//        role="menubar"
+//        items={[
+//            {
+//                key: 'Albums',
+//                name: 'Albums',
+//                onClick: noOp,
+//            },
+//            {
+//                key: 'Recipes',
+//                name: 'Recipes',
+//                onClick: noOp,
+//            },
+//            {
+//                key: 'Things',
+//                name: 'Things',
+//                onClick: noOp,
+//            },
+//            {
+//                key: 'My Account',
+//                name: 'Admin',
+//                onClick: noOp,
+//            },
+//        ]}
+//        overflowItems={[
+//            {
+//                key: 'item4',
+//                name: 'Overflow Link 1',
+//                onClick: noOp,
+//            },
+//            {
+//                key: 'item5',
+//                name: 'Overflow Link 2',
+//                onClick: noOp,
+//            },
+//        ]}
+//        onRenderOverflowButton={onRenderOverflowButton}
+//        onRenderItem={onRenderItem}
+//    />
+//);
