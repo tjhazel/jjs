@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
-import { DesktopNav, MobileNav, DashboardBreadcrumb } from "@/components/menu/nav";
 import { User } from "lucide-react";
-import { SearchInput } from "./(dashboard)/search";
 import Providers from "@/components/providers";
+import TopHeader from "@/components/menu/top-header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,25 +32,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
          <Providers>
-         {/*<main className="flex min-h-screen w-full flex-col bg-muted/40">*/}
-        <main> 
-        <DesktopNav />
-         <div className="flex flex-col sm:gap-0 sm:py-0 sm:pl-14">
-        {/*<div > */}
-          {/* <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6"> */}
-          <header >
-            <MobileNav />
-            {/* <DashboardBreadcrumb />
-            <SearchInput /> 
-            <User />*/}
-          </header>
-          {/* <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40"> */}
-          <main className="">
-            {children}
+          <main className="flex min-h-screen w-full flex-col bg-muted/40">
+            <div className="min-h-screen flex flex-col">
+              <TopHeader />
+              <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
+               {children}
+              </main>
+              <footer className="border-t border-gray-200 py-4 text-center text-xs sm:text-sm text-gray-500 px-4">
+                © 2006 - {new Date().getFullYear()} johnandjeri.com. All rights reserved.
+              </footer>
+            </div>
+            <Analytics />
           </main>
-        </div>
-        <Analytics />
-      </main>
        </Providers>
       </body>
       <Analytics />
