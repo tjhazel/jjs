@@ -1,26 +1,35 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using JJS.Api;
 
-namespace JJS.Api
+bool IS_DEBUG = false;
+#if DEBUG
+IS_DEBUG = true;
+#endif
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+
+var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "Development");
+
+//Expose Swagger UI
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-   public class Program
-   {
-      public static void Main(string[] args)
-      {
-         CreateHostBuilder(args).Build().Run();
-      }
+   //Expose ui as site root
+   options.RoutePrefix = string.Empty;
 
-      public static IHostBuilder CreateHostBuilder(string[] args) =>
-          Host.CreateDefaultBuilder(args)
-              .ConfigureWebHostDefaults(webBuilder =>
-              {
-                 webBuilder.UseStartup<Startup>();
-              });
-   }
-}
+   options.SwaggerEndpoint("/swagger/v1/swagger.json", "AssistPoint API");
+});
+
+app.MapDefaultEndpoints();
+
+// Configure the HTTP request pipeline.
+app.UseCors("AllowCors");
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+await app.RunAsync();

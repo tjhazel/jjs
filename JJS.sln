@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JJS.Api", "JJS.Api\JJS.Api.csproj", "{7B6BAA9A-F1F0-41EE-9C0F-E7D0B6C64EFF}"
-EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "jjs-web", "jjs-web\", "{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
@@ -28,16 +26,22 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "jjs-web", "jjs-web\", "{21B
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{747E72CC-FC89-43D0-B4D1-D78409C6FE07}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJS.Api.Old", "JJS.Api.Old\JJS.Api.Old.csproj", "{B8B1BB20-8EB8-EDA5-5118-6E9714DD1D27}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Legacy", "Legacy", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJS.Api", "JJS.Api\JJS.Api.csproj", "{8C01BE5A-B16E-0BFA-7B54-08900DA3198D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJS.AppHost", "JJS.AppHost\JJS.AppHost.csproj", "{185EBB0F-F84A-4D2D-BA0F-158A53D19DC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJS.ServiceDefaults", "JJS.ServiceDefaults\JJS.ServiceDefaults.csproj", "{CA475A67-E1C8-DB67-BFFF-A0DF6F9F894E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7B6BAA9A-F1F0-41EE-9C0F-E7D0B6C64EFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B6BAA9A-F1F0-41EE-9C0F-E7D0B6C64EFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B6BAA9A-F1F0-41EE-9C0F-E7D0B6C64EFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B6BAA9A-F1F0-41EE-9C0F-E7D0B6C64EFF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
@@ -48,9 +52,29 @@ Global
 		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Release|Any CPU.Build.0 = Release|Any CPU
 		{747E72CC-FC89-43D0-B4D1-D78409C6FE07}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{B8B1BB20-8EB8-EDA5-5118-6E9714DD1D27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8B1BB20-8EB8-EDA5-5118-6E9714DD1D27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8B1BB20-8EB8-EDA5-5118-6E9714DD1D27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8B1BB20-8EB8-EDA5-5118-6E9714DD1D27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C01BE5A-B16E-0BFA-7B54-08900DA3198D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C01BE5A-B16E-0BFA-7B54-08900DA3198D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C01BE5A-B16E-0BFA-7B54-08900DA3198D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C01BE5A-B16E-0BFA-7B54-08900DA3198D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{185EBB0F-F84A-4D2D-BA0F-158A53D19DC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{185EBB0F-F84A-4D2D-BA0F-158A53D19DC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{185EBB0F-F84A-4D2D-BA0F-158A53D19DC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{185EBB0F-F84A-4D2D-BA0F-158A53D19DC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA475A67-E1C8-DB67-BFFF-A0DF6F9F894E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA475A67-E1C8-DB67-BFFF-A0DF6F9F894E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA475A67-E1C8-DB67-BFFF-A0DF6F9F894E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA475A67-E1C8-DB67-BFFF-A0DF6F9F894E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{B8B1BB20-8EB8-EDA5-5118-6E9714DD1D27} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FA7D36C5-8888-44D3-A860-7C44CA6BD5E5}

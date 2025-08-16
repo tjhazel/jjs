@@ -1,20 +1,21 @@
-﻿using System;
+﻿namespace JJS.Api.Models;
 
-
-namespace JJS.Api.Models
+[AttributeUsage(AttributeTargets.Class)]
+public class ServiceImplementationAttribute : Attribute
 {
-   [AttributeUsage(AttributeTargets.Class)]
-   public class ServiceImplementationAttribute : Attribute
+   public Type ServiceInterface { get; }
+
+   public DependencyInjectionLifetime ServiceLifetime { get; }
+
+   public ServiceImplementationAttribute(Type serviceInterface, DependencyInjectionLifetime serviceLifetime = DependencyInjectionLifetime.Transient)
    {
-      public Type ServiceInterface { get; }
-
-      public DependencyInjectionLifetime ServiceLifetime { get; }
-
-      public ServiceImplementationAttribute(Type serviceInterface, DependencyInjectionLifetime serviceLifetime = DependencyInjectionLifetime.Transient)
-      {
-         ServiceInterface = serviceInterface;
-         ServiceLifetime = serviceLifetime;
-      }
-
+      ServiceInterface = serviceInterface;
+      ServiceLifetime = serviceLifetime;
+   }
+   public enum DependencyInjectionLifetime
+   {
+      Singleton,
+      Scoped,
+      Transient
    }
 }
