@@ -10,7 +10,6 @@ public class Post
    public required string CreatedBy { get; set; }
    public long ViewCount { get; set; }
    public string[] Categories { get; set; } = [];
-
-   public required string ImageUrl { get; set; }
-
+   public string? ImageUrl { get; set; }
+   public string? href { get; set; }
 }
