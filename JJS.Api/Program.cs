@@ -1,4 +1,5 @@
 using JJS.Api;
+using Microsoft.Extensions.FileProviders;
 
 bool IS_DEBUG = false;
 #if DEBUG
@@ -22,6 +23,14 @@ app.UseSwaggerUI(options =>
 });
 
 app.MapDefaultEndpoints();
+
+var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Album");
+app.UseFileServer(new FileServerOptions
+{
+   FileProvider = new PhysicalFileProvider(imgDir),
+   RequestPath = "/Image",
+   EnableDefaultFiles = true,
+});
 
 // Configure the HTTP request pipeline.
 app.UseCors("AllowCors");

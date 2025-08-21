@@ -8,7 +8,7 @@ namespace JJS.Api.Services;
 [ServiceImplementation(typeof(IMetaDataService))]
 public class MetaDataService : IMetaDataService
 {
-   public ImageTag GetMetadata(string filePath)
+   public async Task<ImageTag> GetMetadata(string filePath)
    {
       string? title = null, comment = null;
       var directories = ImageMetadataReader.ReadMetadata(filePath);
@@ -30,7 +30,7 @@ public class MetaDataService : IMetaDataService
          }
          if (string.IsNullOrWhiteSpace(title))
          {
-            title = System.IO.Path.GetFileNameWithoutExtension(filePath);
+            title = Path.GetFileNameWithoutExtension(filePath);
          }
 
          var commentTag = subIfdDirectory.Tags.FirstOrDefault(y => y.Name.Contains("comment", StringComparison.OrdinalIgnoreCase));
@@ -42,16 +42,16 @@ public class MetaDataService : IMetaDataService
 
       if (string.IsNullOrWhiteSpace(title))
       {
-         title = System.IO.Path.GetFileNameWithoutExtension(filePath);
+         title = Path.GetFileNameWithoutExtension(filePath);
       }
 
       var image = new ImageTag
       {
          Title = title,
-         Comment = comment,
+         Comment = comment ?? "",
       };
 
-      return image;
+      return await Task.FromResult(image);
    }
 
    //public void SaveMetadata(string filePath, ImageTag tag)
@@ -100,6 +100,6 @@ public class MetaDataService : IMetaDataService
 
 public interface IMetaDataService
 {
-   ImageTag GetMetadata(string filePath);
+   Task<ImageTag> GetMetadata(string filePath);
    // void SaveMetadata(string filePath, ImageTag tag);
 }

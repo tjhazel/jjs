@@ -6,7 +6,7 @@ namespace JJS.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class PostController(PostService _postService) : Controller
+public class PostController(IPostService _postService) : Controller
 {
    [HttpGet]
    public async Task<IEnumerable<Post>> GetAll()

@@ -1,6 +1,8 @@
 ﻿using JJS.Api.Models;
 using JJS.Api.Models.Album;
 using JJS.Api.Services.Cache;
+using Microsoft.Extensions.Configuration.UserSecrets;
+using File = JJS.Api.Models.Album.File;
 
 namespace JJS.Api.Services;
 
@@ -15,14 +17,46 @@ public class AlbumService(IMetaDataService _tagData,
    private readonly string _siteRoot = _appConfig.RootPath;
    private string[] _filters = { "*.jpg", "*.png", "*.gif" };
 
-   public Folder Get()
+   public async Task<Folder> Get()
    {
-      var folder = _cacheService.GetCachedValue(GetFolderFromPath, _albumRoot, _albumRoot);
-      var rootFolder = folder.Result;
-      return rootFolder;
+      var folder = await _cacheService.GetCachedValue(GetFolderFromPath, _albumRoot, _albumRoot);
+      return folder;
    }
 
-   private Task<Folder> GetFolderFromPath(string path)
+   public async Task<Dictionary<string, File>> GetFlatList()
+   {
+      var folder = await Get();
+      Dictionary<string, File> flattened = new();
+
+      ProcessFolder(flattened, folder);
+
+      return flattened;
+   }
+
+   /// <summary>
+   /// used to create a flat list that is easy to search through
+   /// </summary>
+   /// <param name="flattened"></param>
+   /// <param name="folder"></param>
+   public void ProcessFolder(Dictionary<string, File> flattened, Folder folder)
+   {
+      if (folder.Files != null) 
+      {
+         foreach (var file in folder.Files)
+         {
+            flattened.Add(file.FullName, file);
+         }
+      }
+      if (folder.Folders != null)
+      {
+         foreach (var subFolder in folder.Folders)
+         {
+            ProcessFolder(flattened, subFolder);
+         }
+      }
+   }
+
+   private async Task<Folder> GetFolderFromPath(string path)
    {
       DirectoryInfo dirInfo = new DirectoryInfo(path);
       Folder folder = new Folder
@@ -40,7 +74,8 @@ public class AlbumService(IMetaDataService _tagData,
       {
          foreach (var fileInfo in dirInfo.GetFiles(filter, SearchOption.TopDirectoryOnly))
          {
-            photoList.Add(GetPhotoInfo(fileInfo));
+            //TODO: consider busting this up to allow parallel processing
+            photoList.Add(await GetPhotoInfo(fileInfo));
          }
       }
 
@@ -62,12 +97,12 @@ public class AlbumService(IMetaDataService _tagData,
          folder.Folders = subFolders;
       }
 
-      return Task.FromResult(folder);
+      return await Task.FromResult(folder);
    }
 
-   private Models.Album.File GetPhotoInfo(FileInfo fileInfo)
+   private async Task<Models.Album.File> GetPhotoInfo(FileInfo fileInfo)
    {
-      var tagData = _tagData.GetMetadata(fileInfo.FullName);
+      var tagData = await _tagData.GetMetadata(fileInfo.FullName);
       var relativePath = GetRelativePath(fileInfo.FullName);
 
       var photo = new Models.Album.File
@@ -144,7 +179,8 @@ public class AlbumService(IMetaDataService _tagData,
 
 public interface IAlbumService
 {
-   Folder Get();
+   Task<Folder> Get();
+   Task<Dictionary<string, File>> GetFlatList();
    string GetFullFilePath(string relativePath);
    string GetContentType(string path);
 }
