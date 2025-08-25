@@ -10,13 +10,13 @@ import {
 import Carousel from '@/components/ui/Carousel';
 import { useApiContext } from '@/components/context/ApiContext';
 import { useCarouselImages } from '@/api/album/image-fetcher';
- import { useArticleSummarys } from '@/api/article/article-fetcher';
+ import { usePosts } from '@/api/post/post-fetcher';
  import ArticleList from '@/components/article/ArticleList';
 
 export default function CustomersPage() {
   const { httpGet } = useApiContext();
   const {data: carouselImages} = useCarouselImages(httpGet);
-  const {data: articleSummarys} = useArticleSummarys(httpGet);
+  const {data: posts} = usePosts(httpGet);
 
   return (
     <Card>
@@ -27,7 +27,7 @@ export default function CustomersPage() {
       <CardContent>
 
         <div className="relative flex">
-          <ArticleList articles={articleSummarys} />
+          <ArticleList articles={posts} />
         </div>
 
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
