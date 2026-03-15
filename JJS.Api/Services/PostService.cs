@@ -1,4 +1,5 @@
 ﻿using JJS.Api.Models;
+using JJS.Api.Models.Post;
 using JJS.Api.Repositories;
 
 namespace JJS.Api.Services;
@@ -9,7 +10,7 @@ public class PostService(IPostRepository postRepository, IAlbumService albumServ
    private readonly IPostRepository _postRepository = postRepository;
    private readonly IAlbumService _albumService = albumService;
 
-   public async Task<IEnumerable<Post>> GetAll()
+   public async Task<IEnumerable<PostViewModel>> GetAll()
    {
       var allPosts = await _postRepository.GetAll();
       await MatchImages(allPosts);
@@ -21,7 +22,7 @@ public class PostService(IPostRepository postRepository, IAlbumService albumServ
    /// </summary>
    /// <param name="posts"></param>
    /// <returns></returns>
-   private async Task MatchImages(IEnumerable<Post> posts)
+   private async Task MatchImages(IEnumerable<PostViewModel> posts)
    {
       Random random = new();
       Dictionary<string, Models.Album.File> usedImages = new();
@@ -63,5 +64,5 @@ public class PostService(IPostRepository postRepository, IAlbumService albumServ
 
 public interface IPostService
 {
-   Task<IEnumerable<Post>> GetAll();
+   Task<IEnumerable<PostViewModel>> GetAll();
 }

@@ -1,4 +1,5 @@
 ﻿using JJS.Api.Models;
+using JJS.Api.Models.Post;
 using JJS.Api.Repositories;
 
 namespace JJS.Api.Services;

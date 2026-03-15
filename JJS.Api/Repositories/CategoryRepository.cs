@@ -1,12 +1,15 @@
 ﻿using Dapper;
 using JJS.Api.Models;
+using JJS.Api.Models.Post;
 using Microsoft.Data.SqlClient;
 
 namespace JJS.Api.Repositories;
 
 [ServiceImplementation(typeof(ICategoryRepository))]
-public partial class CategoryRepository(AppConfig _appConfig) : ICategoryRepository
+public partial class CategoryRepository(AppConfig appConfig) : ICategoryRepository
 {
+   private readonly AppConfig _appConfig = appConfig;
+
    public async Task<IEnumerable<Category>> GetAll()
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);

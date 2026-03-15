@@ -1,5 +1,5 @@
 
-export const  Category_Home: number =1;
+export const  Category_Home: number = 1;
 
 export interface Category {
   categoryId: number;

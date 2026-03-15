@@ -4,44 +4,47 @@ namespace JJS.Api.Repositories;
 public partial class PostRepository
 {
    const string GetAll_Sql = """
-      ;with bcte as (
-         select PostId 
-            ,cast(Body as varchar(max)) 'Body'
-            from Posts
-         )
       select p.PostId
          ,p.Title
          ,p.PreviewText
-         ,b.Body
-         ,p.CreatedDate
-         ,u.DisplayName 'CreatedBy'
+         ,cast(p.Body as varchar(max)) 'Body'
+         ,p.ReleaseDate
+         ,p.ExpireDate
+         ,p.CommentsEnabled
+         ,p.Approved
          ,p.ViewCount
-         ,b.ImageUrl
-         ,string_agg(c.CategoryId, ',') 'CategoryIds'
-         ,string_agg(c.Category, ',') 'Categories'
+         ,p.CreatedDate
+         ,p.CreatedByFk
+         ,cu.DisplayName 'CreatedBy'
+         ,p.ModifiedDate
+         ,p.ModifiedByFk
+         ,mu.DisplayName 'ModifiedBy'
+         ,string_agg(cat.CategoryFk, ',') 'CategoryIds'
+         ,string_agg(cat.Title, ',') 'Categories'
       from Posts p 
-         join (
-            select PostId 
-               ,Body
-               --,LEFT(Body, CHARINDEX(':', '.jpg') - 1) 'Image'
-               ,null 'ImageUrl'
-            from bcte
-         ) b on b.PostId = p.PostId
-         left join PostCategories pc on pc.PostFk = p.PostId
          left join (
-            select top 1000 _c.CategoryId, _c.Title 'Category'
-            from Categories _c
-            order by _c.Title
-         ) c on c.CategoryId = pc.CategoryFk
-         left join Users u on u.Id = p.CreatedByFk
+           select top 100 x.PostFk, x.CategoryFk, _cat.Title
+            from PostCategories x
+               left join Categories _cat on _cat.CategoryId = x.CategoryFk
+            order by _cat.Title
+         ) cat on cat.PostFk = p.PostId
+        join Users cu on cu.Id = p.CreatedByFk
+        join Users mu on mu.Id = p.ModifiedByFk
       group by p.PostId
          ,p.Title
          ,p.PreviewText
-         ,b.Body
-         ,p.CreatedDate 
-         ,u.DisplayName
+         ,cast(p.Body as varchar(max))
+         ,p.ReleaseDate
+         ,p.ExpireDate
+         ,p.CommentsEnabled
+         ,p.Approved
          ,p.ViewCount
-         ,b.ImageUrl
+         ,p.CreatedDate
+         ,p.CreatedByFk
+         ,cu.DisplayName
+         ,p.ModifiedDate
+         ,p.ModifiedByFk
+         ,mu.DisplayName
       ;
       """;
 }

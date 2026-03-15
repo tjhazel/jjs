@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using JJS.Api.Models;
+using JJS.Api.Models.Post;
 using Microsoft.Data.SqlClient;
 
 namespace JJS.Api.Repositories;
@@ -7,13 +8,13 @@ namespace JJS.Api.Repositories;
 [ServiceImplementation(typeof(IPostRepository))]
 public partial class PostRepository(AppConfig _appConfig) : IPostRepository
 {
-   public async Task<IEnumerable<Post>> GetAll()
+   public async Task<IEnumerable<PostViewModel>> GetAll()
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
-      var result = await db.QueryAsync<Post,
+      var result = await db.QueryAsync<PostViewModel,
                string, string,
-               Post>(GetAll_Sql,
+               PostViewModel>(GetAll_Sql,
                (post, catids, cats) =>
                {
                   if (!string.IsNullOrWhiteSpace(catids))
@@ -34,5 +35,5 @@ public partial class PostRepository(AppConfig _appConfig) : IPostRepository
 
 public interface IPostRepository
 {
-   Task<IEnumerable<Post>> GetAll();
+   Task<IEnumerable<PostViewModel>> GetAll();
 }

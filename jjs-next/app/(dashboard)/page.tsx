@@ -24,7 +24,7 @@ export default function CustomersPage() {
     <Card>
       <CardHeader>
         <CardTitle>Welcome to our virtual home</CardTitle>
-        <CardDescription>🚧 Refactoring in progress. I’m updating the design and tech stack behind the scenes, so you may see a few changes as improvements are deployed.</CardDescription>
+        <CardDescription>🚧 Refactoring in progress. I'm updating the design and tech stack behind the scenes, so you may see a few changes as improvements are deployed.</CardDescription>
       </CardHeader>
       <CardContent>
 

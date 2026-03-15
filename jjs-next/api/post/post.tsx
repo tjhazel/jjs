@@ -1,11 +1,20 @@
 export interface Post {
-  postId: number | string;
+  postId?: number;
   title: string;
   previewText: string;
   body: string;
-  createdDate: string; // ISO string or date-like
-  createdBy: string;
+  releaseDate?: string;
+  expireDate?: string;
+  commentsEnabled : boolean;
+  approved  : boolean;
   viewCount: number;
+  createdDate: string; // ISO string or date-like
+  createdByFk: string;
+  createdBy: string;
+  modifiedDate : string; // ISO string or date-like
+  modifiedByFk : string;
+  modifiedBy : string;
+
   imageUrl?: string;
   href?: string;
   categoryIds: number[];

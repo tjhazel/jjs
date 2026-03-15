@@ -5,12 +5,11 @@ import { Category } from "./category";
 import useSWR from "swr";
 import { swrOptions } from "@/lib/swr.functions";
 
-export const categoryBaseUrl = `api/post`;
-export const getCategoryUrl = (id: number) => `${categoryBaseUrl}/${id}`;
+export const categoryBaseUrl = `api/category`;
 
 export function useCategories(httpGet: TGet) {
    const { data, isValidating, error } = useSWR<Category[], HttpError>(
-      getCategoryUrl,
+      categoryBaseUrl,
       httpGet,
       { ...swrOptions }
    );
