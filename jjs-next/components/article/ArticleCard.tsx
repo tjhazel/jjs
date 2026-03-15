@@ -12,16 +12,16 @@ export default function ArticleCard({
   createdDate,
   previewText,
   href,
-  imageSrc,
+  imageUrl,
 }: ArticleCardProps) {
   return (
     <Link
-      href={href as Url}
+      href={href as Url ?? ''}
       className="block bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-200"
     >
-      {imageSrc && (
+      {imageUrl && (
         <img
-          src={imageSrc}
+          src={imageUrl}
           alt={title}
           className="w-full h-48 object-cover"
         />

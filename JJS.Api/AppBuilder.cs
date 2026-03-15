@@ -94,7 +94,8 @@ public class AppBuilder
       {
          options.AddPolicy("AllowCors",
              policyBuilder => policyBuilder
-                 .WithOrigins("http://localhost:44301",
+                 .WithOrigins("http://localhost:3000", 
+                     "http://localhost:44301",
                      "https://*.johnandjeri.com",
                      "http://*.johnandjeri.com")
                  .SetIsOriginAllowedToAllowWildcardSubdomains()

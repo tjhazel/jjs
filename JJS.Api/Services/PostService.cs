@@ -4,44 +4,60 @@ using JJS.Api.Repositories;
 namespace JJS.Api.Services;
 
 [ServiceImplementation(typeof(IPostService))]
-public class PostService(IPostRepository _postRepository, IAlbumService _albumService):IPostService
+public class PostService(IPostRepository postRepository, IAlbumService albumService) :IPostService
 {
+   private readonly IPostRepository _postRepository = postRepository;
+   private readonly IAlbumService _albumService = albumService;
+
    public async Task<IEnumerable<Post>> GetAll()
    {
-      var photos = await _albumService.GetFlatList();
-
       var allPosts = await _postRepository.GetAll();
-      Random random = new();
+      await MatchImages(allPosts);
+      return allPosts;
+   }
 
-      foreach (var post in allPosts)
+   /// <summary>
+   /// Method used to try to match an image to a post
+   /// </summary>
+   /// <param name="posts"></param>
+   /// <returns></returns>
+   private async Task MatchImages(IEnumerable<Post> posts)
+   {
+      Random random = new();
+      Dictionary<string, Models.Album.File> usedImages = new();
+
+      var photos = await _albumService.GetFlatList();
+      foreach (var post in posts)
       {
          var first = photos.Values.FirstOrDefault(y =>
-         
+
                post.Body.Contains(y.Title, StringComparison.OrdinalIgnoreCase) ||
                post.Title.Contains(y.Title, StringComparison.OrdinalIgnoreCase) ||
 
-               post.Body.Contains(y.Comment, StringComparison.OrdinalIgnoreCase) ||
-               post.Title.Contains(y.Comment, StringComparison.OrdinalIgnoreCase) ||
+               //post.Body.Contains(y.Comment, StringComparison.OrdinalIgnoreCase) ||
+               //post.Title.Contains(y.Comment, StringComparison.OrdinalIgnoreCase) ||
 
                post.Body.Contains(y.Name, StringComparison.OrdinalIgnoreCase) ||
                post.Title.Contains(y.Name, StringComparison.OrdinalIgnoreCase) ||
-
+               
                string.Join(' ', post.Categories ?? []).Contains(y.Title, StringComparison.OrdinalIgnoreCase)
             );
 
-
          //no matches, grab a random image
-         if (first == null)
+         while (first == null)
          {
-            first = photos.Values.ElementAt(random.Next(photos.Count));
+            var nextImg = photos.Values.ElementAt(random.Next(photos.Count));
+            if (!usedImages.ContainsKey(nextImg.HttpPath))
+            {
+               first = nextImg;
+            }
          }
          if (first != null)
          {
             post.ImageUrl = first.HttpPath;
+            usedImages[first.HttpPath] = first;
          }
       }
-      return allPosts;
-
    }
 }
 

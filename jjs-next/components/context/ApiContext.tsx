@@ -4,6 +4,8 @@ import * as React from 'react'
 //import { useUserContext } from '../auth/authContext';
 import * as httpClient from '@/lib/httpClient';
 import { HttpVerb } from '@/lib/httpClient';
+import config from '@/lib/config';
+
 
 //import { HttpVerb, useErrorContext, IApiErrorMessage } from './ErrorContext';
 
@@ -19,6 +21,7 @@ export interface IApiContextProps {
    // removeError: (key: string) => void;
 }
 
+
 export const ApiContext = React.createContext<IApiContextProps>({} as IApiContextProps);
 export const useApiContext = () => React.useContext(ApiContext);
 
@@ -27,6 +30,9 @@ interface IApiContextProviderProps {
 }
 
 export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) => {
+
+   const getApiUrl = (request: string) => `${config.apiUrl}/${request}`;
+
    //const { getToken } = useUserContext();
    const getToken = async (force: boolean = false): Promise<string> => {
       return new Promise((resolve, reject) => {
@@ -39,7 +45,9 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
 //   const { addError, removeError, apiErrors } = useErrorContext(); 
   
    const httpGet = async<T,>(url: string): Promise<T> => {
-      return await httpClient.httpGet<T>(url, getToken)
+      console.warn('httpGet->', getApiUrl(url))
+
+      return await httpClient.httpGet<T>(getApiUrl(url), getToken)
          .catch((err: httpClient.HttpError) => {
   //          addError(url, err, HttpVerb.GET);
             throw err;
@@ -47,7 +55,7 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
    };
 
 //    const httpGetByteUrl = async (url: string, mediaType?: string): Promise<string> => {
-//       return await httpClient.httpGetByteUrl(url, getToken, mediaType)
+//       return await httpClient.httpGetByteUrl(getApiUrl(url), getToken, mediaType)
 //          .catch((err: httpClient.HttpError) => {
 //  //           addError(url, err, HttpVerb.GET);
 //             throw err;
@@ -55,7 +63,7 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
 //    };
 
    const httpPatch = async<T,>(url: string, body?: object): Promise<T> => {
-      return await httpClient.httpPatch<T>(url, getToken, body)
+      return await httpClient.httpPatch<T>(getApiUrl(url), getToken, body)
          .catch((err: httpClient.HttpError) => {
    //         addError(url, err, HttpVerb.PATCH);
             throw err;
@@ -63,7 +71,7 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
    }
 
    const httpPost = async<T,>(url: string, body?: object): Promise<T> => {
-      return await httpClient.httpPost<T>(url, getToken, body)
+      return await httpClient.httpPost<T>(getApiUrl(url), getToken, body)
          .catch((err: httpClient.HttpError) => {
   //          addError(url, err, HttpVerb.POST);
             throw err;
@@ -71,7 +79,7 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
    };
 
    const httpPut = async<T,>(url: string, body?: object): Promise<T> => {
-      return await httpClient.httpPut<T>(url, getToken, body)
+      return await httpClient.httpPut<T>(getApiUrl(url), getToken, body)
          .catch((err: httpClient.HttpError) => {
    //         addError(url, err, HttpVerb.PUT);
             throw err;
@@ -79,7 +87,7 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
    };
 
    // const httpPutFile = async<T,>(url: string, file?: File): Promise<T> => {
-   //    return await httpClient.httpPutFile<T>(url, getToken, file)
+   //    return await httpClient.httpPutFile<T>(getApiUrl(url), getToken, file)
    //       .catch((err: httpClient.HttpError) => {
    //          addError(url, err, HttpVerb.PUT);
    //          throw err;
@@ -87,7 +95,7 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
    // };
    
    const httpDelete = async<T,>(url: string): Promise<T> => {
-      return await httpClient.httpDelete<T>(url, getToken)
+      return await httpClient.httpDelete<T>(getApiUrl(url), getToken)
          .catch((err: httpClient.HttpError) => {
   //          addError(url, err, HttpVerb.DELETE);
             throw err;

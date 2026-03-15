@@ -6,7 +6,8 @@ export interface Post {
   createdDate: string; // ISO string or date-like
   createdBy: string;
   viewCount: number;
-  categories: string[];
-  imageSrc?: string;
+  imageUrl?: string;
   href?: string;
+  categoryIds: number[];
+  categories: string[];
 }

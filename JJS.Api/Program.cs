@@ -37,6 +37,8 @@ app.UseCors("AllowCors");
 
 app.UseHttpsRedirection();
 
+app.UsePathBase("/api"); 
+
 app.UseAuthorization();
 
 app.MapControllers();

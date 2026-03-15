@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { User } from "lucide-react";
 import Providers from "@/components/providers";
 import TopHeader from "@/components/menu/top-header";
+import { RootContextProvider }  from "@/components/context/RootContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
          <Providers>
+          <RootContextProvider>
           <main className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="min-h-screen flex flex-col">
               <TopHeader />
@@ -44,6 +46,7 @@ export default function RootLayout({
             </div>
             <Analytics />
           </main>
+          </RootContextProvider>
        </Providers>
       </body>
       <Analytics />

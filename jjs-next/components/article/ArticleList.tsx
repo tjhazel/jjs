@@ -5,14 +5,14 @@ import ArticleCard from "./ArticleCard";
 import { Post } from "@/api/post/post";
 
 interface ArticleListProps {
-  articles: Post[]|undefined;
+  posts: Post[]|undefined;
 }
 
-export default function ArticleList({ articles }: ArticleListProps) {
+export default function ArticleList({ posts }: ArticleListProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {articles?.map((article) => (
-        <ArticleCard key={article.postId} {...article} />
+      {posts?.map((post) => (
+        <ArticleCard key={post.postId} {...post} />
       ))}
     </div>
   );

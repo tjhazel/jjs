@@ -12,17 +12,21 @@ public partial class PostRepository(AppConfig _appConfig) : IPostRepository
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
       var result = await db.QueryAsync<Post,
-               string,
-               Post>(GetAll_Posts,
-               (post, cat) =>
+               string, string,
+               Post>(GetAll_Sql,
+               (post, catids, cats) =>
                {
-                  if (!string.IsNullOrWhiteSpace(cat))
+                  if (!string.IsNullOrWhiteSpace(catids))
                   {
-                     post.Categories = cat.Split(',').Distinct().OrderBy(y => y).ToArray();
+                     post.CategoryIds = catids.Split(',')?.Distinct()?.Select(Int32.Parse)?.ToArray() ?? [];
+                  }
+                  if (!string.IsNullOrWhiteSpace(cats))
+                  {
+                     post.Categories = cats.Split(',')?.Distinct()?.ToArray() ?? [];
                   }
                   return post;
                },
-               splitOn: "Categories");
+               splitOn: "CategoryIds,Categories");
 
       return result;
    }
