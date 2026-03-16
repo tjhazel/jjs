@@ -17,7 +17,7 @@ export default function ArticleCard({
 
   return (
     <Link
-      href={`/article/${postId??0}`}
+      href={`/article/post/${postId??0}`}
       className="block bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-200"
     >
       {imageUrl && (

@@ -1,3 +1,7 @@
+"use client" 
+
+import { useRecipe } from '@/api/recipe/recipe-fetcher';
+import { useApiContext } from '@/components/context/ApiContext';
 import {
   Card,
   CardContent,
@@ -6,27 +10,11 @@ import {
   CardTitle
 } from '@/components/ui/card';
 
-interface Recipe {
-  name: string;
-  course: string;
-  dishType: string;
-  createdDate: string;
-}
-
-const recipes: Recipe[] = [
-  { name: 'Caribbean Snowball', course: 'Any', dishType: 'Drink', createdDate: '2/11/2017' },
-  { name: 'Salted Caramels', course: 'Dessert', dishType: 'Dessert', createdDate: '12/15/2010' },
-  { name: 'Black Beans with Cheese', course: 'Side dish', dishType: 'Side', createdDate: '10/2/2010' },
-  { name: 'Slow-Roasted Pulled Pork', course: 'Dinner', dishType: 'Entree', createdDate: '9/17/2010' },
-  { name: 'Cherry Crumble', course: 'Dessert', dishType: 'Crumble', createdDate: '9/17/2010' },
-  { name: 'Shrimp Etouffee', course: 'Entree', dishType: 'Entree', createdDate: '9/17/2010' },
-  { name: 'Apple Pie Filling', course: 'Dessert', dishType: 'Pie', createdDate: '9/17/2010' },
-  { name: 'Pizza Crust', course: 'Entree', dishType: 'dinner', createdDate: '9/17/2010' },
-  { name: 'Three Citrus Marinade', course: 'Dinner', dishType: 'Entree', createdDate: '9/15/2010' },
-  { name: 'Whole Wheat Tagliolini', course: 'Dinner', dishType: 'Pasta', createdDate: '11/30/2009' },
-];
 
 export default function RecipePage() {
+    const { httpGet } = useApiContext();
+    const {data: recipes} = useRecipe(httpGet);
+  
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Recipes</h1>
@@ -41,7 +29,7 @@ export default function RecipePage() {
             </tr>
           </thead>
           <tbody>
-            {recipes.map((recipe, index) => (
+            {recipes?.map((recipe, index) => (
               <tr key={index} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b">{recipe.name}</td>
                 <td className="py-2 px-4 border-b">{recipe.course}</td>

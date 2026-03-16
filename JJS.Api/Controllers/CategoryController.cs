@@ -6,13 +6,13 @@ namespace JJS.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class CategoryController(IPostService postService) : Controller
+public class CategoryController(ICategoryService categoryService) : Controller
 {
-   private readonly IPostService _postService = postService;
+   private readonly ICategoryService _categoryService = categoryService;
 
    [HttpGet]
-   public async Task<IEnumerable<Post>> GetAll()
+   public async Task<IEnumerable<Category>> GetAll()
    {
-      return await _postService.GetAll();
+      return await _categoryService.GetAll();
    }
 }
