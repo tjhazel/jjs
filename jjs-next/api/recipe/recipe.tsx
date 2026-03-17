@@ -11,7 +11,6 @@ export interface Recipe {
   prepTime?: string;
   cookTime?: string;
   estimatedCost: number;
-  commentsEnabled : boolean;
   pictureFk: number;
   isViewableByPublic  : boolean;
   viewCount: number;
