@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { formatDate } from '@/lib/time.functions';
 
 
 export default function RecipePage() {
@@ -34,7 +35,7 @@ export default function RecipePage() {
                 <td className="py-2 px-4 border-b">{recipe.name}</td>
                 <td className="py-2 px-4 border-b">{recipe.course}</td>
                 <td className="py-2 px-4 border-b">{recipe.dishType}</td>
-                <td className="py-2 px-4 border-b">{recipe.createdDate}</td>
+                <td className="py-2 px-4 border-b">{formatDate(recipe.createdDate)}</td>
               </tr>
             ))}
           </tbody>
