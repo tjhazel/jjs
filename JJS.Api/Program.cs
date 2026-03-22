@@ -12,11 +12,14 @@ builder.AddServiceDefaults();
 
 var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "Development");
 
+// Configure base path early so middleware (Swagger, static files, etc.) see the trimmed path.
+app.UsePathBase("/api");
+
 //Expose Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
-   //Expose ui as site root
+   //Expose ui as site root under the path base
    options.RoutePrefix = string.Empty;
 
    options.SwaggerEndpoint("/swagger/v1/swagger.json", "AssistPoint API");
@@ -36,8 +39,6 @@ app.UseFileServer(new FileServerOptions
 app.UseCors("AllowCors");
 
 app.UseHttpsRedirection();
-
-app.UsePathBase("/api"); 
 
 app.UseAuthorization();
 
