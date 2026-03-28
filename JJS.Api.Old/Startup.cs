@@ -56,6 +56,7 @@ namespace JJS.Api
                 builder => builder
                     .WithOrigins("http://localhost:3000",
                         "https://localhost:3000",
+                        "https://localhost:7275",
                         "https://*.johnandjeri.com")
                     .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyMethod()
