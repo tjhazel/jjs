@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   useReactTable,
   getCoreRowModel,
@@ -14,7 +15,7 @@ import { formatDate } from "@/lib/time.functions";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 interface Recipe {
-  id?: number;
+  recipeId?: number;
   name: string;
   course: string;
   dishType: string;
@@ -27,6 +28,7 @@ interface RecipeTableProps {
 }
 
 export default function RecipeTable({ recipes, isLoading }: RecipeTableProps) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -110,7 +112,11 @@ export default function RecipeTable({ recipes, isLoading }: RecipeTableProps) {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50 border-b">
+              <tr key={row.id} className="hover:bg-gray-50 border-b cursor-pointer" onClick={(e) => {
+                console.log('Row clicked', row.original);
+                e.stopPropagation();
+                row.original.recipeId && router.push(`/recipe/${row.original.recipeId}`);
+              }}>
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="py-3 px-4">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

@@ -1,5 +1,5 @@
 ﻿
-namespace JJS.Api.Repositories;
+namespace JJS.Api.Repositories.Recipe;
 
 public partial class RecipeCategoryRepository
 {

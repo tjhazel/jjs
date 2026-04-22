@@ -24,3 +24,25 @@ export interface Recipe {
   recipeCategoryIds: number[];
   recipeCategories: string[];
 }
+
+export interface RecipeDetail extends Recipe {
+  ingredients: Ingredient[];
+  instructions: Instruction[];
+}
+
+export interface Ingredient {
+  ingredientsXrefId?: number;
+  ingredientFk: number;
+  amount: number;
+  unitOfMeasure: string;
+  ingredient: string;
+  description: string;
+  sequence: number;
+}
+
+export interface Instruction {
+  recipeInstructionId?: number;
+  name: string;
+  instruction: string;
+  sequence: number;
+}

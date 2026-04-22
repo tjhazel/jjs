@@ -3,7 +3,7 @@ using JJS.Api.Models;
 using JJS.Api.Models.Recipe;
 using Microsoft.Data.SqlClient;
 
-namespace JJS.Api.Repositories;
+namespace JJS.Api.Repositories.Recipe;
 
 [ServiceImplementation(typeof(IRecipeCategoryRepository))]
 public partial class RecipeCategoryRepository(AppConfig _appConfig) : IRecipeCategoryRepository

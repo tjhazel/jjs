@@ -1,9 +1,9 @@
 ﻿
-namespace JJS.Api.Repositories;
+namespace JJS.Api.Repositories.Recipe;
 
 public partial class RecipeRepository
 {
-   const string GetAll_Sql = """
+   const string GetRecipeViewModel_Sql = """
       select r.RecipeId
           ,r.[Name]
           ,r.[Description]
@@ -36,6 +36,7 @@ public partial class RecipeRepository
        ) cat on cat.RecipeFk = r.RecipeId
       join Users cu on cu.Id = r.CreatedByFk
       join Users mu on mu.Id = r.ModifiedByFk
+      where r.RecipeId = isnull(@recipeId, r.RecipeId)
       group by r.RecipeId
           ,r.[Name]
           ,r.[Description]
@@ -59,4 +60,5 @@ public partial class RecipeRepository
           ,mu.DisplayName
       ;
       """;
+
 }

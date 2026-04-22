@@ -15,4 +15,17 @@ public class RecipeController(IRecipeService recipeService) : Controller
    {
       return await _recipeService.GetAll();
    }
+
+   // Route("[action]/{recipeId}")]
+   [HttpGet, Route("{recipeId}")]
+   public async Task<RecipeViewModel> Get(int recipeId)
+   {
+      return await _recipeService.GetSingleRecipe(recipeId);
+   }
+
+   [HttpGet, Route("[action]/{recipeId}")]
+   public async Task<RecipeViewModel> GetRecipeImage(int recipeId)
+   {
+      return await _recipeService.GetSingleRecipe(recipeId);
+   }
 }

@@ -1,7 +1,7 @@
 "use client" 
 
 import { HttpError, TGet } from "@/lib/httpClient";
-import { Recipe } from "./recipe";
+import { Recipe, RecipeDetail } from "./recipe";
 import useSWR from "swr";
 import { swrOptions } from "@/lib/swr.functions";
 
@@ -16,10 +16,25 @@ export function useRecipe(httpGet: TGet) {
       { ...swrOptions }
    );
  
-   console.log('result', data, error, isValidating)
+   //console.log('result', data, error, isValidating)
    return {
       data: data,
       isLoading: !error && !data && isValidating,
       error: error?.message
    };
+}
+
+export function useSingleRecipe(httpGet: TGet, id: number) {
+  const { data, isValidating, error } = useSWR<RecipeDetail, HttpError>(
+    getRecipeUrl(id),
+    httpGet,
+    { ...swrOptions }
+  );
+   console.log('result', data, error, isValidating)
+
+  return {
+    data: data,
+    isLoading: !error && !data && isValidating,
+    error: error?.message
+  };
 }

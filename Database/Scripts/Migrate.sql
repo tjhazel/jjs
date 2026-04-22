@@ -23,3 +23,24 @@ WHEN NOT MATCHED THEN
    VALUES (Source.Id, Source.[Email], Source.[DisplayName] ,Source.[Role], Source.[IsDisabled], Source.[LastActivityDate])
 ;
 
+
+update RecipeInstructions
+ set Instructions = dbo.[ConvertHtmlToMarkdown](instructions)
+ ;
+
+ 
+
+if col_length('dbo.Attachments', 'Content') is null
+begin
+    alter table Attachments
+   add Content varbinary(max);
+end
+;
+
+GO
+
+update Attachments
+set Content = Data
+where Content is null 
+;
+

@@ -6,6 +6,7 @@
     [ContentType]   NVARCHAR (255) NOT NULL,
     [Data]          IMAGE          NOT NULL,
     [DownloadCount] BIGINT         CONSTRAINT [DF_Attachments_DownloadCount] DEFAULT ((0)) NULL,
+    [Content]       VARBINARY(MAX) NULL,
     CONSTRAINT [PK_sb_attachments] PRIMARY KEY CLUSTERED ([AttachmentId] ASC)
 );
 
