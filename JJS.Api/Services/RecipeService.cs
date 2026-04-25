@@ -1,5 +1,6 @@
 ﻿using JJS.Api.Models;
 using JJS.Api.Models.Recipe;
+using JJS.Api.Repositories;
 using JJS.Api.Repositories.Recipe;
 
 namespace JJS.Api.Services;
