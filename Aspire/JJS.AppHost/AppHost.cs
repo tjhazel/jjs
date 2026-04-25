@@ -16,7 +16,7 @@ var api = builder.AddProject<Projects.JJS_Api>("jjs-api")
 //   ;
 
 //produces a clean startup dashboard
-var ui = builder.AddNpmApp(name: "jjs-next-ui", workingDirectory: "../../jjs-next", scriptName: "dev")
+var ui = builder.AddNpmApp(name: "jjs-web-ui", workingDirectory: "../../jjs-web", scriptName: "dev")
     .WithHttpEndpoint(port: 3000, env: "PORT")
     .WithExternalHttpEndpoints()
     .WithReference(api)
