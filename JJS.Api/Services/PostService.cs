@@ -44,8 +44,9 @@ public class PostService(IPostRepository postRepository, IAlbumService albumServ
                string.Join(' ', post.Categories ?? []).Contains(y.Title, StringComparison.OrdinalIgnoreCase)
             );
 
+         int attempts = 0;
          //no matches, grab a random image
-         while (first == null)
+         while (first == null && attempts++ < 10)
          {
             var nextImg = photos.Values.ElementAt(random.Next(photos.Count));
             if (!usedImages.ContainsKey(nextImg.HttpPath))

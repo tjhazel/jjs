@@ -18,13 +18,6 @@ export function usePosts(httpGet: TGet) {
       { ...swrOptions }
    );
 
-  //  const { data, isValidating, error } = useMemo(() => {
-  //     return {
-  //       data: posts,
-  //       isValidating: false,
-  //       error: {} as HttpError
-  //     }
-  //  }, [])
 console.log('result', data, error, isValidating)
    return {
       data: data,

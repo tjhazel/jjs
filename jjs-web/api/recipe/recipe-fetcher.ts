@@ -5,7 +5,7 @@ import { Recipe, RecipeDetail } from "./recipe";
 import useSWR from "swr";
 import { swrOptions } from "@/lib/swr.functions";
 
-export const recipeBaseUrl = `api/Recipe`;
+export const recipeBaseUrl = `api/recipe`;
 export const getRecipeUrl = (id: number) => `${recipeBaseUrl}/${id}`;
 
 export function useRecipe(httpGet: TGet) {
