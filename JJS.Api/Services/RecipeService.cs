@@ -9,12 +9,14 @@ namespace JJS.Api.Services;
 public class RecipeService(IRecipeRepository recipeRepository,
    IRecipeCategoryRepository recipeCategoryRepository,
    IRecipeIngredientRepository recipeIngredientRepository,
-    IRecipeInstructionRepository recipeInstructionRepository) : IRecipeService
+   IRecipeInstructionRepository recipeInstructionRepository,
+   IAttachmentService attachmentService) : IRecipeService
 {
    private readonly IRecipeRepository _recipeRepository = recipeRepository;
    private readonly IRecipeCategoryRepository _recipeCategoryRepository = recipeCategoryRepository;
    private readonly IRecipeIngredientRepository _recipeIngredientRepository = recipeIngredientRepository;
    private readonly IRecipeInstructionRepository _recipeInstructionRepository = recipeInstructionRepository;
+   private readonly IAttachmentService _attachmentService = attachmentService;
 
    public async Task<IEnumerable<RecipeViewModel>> GetAll()
    {
@@ -29,6 +31,15 @@ public class RecipeService(IRecipeRepository recipeRepository,
 
       recipe.Ingredients = await _recipeIngredientRepository.GetRecipeIngredients(recipeId);
       recipe.Instructions = await _recipeInstructionRepository.GetRecipeInstructions(recipeId);
+
+      if (recipe.PictureFk.HasValue)
+      {
+         var attachment = await _attachmentService.Get(recipe.PictureFk.Value);
+         if (attachment != null)
+         {
+            recipe.Picture = AttachmentViewModel.FromAttachment(attachment);
+         }
+      }
       return recipe;
    }
 

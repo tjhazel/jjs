@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
-
+﻿
 namespace JJS.Api.Models;
 
 public class Attachment
