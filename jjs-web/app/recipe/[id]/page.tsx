@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useApiContext } from "@/components/context/ApiContext";
 import { useSingleRecipe } from "@/api/recipe/recipe-fetcher";
@@ -48,6 +49,8 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
     window.print();
   };
 
+  const recipePicture = recipe.picture?.contentBase64 ? `data:image/jpeg;base64,${recipe.picture?.contentBase64}` : undefined;
+
   return (
     <div className="container mx-auto p-4">
       <div className="mb-4 flex gap-2">
@@ -70,6 +73,25 @@ export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
           <h1 className="text-3xl font-bold">{recipe.name}</h1>
         </div>
         
+        <div className="mb-6">
+            <strong>Source:</strong> {recipe.recipeSource || "N/A"}
+            {recipePicture && (
+               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="relative group">
+                    <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-100">
+                      <Image
+                        src={recipePicture}
+                        alt={recipe.picture?.name || recipe.picture?.fileName || "Recipe Image"}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      />
+                    </div>
+                  </div>
+              </div>
+            )}
+        </div>
+
         {recipe.description && (
           <div className="mb-6">
             <h3 className="font-semibold mb-2">Description</h3>
