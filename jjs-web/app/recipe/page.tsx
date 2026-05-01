@@ -9,11 +9,14 @@ export default function RecipePage() {
     const {data: recipes, isLoading} = useRecipe(httpGet);
   
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Recipes</h1>
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900">Recipes</h1>
+        <p className="text-gray-600 text-sm">Browse and explore our collection of recipes</p>
+      </div>
       <RecipeTable recipes={recipes} isLoading={isLoading} />
-      <div className="mt-8 text-center">
-        <img src="http://johnandjeri.com/Images/recipeFooter.jpg" alt="Recipe Footer" className="mx-auto" />
+      <div className="mt-12 pt-8 border-t border-gray-200 text-center">
+        <img src="http://johnandjeri.com/Images/recipeFooter.jpg" alt="Recipe Footer" className="mx-auto max-w-full" />
       </div>
     </div>
   );

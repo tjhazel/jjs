@@ -1,19 +1,13 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-
-export default function CustomersPage() {
+export default function ThingsPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Things Page</CardTitle>
-        <CardDescription>Things description.</CardDescription>
-      </CardHeader>
-      <CardContent>Things Content</CardContent>
-    </Card>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900">Things</h1>
+        <p className="text-gray-600">A collection of miscellaneous items and interests.</p>
+      </div>
+      <div className="border border-gray-200 p-6 sm:p-8 text-gray-600">
+        Content coming soon.
+      </div>
+    </div>
   );
 }

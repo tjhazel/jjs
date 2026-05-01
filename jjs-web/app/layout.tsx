@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
-import { User } from "lucide-react";
 import Providers from "@/components/providers";
 import TopHeader from "@/components/menu/top-header";
 import { RootContextProvider }  from "@/components/context/RootContext";
@@ -18,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "John, Jeri, and Sidney",
+  title: "John & Jeri",
   description: "A modern take on a legacy site",
 };
 
@@ -30,26 +29,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
       >
-         <Providers>
+        <Providers>
           <RootContextProvider>
-          <main className="flex min-h-screen w-full flex-col bg-muted/40">
             <div className="min-h-screen flex flex-col">
               <TopHeader />
-              <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
-               {children}
+              <main className="flex-1 w-full mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+                {children}
               </main>
-              <footer className="border-t border-gray-200 py-4 text-center text-xs sm:text-sm text-gray-500 px-4">
-                © 2006 - {new Date().getFullYear()} johnandjeri.com. All rights reserved.
+              <footer className="border-t border-gray-200 py-8 text-center text-sm text-gray-600 px-4 mt-auto">
+                <p>© 2006 - {new Date().getFullYear()} johnandjeri.com. All rights reserved.</p>
               </footer>
             </div>
             <Analytics />
-          </main>
           </RootContextProvider>
-       </Providers>
+        </Providers>
       </body>
-      <Analytics />
     </html>
   );
 }
