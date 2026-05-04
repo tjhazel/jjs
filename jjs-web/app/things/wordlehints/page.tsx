@@ -138,7 +138,7 @@ export default function WordleHintsPage() {
     inputRefs.current[0]?.[0]?.focus();
   };
 
-  const getStateColor = (state: LetterState): string => {
+  const getStateColor = (state: LetterState, value: string): string => {
     switch (state) {
       case "hit":
         return "bg-green-600 text-white";
@@ -147,7 +147,7 @@ export default function WordleHintsPage() {
       case "miss":
         return "bg-gray-600 text-white";
       default:
-        return "bg-white text-gray-900 border border-gray-300";
+        return value ? "bg-gray-600 text-white" : "bg-white text-gray-900 border border-gray-300";
     }
   };
 
@@ -192,7 +192,8 @@ export default function WordleHintsPage() {
                       }
                     }}
                     className={`w-12 h-12 text-center font-bold text-lg uppercase cursor-pointer ${getStateColor(
-                      cell.state
+                      cell.state,
+                      cell.value
                     )} hover:shadow-md transition-shadow`}
                   />
                 ))}
