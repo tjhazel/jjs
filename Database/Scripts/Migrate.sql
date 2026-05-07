@@ -28,19 +28,29 @@ update RecipeInstructions
  set Instructions = dbo.[ConvertHtmlToMarkdown](instructions)
  ;
 
- 
 
 if col_length('dbo.Attachments', 'Content') is null
 begin
-    alter table Attachments
-   add Content varbinary(max);
+    alter table Attachments add Content varbinary(max)
+    ;
 end
 ;
 
 GO
 
-update Attachments
-set Content = Data
-where Content is null 
+update Attachments set Content = Data where Content is null
 ;
+
+
+if exists(select * from information_schema.columns where table_name = 'Posts' and column_name = 'Body'and data_type = 'ntext') begin
+   alter table [Posts] alter column [Body] nvarchar(max) not null   
+   ;
+
+   --select Title, dbo.[ConvertHtmlToMarkdown]([Body]) from Posts
+   update [Posts] set [Body] = dbo.[ConvertHtmlToMarkdown]([Body])
+   ;
+end
+
+GO
+
 
