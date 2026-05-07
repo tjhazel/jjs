@@ -10,11 +10,11 @@ public partial class CategoryRepository(AppConfig appConfig) : ICategoryReposito
 {
    private readonly AppConfig _appConfig = appConfig;
 
-   public async Task<IEnumerable<Category>> GetAll()
+   public async Task<IEnumerable<Category>> Get(int categoryTypeId)
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
-      var result = await db.QueryAsync<Category>(GetAll_Sql);
+      var result = await db.QueryAsync<Category>(GetAll_Sql, new { categoryTypeId });
 
       return result;
    }
@@ -22,5 +22,5 @@ public partial class CategoryRepository(AppConfig appConfig) : ICategoryReposito
 
 public interface ICategoryRepository
 {
-   Task<IEnumerable<Category>> GetAll();
+   Task<IEnumerable<Category>> Get(int categoryTypeId);
 }
