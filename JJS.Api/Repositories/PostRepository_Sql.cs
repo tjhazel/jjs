@@ -47,4 +47,79 @@ public partial class PostRepository
          ,mu.DisplayName
       ;
       """;
+
+   const string MERGE_SQL = """
+         MERGE [Posts] AS TARGET 
+         USING ( 
+            VALUES (@postId
+               ,@title
+               ,@previewText
+               ,@body
+               ,@releaseDate
+               ,@expireDate
+               ,@commentsEnabled
+               ,@approved
+               ,@viewCount
+               ,@createdDate
+               ,@createdByFk
+               ,@modifiedDate
+               ,@modifiedByFk)
+         ) AS SOURCE (PostId
+               ,Title
+               ,PreviewText
+               ,Body
+               ,ReleaseDate
+               ,[ExpireDate]
+               ,CommentsEnabled
+               ,Approved
+               ,ViewCount
+               ,CreatedDate
+               ,CreatedByFk
+               ,ModifiedDate
+               ,ModifiedByFk)
+         ON SOURCE.PostId = TARGET.PostId
+         WHEN MATCHED THEN
+            UPDATE SET 
+                Title = SOURCE.Title
+               ,PreviewText = SOURCE.PreviewText
+               ,Body = SOURCE.Body
+               ,ReleaseDate = SOURCE.ReleaseDate
+               ,[ExpireDate] = SOURCE.[ExpireDate]
+               ,CommentsEnabled = SOURCE.CommentsEnabled
+               ,Approved = SOURCE.Approved
+               ,ViewCount = SOURCE.ViewCount
+               ,CreatedDate = SOURCE.CreatedDate
+               ,CreatedByFk = SOURCE.CreatedByFk
+               ,ModifiedDate = SOURCE.ModifiedDate
+               ,ModifiedByFk = SOURCE.ModifiedByFk
+
+         WHEN NOT MATCHED BY Target THEN
+            INSERT (Title
+               ,PreviewText
+               ,Body
+               ,ReleaseDate
+               ,[ExpireDate]
+               ,CommentsEnabled
+               ,Approved
+               ,ViewCount
+               ,CreatedDate
+               ,CreatedByFk
+               ,ModifiedDate
+               ,ModifiedByFk)
+            VALUES (SOURCE.Title
+               ,SOURCE.PreviewText
+               ,SOURCE.Body
+               ,SOURCE.ReleaseDate
+               ,SOURCE.[ExpireDate]
+               ,SOURCE.CommentsEnabled
+               ,SOURCE.Approved
+               ,SOURCE.ViewCount
+               ,SOURCE.CreatedDate
+               ,SOURCE.CreatedByFk
+               ,SOURCE.ModifiedDate
+               ,SOURCE.ModifiedByFk
+            )
+         output inserted.PostId
+      ;
+      """;
 }

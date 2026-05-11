@@ -61,9 +61,16 @@ public class PostService(IPostRepository postRepository, IAlbumService albumServ
          }
       }
    }
+
+   public async Task<int> Save(Post model)
+   {
+      return await _postRepository.Save(model);
+   }
 }
 
 public interface IPostService
 {
    Task<IEnumerable<PostViewModel>> GetAll();
+   Task<int> Save(Post model);
+
 }

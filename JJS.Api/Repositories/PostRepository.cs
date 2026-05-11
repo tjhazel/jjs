@@ -31,9 +31,18 @@ public partial class PostRepository(AppConfig _appConfig) : IPostRepository
 
       return result;
    }
+
+   public async Task<int> Save(Post model)
+   {
+      await using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      model.PostId = await db.ExecuteScalarAsync<int>(MERGE_SQL, model);
+      return model.PostId;
+   }
 }
 
 public interface IPostRepository
 {
    Task<IEnumerable<PostViewModel>> GetAll();
+   Task<int> Save(Post model);
 }
