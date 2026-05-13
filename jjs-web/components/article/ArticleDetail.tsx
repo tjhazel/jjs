@@ -1,11 +1,11 @@
 "use client";
 
-import { Post } from "@/api/post/post";
+import { PostDetail } from "@/api/post/post";
 import Link from "next/link";
 import React from "react";
 import { Url } from "next/dist/shared/lib/router/router";
 
-interface ArticleCardProps extends Post {}
+interface ArticleCardProps extends PostDetail {}
 
 export default function ArticleCard({
   title,
