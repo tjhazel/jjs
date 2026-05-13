@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useApiContext } from '@/components/context/ApiContext';
 import { getPostUrl, savePost, usePosts } from '@/api/post/post-fetcher';
-import { Post } from '@/api/post/post';
+import { PostDetail } from '@/api/post/post';
 import PostEditor from "./PostEditor";
 import useSWR from "swr";
 import { swrOptions } from "@/lib/swr.functions";
@@ -19,7 +19,7 @@ export default function EditPostPage() {
 
    const isNew = id === "new";
 
-   const { data: post, isLoading: postLoading } = useSWR<Post>(
+   const { data: post, isLoading: postLoading } = useSWR<PostDetail>(
       !isNew ? getPostUrl(Number(id)) : null,
       httpGet,
       { ...swrOptions }
@@ -32,7 +32,7 @@ export default function EditPostPage() {
       { ...swrOptions }
    );
 
-   const handleSave = async (data: Post) => {
+   const handleSave = async (data: PostDetail) => {
       setIsSaving(true);
       setSaveError(null);
       setSaveSuccess(false);

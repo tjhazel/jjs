@@ -13,11 +13,11 @@ import {
 } from "@tanstack/react-table";
 import { formatDate } from "@/lib/time.functions";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import { Post } from '@/api/post/post';
+import { PostDetail } from '@/api/post/post';
 
 
 interface PostTableProps {
-   posts: Post[] | undefined;
+   posts: PostDetail[] | undefined;
    isLoading: boolean;
 }
 
@@ -29,7 +29,7 @@ export default function PostTable({ posts, isLoading }: PostTableProps) {
       pageSize: 10,
    });
 
-   const columns = useMemo<ColumnDef<Post>[]>(
+   const columns = useMemo<ColumnDef<PostDetail>[]>(
       () => [
          {
             accessorKey: "title",

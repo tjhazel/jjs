@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Post } from '@/api/post/post';
+import { PostDetail } from '@/api/post/post';
 import { formatDate } from "@/lib/time.functions";
 
 interface Category {
@@ -11,15 +11,15 @@ interface Category {
 }
 
 interface PostEditorProps {
-   post?: Post;
+   post?: PostDetail;
    categories?: Category[];
    isLoading?: boolean;
    isSaving?: boolean;
-   onSave: (data: Post) => void;
+   onSave: (data: PostDetail) => void;
    onCancel?: () => void;
 }
 
-const DEFAULT_POST: Partial<Post> = {
+const DEFAULT_POST: Partial<PostDetail> = {
    title: "",
    previewText: "",
    body: "",
@@ -48,8 +48,8 @@ export default function PostEditor({
       control,
       reset,
       formState: { errors, isDirty },
-   } = useForm<Post>({
-      defaultValues: DEFAULT_POST as Post,
+   } = useForm<PostDetail>({
+      defaultValues: DEFAULT_POST as PostDetail,
    });
 
    // Populate form when post data arrives

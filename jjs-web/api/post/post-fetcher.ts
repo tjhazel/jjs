@@ -1,7 +1,7 @@
 "use client" 
 
 import { HttpError, TGet, TPost } from "@/lib/httpClient";
-import { Post } from "./post";
+import { PostDetail } from "./post";
 import useSWR, { mutate } from "swr";
 import { swrOptions } from "@/lib/swr.functions";
 
@@ -11,7 +11,7 @@ export const getPostUrl = (id: number) => `${postBaseUrl}/${id}`;
 export const postSaveUrl = `${getPostUrl}/Save`;
 
 export function usePosts(httpGet: TGet) {
-   const { data, isValidating, error } = useSWR<Post[], HttpError>(
+   const { data, isValidating, error } = useSWR<PostDetail[], HttpError>(
       postBaseUrl,
       httpGet,
       { ...swrOptions }
@@ -24,7 +24,7 @@ export function usePosts(httpGet: TGet) {
    };
 }
 
-export const savePost = async (httpPost: TPost, post: Post) => {
+export const savePost = async (httpPost: TPost, post: PostDetail) => {
    const result = await httpPost(postSaveUrl, post)
       .then(() => mutate(postSaveUrl));
    return result;
