@@ -10,13 +10,16 @@ export interface Post {
   viewCount: number;
   createdDate: string; // ISO string or date-like
   createdByFk: string;
-  createdBy: string;
   modifiedDate : string; // ISO string or date-like
   modifiedByFk : string;
-  modifiedBy : string;
+}
 
-  imageUrl?: string;
-  href?: string;
-  categoryIds: number[];
-  categories: string[];
+export interface PostDetail extends Post {
+   createdBy: string;
+   modifiedBy: string;
+
+   imageUrl?: string;
+   href?: string;
+   categoryIds: number[];
+   categories: string[];
 }

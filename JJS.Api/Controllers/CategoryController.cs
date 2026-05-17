@@ -11,8 +11,8 @@ public class CategoryController(ICategoryService categoryService) : Controller
    private readonly ICategoryService _categoryService = categoryService;
 
    [HttpGet]
-   public async Task<IEnumerable<Category>> GetAll()
+   public async Task<IEnumerable<Category>> GetCategories(int categoryTypeId = 1)
    {
-      return await _categoryService.GetAll();
+      return await _categoryService.Get(categoryTypeId);
    }
 }

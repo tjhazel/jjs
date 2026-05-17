@@ -10,9 +10,9 @@ public class CategoryService(ICategoryRepository categoryRepository, IAlbumServi
    private readonly ICategoryRepository _categoryRepository = categoryRepository;
    private readonly IAlbumService _albumService = albumService;
 
-   public async Task<IEnumerable<Category>> GetAll()
+   public async Task<IEnumerable<Category>> Get(int categoryTypeId)
    {
-      var allCategories = await _categoryRepository.GetAll();
+      var allCategories = await _categoryRepository.Get(categoryTypeId);
       await MatchImages(allCategories);
       return allCategories;
    }
@@ -51,5 +51,5 @@ public class CategoryService(ICategoryRepository categoryRepository, IAlbumServi
 
 public interface ICategoryService
 {
-   Task<IEnumerable<Category>> GetAll();
+   Task<IEnumerable<Category>> Get(int categoryTypeId);
 }

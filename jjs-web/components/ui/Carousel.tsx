@@ -2,6 +2,7 @@
 
 import { ImageSummary } from '@/api/album/image-details';
 import { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CarouselProps {
   images: ImageSummary[];
@@ -21,58 +22,67 @@ export default function Carousel({ images }: CarouselProps) {
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto overflow-hidden rounded-lg">
-      <div
-        className="flex transition-transform ease-out duration-500"
-        style={{ transform: `translateX(-${(currentIndex * 100) / visibleCount}%)` }}
-      >
-        {images.map(({ path, title, description }, idx) => (
-          <div
-            key={idx}
-            className="flex-shrink-0 w-1/2 flex flex-col items-center px-3"
-          >
-            <h2 className="mb-1 text-lg font-semibold text-center">{title}</h2>
-            <img
-              src={path}
-              alt={title}
-              className="max-h-[300px] mx-auto object-contain"
-            />
-            {description && (
-              <p className="mt-2 text-sm text-gray-600 text-center max-w-md">{description}</p>
-            )}
-          </div>
-        ))}
+    <div className="w-full max-w-4xl mx-auto">
+      <div className="carousel carousel-center rounded-lg bg-base-200 p-4 space-x-4 w-full overflow-hidden">
+        <div
+          className="flex transition-transform ease-out duration-500"
+          style={{ transform: `translateX(-${(currentIndex * 100) / visibleCount}%)` }}
+        >
+          {images.map(({ path, title, description }, idx) => (
+            <div
+              key={idx}
+              className="carousel-item flex-shrink-0 w-1/2 flex flex-col items-center px-3"
+            >
+              <div className="card card-compact bg-base-100 shadow-lg">
+                <div className="card-body items-center text-center">
+                  <h2 className="card-title text-lg font-semibold">{title}</h2>
+                  <img
+                    src={path}
+                    alt={title}
+                    className="max-h-[300px] mx-auto object-contain rounded"
+                  />
+                  {description && (
+                    <p className="text-sm text-base-content/70 max-w-md">{description}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Navigation buttons */}
-      <button
-        onClick={prevSlide}
-        className="absolute top-1/2 left-4 -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full hover:bg-opacity-70"
-        aria-label="Previous Slide"
-      >
-        ‹
-      </button>
-      <button
-        onClick={nextSlide}
-        className="absolute top-1/2 right-4 -translate-y-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full hover:bg-opacity-70"
-        aria-label="Next Slide"
-      >
-        ›
-      </button>
+      {/* Navigation buttons with daisyUI styling */}
+      <div className="flex justify-center gap-2 mt-4">
+        <button
+          onClick={prevSlide}
+          className="btn btn-circle btn-outline"
+          aria-label="Previous Slide"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="btn btn-circle btn-outline"
+          aria-label="Next Slide"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
 
-      {/* Indicators below carousel */}
-      <div className="mt-4 flex justify-center space-x-2">
+      {/* Indicators with daisyUI styling */}
+      <div className="mt-4 flex justify-center gap-2 flex-wrap">
         {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
             aria-label={`Go to slide ${idx + 1}`}
-            className={`w-3 h-3 rounded-full ${
-              idx === currentIndex ? 'bg-gray-900' : 'bg-gray-400'
-            }`}
+            className={`badge ${
+              idx === currentIndex ? 'badge-primary' : 'badge-outline'
+            } cursor-pointer hover:badge-primary transition-colors`}
           />
         ))}
       </div>
     </div>
   );
 }
+

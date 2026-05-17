@@ -2,10 +2,10 @@
 
 import React from "react";
 import ArticleCard from "./ArticleCard";
-import { Post } from "@/api/post/post";
+import { PostDetail } from "@/api/post/post";
 
 interface ArticleListProps {
-  posts: Post[]|undefined;
+  posts: PostDetail[]|undefined;
 }
 
 export default function ArticleList({ posts }: ArticleListProps) {
