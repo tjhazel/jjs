@@ -1,4 +1,5 @@
 using JJS.Api;
+using JJS.Api.Middleware;
 using Microsoft.Extensions.FileProviders;
 
 bool IS_DEBUG = false;
@@ -41,6 +42,8 @@ app.UseCors("AllowCors");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseUserValidationMiddleware();
 
 app.MapControllers();
 

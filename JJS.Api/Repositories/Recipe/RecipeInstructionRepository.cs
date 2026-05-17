@@ -1,13 +1,16 @@
 ﻿using Dapper;
 using JJS.Api.Models;
+using JJS.Api.Models.Configuration;
 using JJS.Api.Models.Recipe;
 using Microsoft.Data.SqlClient;
 
 namespace JJS.Api.Repositories.Recipe;
 
 [ServiceImplementation(typeof(IRecipeInstructionRepository))]
-public partial class RecipeInstructionRepository(AppConfig _appConfig) : IRecipeInstructionRepository
+public partial class RecipeInstructionRepository(AppConfig appConfig) : IRecipeInstructionRepository
 {
+   private readonly AppConfig _appConfig = appConfig;
+
    public async Task<IEnumerable<InstructionViewModel>> GetRecipeInstructions(int recipeId)
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);

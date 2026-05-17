@@ -1,7 +1,7 @@
 "use client" 
 
 import * as React from 'react'
-//import { useUserContext } from '../auth/authContext';
+import { useAuth } from '@/lib/auth/authContext';
 import * as httpClient from '@/lib/httpClient';
 import { HttpVerb } from '@/lib/httpClient';
 import config from '@/lib/config';
@@ -33,15 +33,7 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
 
    const getApiUrl = (request: string) => `${config.apiUrl}/${request}`;
 
-   //const { getToken } = useUserContext();
-   const getToken = async (force: boolean = false): Promise<string> => {
-      return new Promise((resolve, reject) => {
-         setTimeout(() => {
-            const data = "sample-token";
-            resolve(data);
-         }, 10); // Simulate a 1-second delay
-      });
-   }
+   const { getToken } = useAuth();
 //   const { addError, removeError, apiErrors } = useErrorContext(); 
   
    const httpGet = async<T,>(url: string): Promise<T> => {
