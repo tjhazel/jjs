@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using JJS.Api.Models;
+using JJS.Api.Models.Configuration;
 using Microsoft.Data.SqlClient;
 
 namespace JJS.Api.Repositories;

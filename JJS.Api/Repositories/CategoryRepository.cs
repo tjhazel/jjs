@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using JJS.Api.Models;
+using JJS.Api.Models.Configuration;
 using JJS.Api.Models.Post;
 using Microsoft.Data.SqlClient;
 

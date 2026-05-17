@@ -1,13 +1,16 @@
 ﻿using Dapper;
 using JJS.Api.Models;
+using JJS.Api.Models.Configuration;
 using JJS.Api.Models.Post;
 using Microsoft.Data.SqlClient;
 
 namespace JJS.Api.Repositories;
 
 [ServiceImplementation(typeof(IPostRepository))]
-public partial class PostRepository(AppConfig _appConfig) : IPostRepository
+public partial class PostRepository(AppConfig appConfig) : IPostRepository
 {
+   private readonly AppConfig _appConfig = appConfig;
+
    public async Task<IEnumerable<PostViewModel>> GetAll()
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);

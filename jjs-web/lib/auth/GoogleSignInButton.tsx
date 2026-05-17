@@ -1,5 +1,13 @@
 "use client";
 
+/*
+The "URI malformed" error is actually a known issue with useGoogleLogin — it typically happens in the token decoding step, not the API call itself. It's most likely being thrown by the decodeJwtPayload function in authContext.tsx when it tries to decode the access token Google returns.
+The problem is that useGoogleLogin with flow: "implicit" returns an access token, not an ID token (JWT). Access tokens are opaque strings — they can't be base64-decoded like a JWT, which is why atob() throws URI malformed.
+
+Fix — use GoogleLogin component instead
+Swap useGoogleLogin for the GoogleLogin component, which returns a proper ID token (JWT):
+components/auth/GoogleSignInButton.tsx — replace the button with:
+*/
 import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth, GoogleCredentialResponse } from "@/lib/auth/authContext";
 import { useState } from "react";
@@ -28,8 +36,11 @@ export function GoogleSignInButton({
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
 
-  const handleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
+   const handleLogin = useGoogleLogin({
+
+      onSuccess: async (tokenResponse) => {
+         console.log(tokenResponse);
+
       setLoading(true);
       setError(null);
       try {

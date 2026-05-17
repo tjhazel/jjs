@@ -1,13 +1,16 @@
 ﻿using Dapper;
 using JJS.Api.Models;
+using JJS.Api.Models.Configuration;
 using JJS.Api.Models.Recipe;
 using Microsoft.Data.SqlClient;
 
 namespace JJS.Api.Repositories.Recipe;
 
 [ServiceImplementation(typeof(IRecipeRepository))]
-public partial class RecipeRepository(AppConfig _appConfig) : IRecipeRepository
+public partial class RecipeRepository(AppConfig appConfig) : IRecipeRepository
 {
+   private readonly AppConfig _appConfig = appConfig;
+
    public async Task<IEnumerable<RecipeViewModel>> GetRecipes()
    {
       return await GetRecipeViewModel<RecipeViewModel>();

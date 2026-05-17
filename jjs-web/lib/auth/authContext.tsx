@@ -9,25 +9,17 @@ import {
   ReactNode,
 } from "react";
 import { googleLogout } from "@react-oauth/google";
+import { UserRole, JJSUser, User } from "@/api/user/user";
+import config from '@/lib/config';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-export type UserRole = "Admin" | "Manager" | "User" | "Guest";
-
-export interface JJSUser {
-  email: string;
-  name: string;
-  picture?: string;
-  role: UserRole;
-  googleId: string;
-}
-
 interface AuthState {
-  user: JJSUser | null;
-  idToken: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
+   user: JJSUser | null;
+   idToken: string | null;
+   isAuthenticated: boolean;
+   isLoading: boolean;
 }
+
 
 interface AuthContextValue extends AuthState {
   login: (credentialResponse: GoogleCredentialResponse) => Promise<void>;
@@ -122,30 +114,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ── Login ────────────────────────────────────────────────────────────────────
-  const login = useCallback(async (credentialResponse: GoogleCredentialResponse) => {
-    const idToken = credentialResponse.credential;
-    if (!idToken) throw new Error("No credential returned from Google.");
+   const login = useCallback(async (credentialResponse: GoogleCredentialResponse) => {
+      console.log("GoogleCredentialResponse:", credentialResponse);
+      const idToken = credentialResponse.credential;
+      if (!idToken) throw new Error("No credential returned from Google.");
 
-    // Decode the token to extract profile info (client-side only)
-    const payload = decodeJwtPayload<GoogleIdTokenPayload>(idToken);
+      // Decode the token to extract profile info (client-side only)
+      const payload = decodeJwtPayload<GoogleIdTokenPayload>(idToken);
 
-    if (!payload.email_verified) {
-      throw new Error("Google account email is not verified.");
-    }
+      if (!payload.email_verified) {
+         throw new Error("Google account email is not verified.");
+      }
 
-    // ── Optional: exchange with your API to get role & validate server-side ──
-    // Uncomment and adjust the endpoint when your API is ready:
-    //
-    // const apiRes = await fetch("/api/auth/google", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ idToken }),
-    // });
-    // if (!apiRes.ok) throw new Error("API auth failed");
-    // const { role }: { role: UserRole } = await apiRes.json();
-    //
+      // ── Optional: exchange with your API to get role & validate server-side ──
+      // Uncomment and adjust the endpoint when your API is ready:
+      //
+
+      //return httpGet<User>(`${config.apiUrl}/api/auth/getcurrentuser`).then((response) => {
+      //   setCurrentUser(response);
+      //});      
+
+      const apiRes = await fetch(`${config.apiUrl}/api/auth/getcurrentuser`, {
+         method: "GET",
+         headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      });
+      console.log("API response:", apiRes);
+      if (!apiRes.ok) throw new Error("API auth failed");
+     
+      const apiData = await apiRes.json() as User;
+
+      const { role }: { role: UserRole } = apiData.role ? { role: apiData.role as UserRole } : { role: "Guest" as UserRole };
+    
     // For now, fall back to the custom claim or default to "User":
-    const role: UserRole = payload["jjs/role"] ?? "User";
+    //const role: UserRole = payload["jjs/role"] ?? "User";
 
     const user: JJSUser = {
       email:    payload.email,
