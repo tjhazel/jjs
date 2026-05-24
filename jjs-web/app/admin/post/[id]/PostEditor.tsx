@@ -2,13 +2,17 @@
 
 import { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { postSchema } from "./postSchema";
 import { PostDetail } from '@/api/post/post';
 import { formatDate } from "@/lib/time.functions";
 import { Category } from "@/api/post/category";
 
-// Import your unified wrapper components
-import { FormInput } from "@/components/ui/form/FormInput";
+// Unified wrapper component footprint deck
+import { Input } from "@/components/ui/form/Input";
 import { MarkdownEditor } from "@/components/ui/form/MarkdownEditor";
+import { DatePicker } from "@/components/ui/form/DatePicker";
+import { CheckboxList } from "@/components/ui/form/CheckboxList";
 
 interface PostEditorProps {
    post?: PostDetail;
@@ -44,9 +48,10 @@ export default function PostEditor({
 }: PostEditorProps) {
    const methods = useForm<PostDetail>({
       defaultValues: DEFAULT_POST as PostDetail,
+      resolver: yupResolver(postSchema),
    });
 
-   const { register, handleSubmit, reset, formState: { errors, isDirty } } = methods;
+   const { register, handleSubmit, reset, formState: { isDirty } } = methods;
 
    // Populate form when post data arrives from API
    useEffect(() => {
@@ -74,15 +79,14 @@ export default function PostEditor({
                      <h2 className="card-title text-base font-semibold">Content</h2>
 
                      {/* Title */}
-                     <FormInput
+                     <Input
                         name="title"
                         label={<>Title <span className="text-error">*</span></>}
                         placeholder="Post title"
-                        rules={{ required: "Title is required" }}
                      />
 
                      {/* Preview Text */}
-                     <FormInput
+                     <Input
                         name="previewText"
                         label={
                            <div className="flex justify-between w-full">
@@ -93,16 +97,14 @@ export default function PostEditor({
                         variant="textarea"
                         rows={3}
                         placeholder="Short description shown in post listings…"
-                        rules={{ required: "Preview text is required" }}
                      />
 
-                     {/* Body (GitHub/Markdown Component) */}
+                     {/* Body (Markdown rendering engine) */}
                      <MarkdownEditor
                         name="body"
                         label={<>Body (Markdown supported) <span className="text-error">*</span></>}
                         rows={14}
                         placeholder="Write your full post using markdown formatting..."
-                        rules={{ required: "Body content is required" }}
                      />
                   </div>
                </section>
@@ -111,28 +113,22 @@ export default function PostEditor({
                <section className="card bg-base-100 border border-base-200 shadow-sm">
                   <div className="card-body gap-5">
                      <h2 className="card-title text-base font-semibold">Media &amp; Links</h2>
-
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
                         {/* Image URL */}
-                        <FormInput
+                        <Input
                            name="imageUrl"
                            label="Image URL"
                            type="url"
                            placeholder="https://…"
-                           rules={{
-                              validate: (v: string) => !v || /^https?:\/\/.+/.test(v) || "Must be a valid URL",
-                           }}
                         />
 
                         {/* External Href */}
-                        <FormInput
+                        <Input
                            name="href"
                            label="External Link (href)"
                            type="url"
                            placeholder="https://…"
-                           rules={{
-                              validate: (v: string) => !v || /^https?:\/\/.+/.test(v) || "Must be a valid URL",
-                           }}
                         />
                      </div>
                   </div>
@@ -142,38 +138,28 @@ export default function PostEditor({
                <section className="card bg-base-100 border border-base-200 shadow-sm">
                   <div className="card-body gap-5">
                      <h2 className="card-title text-base font-semibold">Scheduling</h2>
-
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
                         {/* Release Date */}
-                        <div className="form-control w-full">
-                           <label className="label" htmlFor="releaseDate">
-                              <span className="label-text font-medium">Release Date</span>
-                           </label>
-                           <input
-                              id="releaseDate"
-                              type="datetime-local"
-                              className="input input-bordered w-full"
-                              {...register("releaseDate")}
+                        <div>
+                           <DatePicker
+                              name="releaseDate"
+                              label="Release Date"
                            />
-                           <label className="label">
-                              <span className="label-text-alt text-base-content/50">Leave blank to publish immediately</span>
-                           </label>
+                           <span className="label-text-alt text-base-content/50 block px-1 -mt-4">
+                              Leave blank to publish immediately
+                           </span>
                         </div>
 
                         {/* Expire Date */}
-                        <div className="form-control w-full">
-                           <label className="label" htmlFor="expireDate">
-                              <span className="label-text font-medium">Expire Date</span>
-                           </label>
-                           <input
-                              id="expireDate"
-                              type="datetime-local"
-                              className="input input-bordered w-full"
-                              {...register("expireDate")}
+                        <div>
+                           <DatePicker
+                              name="expireDate"
+                              label="Expire Date"
                            />
-                           <label className="label">
-                              <span className="label-text-alt text-base-content/50">Leave blank to never expire</span>
-                           </label>
+                           <span className="label-text-alt text-base-content/50 block px-1 -mt-4">
+                              Leave blank to never expire
+                           </span>
                         </div>
                      </div>
                   </div>
@@ -183,20 +169,15 @@ export default function PostEditor({
                {categories.length > 0 && (
                   <section className="card bg-base-100 border border-base-200 shadow-sm">
                      <div className="card-body gap-4">
-                        <h2 className="card-title text-base font-semibold">Categories</h2>
-                        <div className="flex flex-wrap gap-3">
-                           {categories.map((cat) => (
-                              <label key={cat.categoryId} className="flex items-center gap-2 cursor-pointer select-none">
-                                 <input
-                                    type="checkbox"
-                                    className="checkbox checkbox-sm"
-                                    value={cat.categoryId}
-                                    {...register("categoryIds")}
-                                 />
-                                 <span className="text-sm text-base-content">{cat.title}</span>
-                              </label>
-                           ))}
-                        </div>
+                        <CheckboxList
+                           name="categoryIds"
+                           label="Categories"
+                           options={categories.map((cat) => ({
+                              value: cat.categoryId,
+                              label: cat.title,
+                           }))}
+                           layoutClassName="flex flex-wrap gap-3"
+                        />
                      </div>
                   </section>
                )}
@@ -205,15 +186,11 @@ export default function PostEditor({
                <section className="card bg-base-100 border border-base-200 shadow-sm">
                   <div className="card-body gap-5">
                      <h2 className="card-title text-base font-semibold">Settings</h2>
-
                      <div className="flex flex-col sm:flex-row gap-6">
+
                         {/* Approved Toggle */}
                         <label className="flex items-center gap-3 cursor-pointer select-none">
-                           <input
-                              type="checkbox"
-                              className="toggle toggle-success"
-                              {...register("approved")}
-                           />
+                           <input type="checkbox" className="toggle toggle-success" {...register("approved")} />
                            <div>
                               <p className="text-sm font-medium text-base-content">Approved</p>
                               <p className="text-xs text-base-content/50">Visible to the public</p>
@@ -222,23 +199,7 @@ export default function PostEditor({
 
                         {/* Comments Enabled Toggle */}
                         <label className="flex items-center gap-3 cursor-pointer select-none">
-                           <input
-                              type="checkbox"
-                              className="toggle"
-                              {...register("commentsEnabled")}
-                           />
-                           <div>
-                              <p className="text-sm font-medium text-base-content">Comments Enabled</p>
-                              <p className="text-xs text-base-content/50">Allow readers to comment</p>
-                           </div>
-                        </label>
-                        {/* Comments Enabled Toggle */}
-                        <label className="flex items-center gap-3 cursor-pointer select-none">
-                           <input
-                              type="checkbox"
-                              className="toggle"
-                              {...register("commentsEnabled")}
-                           />
+                           <input type="checkbox" className="toggle" {...register("commentsEnabled")} />
                            <div>
                               <p className="text-sm font-medium text-base-content">Comments Enabled</p>
                               <p className="text-xs text-base-content/50">Allow readers to comment</p>
@@ -246,9 +207,9 @@ export default function PostEditor({
                         </label>
                      </div>
 
-                     {/* View Count (Read-only mapped via FormInput) */}
+                     {/* View Count (Read-only wrapper execution) */}
                      <div className="max-w-xs">
-                        <FormInput
+                        <Input
                            name="viewCount"
                            label={
                               <div className="flex justify-between w-full">
@@ -258,7 +219,6 @@ export default function PostEditor({
                            }
                            type="number"
                            className="bg-base-200 cursor-not-allowed rounded-lg"
-                           rules={{ valueAsNumber: true }}
                            disabled={true}
                         />
                      </div>
@@ -293,12 +253,14 @@ export default function PostEditor({
                         {isSaving && <span className="loading loading-spinner loading-sm" />}
                         {isSaving ? "Saving…" : isNew ? "Create Post" : "Save Changes"}
                      </button>
+
                      {onCancel && (
                         <button type="button" className="btn btn-ghost" onClick={onCancel}>
                            Cancel
                         </button>
                      )}
                   </div>
+
                   {!isNew && (
                      <span className="text-xs text-base-content/40 font-mono">ID: {post?.postId}</span>
                   )}
@@ -309,5 +271,3 @@ export default function PostEditor({
       </FormProvider>
    );
 }
-
-
