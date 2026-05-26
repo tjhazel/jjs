@@ -3,11 +3,10 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useApiContext } from '@/components/context/ApiContext';
-import { getPostUrl, savePost, usePosts } from '@/api/post/post-fetcher';
+import { savePost, useGetPost } from '@/api/post/post-fetcher';
 import { PostDetail } from '@/api/post/post';
 import PostEditor from "./PostEditor";
-import useSWR from "swr";
-import { swrOptions } from "@/lib/swr.functions";
+import { useCategories } from "@/api/post/category-fetcher";
 
 export default function EditPostPage() {
    const { id } = useParams<{ id: string }>();
@@ -19,18 +18,10 @@ export default function EditPostPage() {
 
    const isNew = id === "new";
 
-   const { data: post, isLoading: postLoading } = useSWR<PostDetail>(
-      !isNew ? getPostUrl(Number(id)) : null,
-      httpGet,
-      { ...swrOptions }
-   );
+   const { post, isLoading: postLoading } = useGetPost(httpGet, Number(id));
 
    // Fetch categories for the checkbox list — adjust the URL to match your API
-   const { data: categories, isLoading: catsLoading } = useSWR<{ categoryId: number; name: string }[]>(
-      "api/category",
-      httpGet,
-      { ...swrOptions }
-   );
+   const { data: categories, isLoading: catsLoading } = useCategories(httpGet);
 
    const handleSave = async (data: PostDetail) => {
       setIsSaving(true);
@@ -88,7 +79,7 @@ export default function EditPostPage() {
 
          <PostEditor
             post={post}
-            categories={categories}
+            categories={categories ?? []}
             isLoading={postLoading || catsLoading}
             isSaving={isSaving}
             onSave={handleSave}
