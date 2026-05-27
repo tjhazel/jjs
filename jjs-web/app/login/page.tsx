@@ -10,7 +10,7 @@ export default function LoginPage() {
 
    const router = useRouter();
    const searchParams = useSearchParams();
-   const callbackUrl = searchParams.get("callbackUrl") ?? '/';
+   const callbackUrl = searchParams.get("callbackUrl") ?? '/admin';
 
   // If already authenticated, redirect to dashboard
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <GoogleSignInButton onSuccess={() => router.push("/dashboard")} />
+      <GoogleSignInButton onSuccess={() => router.push("/admin")}  />
 
       <p style={{ fontSize: 13, color: "#999", marginTop: 16 }}>
         By signing in, you agree to our Terms of Service
