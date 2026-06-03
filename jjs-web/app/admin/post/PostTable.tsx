@@ -138,7 +138,7 @@ export default function PostTable({ posts, isLoading }: PostTableProps) {
                         className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
                         onClick={() =>
                            row.original.postId &&
-                           router.push(`/admin/post/${row.original.postId}/edit`)
+                           router.push(`/admin/post/${row.original.postId}`)
                         }
                      >
                         {row.getVisibleCells().map((cell) => (
