@@ -71,8 +71,8 @@ Architecture Notes
 
 - The codebase uses a monolithic architecture, where all components are interconnected.
 - The React application is stateless and uses hooks for state management.
-- The database is designed for scalability and is hosted on MongoDB.
-- The authentication system uses JWT tokens to secure user sessions.
+- The database is designed for scalability and is hosted on SQL Server DB.
+- The authentication system uses Google Issues JWT tokens to secure user sessions.
 - The API endpoints are designed to be RESTful, with resources organized into a hierarchical structure.
 
 Important Files

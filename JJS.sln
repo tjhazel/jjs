@@ -36,7 +36,9 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "jjs-web", "jjs-web\", "{21B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Claude", "Claude", "{EDC21638-6CD6-41D4-9076-A60F2F7539CC}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		claude.md = claude.md
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global
