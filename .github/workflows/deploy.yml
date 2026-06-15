@@ -47,8 +47,8 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftps
-        port: 21
+        protocol: ftps-legacy
+        port: 990
         security: loose
         timeout: 900000               # 👈 1. Maximize timeout window (15 minutes in ms)
         log-level: verbose            # 👈 2. Force step-by-step logs to pinpoint failures
@@ -62,8 +62,8 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftps
-        port: 21
+        protocol: ftps-legacy
+        port: 990
         security: loose
         timeout: 900000               # 👈 1. Maximize timeout window (15 minutes in ms)
         log-level: verbose            # 👈 2. Force step-by-step logs to pinpoint failures
