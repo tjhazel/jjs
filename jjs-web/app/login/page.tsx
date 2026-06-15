@@ -3,9 +3,18 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth/authContext";
 import { GoogleSignInButton } from "@/lib/auth/GoogleLoginButton";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
+
 
 export default function LoginPage() {
+   return (
+      <Suspense fallback={<div>Loading albums...</div>}>
+         <LoginContent />
+      </Suspense>
+   );
+}
+
+function LoginContent() {
   const { isAuthenticated, isLoading } = useAuth();
 
    const router = useRouter();

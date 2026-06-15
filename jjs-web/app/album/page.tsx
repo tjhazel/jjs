@@ -6,8 +6,17 @@ import { useAlbumByPath } from '@/api/album/album-fetcher';
 import { IMAGE_PREFIX } from '@/api/album/album-models';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default function AlbumPage() {
+   return (
+      <Suspense fallback={<div>Loading albums...</div>}>
+         <AlbumContent />
+      </Suspense>
+   );
+}
+
+function AlbumContent() {
    const { httpGet } = useApiContext();
    const searchParams = useSearchParams();
    const path = searchParams.get('path') || undefined;
