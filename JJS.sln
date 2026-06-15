@@ -34,10 +34,11 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "jjs-web", "jjs-web\", "{21B
 		SlnRelativePath = "jjs-web\"
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Claude", "Claude", "{EDC21638-6CD6-41D4-9076-A60F2F7539CC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{EDC21638-6CD6-41D4-9076-A60F2F7539CC}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		claude.md = claude.md
+		.github\workflows\deploy.yml = .github\workflows\deploy.yml
 		README.md = README.md
 	EndProjectSection
 EndProject

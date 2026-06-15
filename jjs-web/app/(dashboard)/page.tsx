@@ -7,6 +7,9 @@ import { usePosts } from '@/api/post/post-fetcher';
 import ArticleList from '@/components/article/ArticleList';
 import { Category_Home } from '@/api/post/category';
 import PageContainer from '@/components/ui/pageContainer';
+
+import Image from 'next/image';
+
 export default function HomePage() {
   const { httpGet } = useApiContext();
   const {data: carouselImages} = useCarouselImages(httpGet);
@@ -17,6 +20,7 @@ export default function HomePage() {
          heading="Welcome"
          description="Explore our collection of memories, recipes, and stories. Currently refactoring the design and tech stack with improved performance and user experience."
       >
+
       <div className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Featured Posts</h2>
         <div className="relative">

@@ -4,7 +4,10 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # site photos
-*/album
+*/albums
+# wedding site
+*/public/wedding
+
 
 # User-specific files
 *.rsuser

@@ -18,7 +18,7 @@ public class AlbumService(IMetaDataService tagData,
    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
    private readonly ICacheService _cacheService = cacheService;
  
-   private readonly string _albumRoot = Path.Combine(appConfig.RootPath, "Album");
+   private readonly string _albumRoot = Path.Combine(appConfig.RootPath, "Albums");
    private readonly string _siteRoot = appConfig.RootPath;
    private string[] _filters = { "*.jpg", "*.png", "*.gif" };
 

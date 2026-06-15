@@ -28,7 +28,7 @@ app.UseSwaggerUI(options =>
 
 app.MapDefaultEndpoints();
 
-var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Album");
+var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Albums");
 app.UseFileServer(new FileServerOptions
 {
    FileProvider = new PhysicalFileProvider(imgDir),

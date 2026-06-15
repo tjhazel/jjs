@@ -1,5 +1,5 @@
 import PageContainer from '@/components/ui/pageContainer';
-import CardProps from "@/components/ui/card";
+import Card from "@/components/ui/card";
 
 export default function ThingsPage() {
   const placeholderCards = [
@@ -17,15 +17,15 @@ export default function ThingsPage() {
     },
     {
       id: 3,
-      title: "Community Hub",
+      title: "Placeholder",
       description: "Connect with like-minded individuals and collaborate on meaningful initiatives.",
       link: "#",
     },
     {
       id: 4,
-      title: "Latest Updates",
-      description: "Stay informed about recent developments and exciting announcements in the community.",
-      link: "#",
+      title: "Wedding",
+      description: "Our wedding website",
+       link: "/wedding/arrangements/default.htm",
     },
   ];
 
@@ -36,7 +36,7 @@ export default function ThingsPage() {
       >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {placeholderCards.map((card) => (
-            <CardProps
+           <Card
                key={card.id}
                title={card.title}
                previewText={card.description}
