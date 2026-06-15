@@ -56,7 +56,7 @@ export function useAlbumByPath(httpGet: TGet, path?: string) : { filteredData?: 
                matchedFolder = nextFolder;
                break;
             }
-         }         
+         }
 
          return matchedFolder;
       }

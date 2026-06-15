@@ -1,8 +1,11 @@
 ﻿using JJS.Api.Middleware;
 using JJS.Api.Models;
-using Microsoft.OpenApi.Models;
+using JJS.Api.Models.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using System.Configuration;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using static JJS.Api.Models.ServiceImplementationAttribute;
 
@@ -28,18 +31,21 @@ public class AppBuilder
 
    private static void AddAuthentication(WebApplicationBuilder builder)
    {
-      //services.AddAuthentication(options =>
-      //{
-      //   options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-      //   // options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-      //   options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+      builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+           options.Authority = "https://accounts.google.com";
+           options.TokenValidationParameters = new TokenValidationParameters
+           {
+              ValidateIssuer = true,
+              ValidIssuer = "https://accounts.google.com",
 
-      //})
-      //.AddJwtBearer(options =>
-      //{
-      //   options.SecurityTokenValidators.Clear();
-      //   options.SecurityTokenValidators.Add(new GoogleTokenValidator());
-      //});
+              ValidateAudience = true,
+              ValidAudience = builder.Configuration["AppSetting:GoogleClientId"], // your NEXT_PUBLIC_GOOGLE_CLIENT_ID
+
+              ValidateLifetime = true,
+           };
+        });
    }
 
    static void AddAuthorization(WebApplicationBuilder builder)
@@ -61,24 +67,25 @@ public class AppBuilder
             Type = SecuritySchemeType.ApiKey,
             Scheme = "Bearer"
          });
-         c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                        {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                },
-                                Scheme = "oauth2",
-                                Name = "Bearer",
-                                In = ParameterLocation.Header,
+         //TODO: update swagger security requirement to match authentication scheme when implemented
+         //c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+         //               {
+         //               {
+         //                   new OpenApiSecurityScheme
+         //                   {
+         //                       Reference = new OpenApiReference
+         //                       {
+         //                           Type = ReferenceType.SecurityScheme,
+         //                           Id = "Bearer"
+         //                       },
+         //                       Scheme = "oauth2",
+         //                       Name = "Bearer",
+         //                       In = ParameterLocation.Header,
 
-                            },
-                            new List<string>()
-                        }
-                        });
+         //                   },
+         //                   new List<string>()
+         //               }
+         //               });
          c.SwaggerDoc("v1", new OpenApiInfo
          {
             Title = "JJS API",
@@ -131,6 +138,13 @@ public class AppBuilder
       };
 
       builder.Services.AddSingleton<AppConfig>(y => appConfig);
+
+      var appSetting = builder.Configuration.GetSection("AppSetting")?.Get<AppSetting>();
+      if (appSetting == null)
+         throw new ConfigurationErrorsException("AppSetting section is missing in configuration.");
+
+      builder.Services.AddSingleton<AppSetting>(y => appSetting);
+         
       return appConfig;
    }
 

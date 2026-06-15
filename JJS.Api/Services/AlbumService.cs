@@ -1,5 +1,6 @@
 ﻿using JJS.Api.Models;
 using JJS.Api.Models.Album;
+using JJS.Api.Models.Configuration;
 using JJS.Api.Services.Cache;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using File = JJS.Api.Models.Album.File;
@@ -7,14 +8,18 @@ using File = JJS.Api.Models.Album.File;
 namespace JJS.Api.Services;
 
 [ServiceImplementation(typeof(IAlbumService))]
-public class AlbumService(IMetaDataService _tagData,
-      AppConfig _appConfig,
-      IHttpContextAccessor _httpContextAccessor,
-      ICacheService _cacheService): IAlbumService
+public class AlbumService(IMetaDataService tagData,
+      AppConfig appConfig,
+      IHttpContextAccessor httpContextAccessor,
+      ICacheService cacheService): IAlbumService
 {
-  
-   private readonly string _albumRoot = Path.Combine(_appConfig.RootPath, "Album");
-   private readonly string _siteRoot = _appConfig.RootPath;
+   private readonly IMetaDataService _tagData = tagData;
+   private readonly AppConfig _appConfig = appConfig;
+   private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+   private readonly ICacheService _cacheService = cacheService;
+ 
+   private readonly string _albumRoot = Path.Combine(appConfig.RootPath, "Albums");
+   private readonly string _siteRoot = appConfig.RootPath;
    private string[] _filters = { "*.jpg", "*.png", "*.gif" };
 
    public async Task<Folder> Get()

@@ -1,4 +1,5 @@
 using JJS.Api;
+using JJS.Api.Middleware;
 using Microsoft.Extensions.FileProviders;
 
 bool IS_DEBUG = false;
@@ -27,7 +28,7 @@ app.UseSwaggerUI(options =>
 
 app.MapDefaultEndpoints();
 
-var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Album");
+var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Albums");
 app.UseFileServer(new FileServerOptions
 {
    FileProvider = new PhysicalFileProvider(imgDir),
@@ -41,6 +42,8 @@ app.UseCors("AllowCors");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseUserValidationMiddleware();
 
 app.MapControllers();
 

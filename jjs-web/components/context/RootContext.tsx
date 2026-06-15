@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { ApiContextProvider } from './ApiContext';
 import { useState } from 'react';
+import { JJSAuthProvider } from '@/lib/auth/authProvider';
 
 interface IRootContext {
   message: string;
@@ -16,20 +17,22 @@ interface IRootContextProviderProps {
 }
 
 export const RootContextProvider: React.FC<IRootContextProviderProps> = (props) => {
-   
+
    const [message, setMessage] = useState<string>("Hello from Context!");
 
   const updateMessage = (newMessage: string) => {
     setMessage(newMessage);
   };
-  
-   return <RootContext.Provider 
-      value={{
-        message,
-        updateMessage
+
+   return <JJSAuthProvider>
+      <RootContext.Provider 
+         value={{
+           message,
+           updateMessage
 }}>
-      <ApiContextProvider>
-      { props.children }
-     </ApiContextProvider>
-    </RootContext.Provider>;
+         <ApiContextProvider>
+         { props.children }
+        </ApiContextProvider>
+       </RootContext.Provider>
+    </JJSAuthProvider>;
 };

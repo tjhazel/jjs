@@ -1,4 +1,4 @@
-﻿namespace JJS.Api.Models;
+﻿namespace JJS.Api.Models.Configuration;
 
 public class AppConfig
 {

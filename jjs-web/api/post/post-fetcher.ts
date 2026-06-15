@@ -7,8 +7,8 @@ import { swrOptions } from "@/lib/swr.functions";
 
 
 export const postBaseUrl = `api/post`;
-export const getPostUrl = (id: number) => `${postBaseUrl}/${id}`;
-export const postSaveUrl = `${getPostUrl}/Save`;
+//export const getPostUrl = (id: number) => `${postBaseUrl}/${id}`;
+export const postSaveUrl = `${postBaseUrl}/Save`;
 
 export function usePosts(httpGet: TGet) {
    const { data, isValidating, error } = useSWR<PostDetail[], HttpError>(
@@ -21,6 +21,25 @@ export function usePosts(httpGet: TGet) {
       data: data,
       isLoading: !error && !data && isValidating,
       error: error?.message
+   };
+}
+
+export function useGetPost(httpGet: TGet, id?: number) {
+
+   var shouldFetch = id !== undefined && id !== null && !isNaN(id) && id > 0;
+
+   const { data, isLoading, error} = usePosts(httpGet);
+
+   if (!shouldFetch) {
+      return {
+         post: {} as PostDetail
+      }
+   }
+
+   return {
+      post: data?.find((p) => p.postId === id),
+      isLoading: !error && !data && isLoading,
+      error: error
    };
 }
 
