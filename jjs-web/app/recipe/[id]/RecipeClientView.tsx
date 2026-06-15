@@ -1,25 +1,20 @@
-"use client";
+"use client"
 
-import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useApiContext } from "@/components/context/ApiContext";
 import { useSingleRecipe } from "@/api/recipe/recipe-fetcher";
 import { formatDate } from "@/lib/time.functions";
 
-interface RecipeDetailPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+interface Props {
+   id: number;
 }
 
-export default function RecipeDetailPage({ params }: RecipeDetailPageProps) {
+export default function RecipeClientView({ id }: Props) {
   const router = useRouter();
-  const resolvedParams = React.use(params);
-  const recipeId = parseInt(resolvedParams.id, 10);
 
   const { httpGet } = useApiContext();
-  const { data: recipe, isLoading } = useSingleRecipe(httpGet, recipeId);
+  const { data: recipe, isLoading } = useSingleRecipe(httpGet, id);
 
   if (isLoading) {
     return (

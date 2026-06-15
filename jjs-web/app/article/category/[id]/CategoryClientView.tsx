@@ -1,17 +1,17 @@
-"use client" 
-import { use } from 'react';
+"use client"
+
 import { usePosts } from '@/api/post/post-fetcher';
 import { useApiContext } from '@/components/context/ApiContext';
 import ArticleList from '@/components/article/ArticleList';
 import { Category_All } from '@/api/post/category';
 
+interface Props {
+   id: number;
+}
 
-export default function CategoryPage(
-  { params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params); 
-    const categoryId = Number(id);
+export default function CategoryClientView({ id }: Props) {
 
-    console.log('Category ID from URL:', categoryId);
+   console.log('Category ID from URL:', id);
 
     const { httpGet } = useApiContext();
     const {data: posts} = usePosts(httpGet);
@@ -20,7 +20,7 @@ export default function CategoryPage(
 
   return (
     <div className="relative flex">
-      <ArticleList posts={posts?.filter(y => categoryId===Category_All || y.categoryIds.includes(categoryId))} />
+        <ArticleList posts={posts?.filter(y => id === Category_All || y.categoryIds.includes(id))} />
     </div>
   );
 }

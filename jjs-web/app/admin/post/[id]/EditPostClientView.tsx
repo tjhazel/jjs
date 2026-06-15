@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useApiContext } from '@/components/context/ApiContext';
 import { savePost, useGetPost } from '@/api/post/post-fetcher';
@@ -8,15 +8,19 @@ import { PostDetail } from '@/api/post/post';
 import PostEditor from "./PostEditor";
 import { useCategories } from "@/api/post/category-fetcher";
 
-export default function EditPostPage() {
-   const { id } = useParams<{ id: string }>();
+interface Props {
+   id?: number;
+}
+
+export default function EditPostClientView({ id }: Props) {
+ 
    const router = useRouter();
    const { httpGet, httpPost } = useApiContext();
    const [isSaving, setIsSaving] = useState(false);
    const [saveError, setSaveError] = useState<string | null>(null);
    const [saveSuccess, setSaveSuccess] = useState(false);
 
-   const isNew = id === "new";
+   const isNew = !id;
 
    const { post, isLoading: postLoading } = useGetPost(httpGet, Number(id));
 

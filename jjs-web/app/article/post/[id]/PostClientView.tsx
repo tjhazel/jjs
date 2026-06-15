@@ -1,14 +1,16 @@
-"use client" 
-import { use } from 'react';
+"use client"
+
 import Markdown from 'react-markdown';
 import { usePosts } from '@/api/post/post-fetcher';
 import { useApiContext } from '@/components/context/ApiContext';
 import { useRouter } from 'next/navigation';
 
-export default function ArticlePage(
-  { params }: { params: Promise<{ id: string }> }) {
+interface Props {
+   id: number;
+}
+
+export default function PostClientView({ id }: Props) {
     const router = useRouter();
-    const { id } = use(params); 
 
     const { httpGet } = useApiContext();
     const {data: posts} = usePosts(httpGet);
@@ -19,7 +21,7 @@ export default function ArticlePage(
       </div>
     );
 
-    const article = posts?.find(y => y.postId === Number(id));
+   const article = posts?.find(y => y.postId === id);
 
     if (!article) {
       return (

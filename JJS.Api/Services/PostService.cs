@@ -46,7 +46,7 @@ public class PostService(IPostRepository postRepository, IAlbumService albumServ
 
          int attempts = 0;
          //no matches, grab a random image
-         while (first == null && attempts++ < 10)
+         while (first == null && attempts++ < 10 && photos.Count > 0)
          {
             var nextImg = photos.Values.ElementAt(random.Next(photos.Count));
             if (!usedImages.ContainsKey(nextImg.HttpPath))
