@@ -54,6 +54,8 @@ jobs:
         log-level: verbose
         server-dir: ./publish/api/
         local-dir: ./publish-output/api/
+        exclude: 
+          **/runtimes/**
 
     # 4. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
