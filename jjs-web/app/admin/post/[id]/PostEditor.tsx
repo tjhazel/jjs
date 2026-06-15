@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { postSchema } from "./postSchema";
 import { PostDetail } from '@/api/post/post';
@@ -48,7 +48,7 @@ export default function PostEditor({
 }: PostEditorProps) {
    const methods = useForm<PostDetail>({
       defaultValues: DEFAULT_POST as PostDetail,
-      resolver: yupResolver(postSchema),
+      resolver: yupResolver(postSchema) as unknown as Resolver<PostDetail>,
    });
 
    const { register, handleSubmit, reset, formState: { isDirty } } = methods;

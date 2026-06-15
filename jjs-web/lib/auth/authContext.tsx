@@ -24,7 +24,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   login: (credentialResponse: GoogleCredentialResponse) => Promise<void>;
   logout: () => void;
-  getToken: () => string | null;
+  getToken: () => Promise<string>;
   hasRole: (role: UserRole | UserRole[]) => boolean;
 }
 
@@ -180,15 +180,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // ── Get token (for attaching to API requests) ────────────────────────────────
-  const getToken = useCallback((): string | null => {
-    const token = state.idToken ?? sessionStorage.getItem(TOKEN_STORAGE_KEY);
-    if (token && isTokenExpired(token)) {
-      logout();
-      return null;
-    }
-    return token;
-  }, [state.idToken, logout]);
+   // ── Get token (for attaching to API requests) ────────────────────────────────
+   const getToken = useCallback(async (): Promise<string> => {
+      const token = state.idToken ?? sessionStorage.getItem(TOKEN_STORAGE_KEY);
+
+      if (!token || isTokenExpired(token)) {
+         logout();
+         return "";
+      }
+
+      return token;
+   }, [state.idToken, logout]);
 
   // ── Role check ───────────────────────────────────────────────────────────────
   const hasRole = useCallback(

@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 
 export const httpGet = async<T>(url: string,
-   getToken?: () => Promise<string>
+   getToken: () => Promise<string>
 ) => {
    return new Promise<T>(async (resolve, reject) => {
       var options: AxiosRequestConfig = await getConfig(getToken);     
@@ -37,7 +37,9 @@ export const httpGet = async<T>(url: string,
 //    })
 // };
 
-export const httpPatch = async<T>(url: string, getToken: () =>  Promise<string>, body?: object) => {
+export const httpPatch = async<T>(url: string,
+   getToken: () => Promise<string>,
+   body?: object) => {
    return new Promise<T>(async (resolve, reject) => {
       const options: AxiosRequestConfig = await getConfig(getToken);
       axios
