@@ -56,6 +56,11 @@ jobs:
         server-dir: ./publish/api/
         local-dir: ./publish-output/api/
         exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/bin/**
+          **/obj/**
           **/runtimes/**
 
     # 4. Deploy Next.js UI to Server via FTP
