@@ -70,7 +70,6 @@ jobs:
         log-level: verbose
         server-dir: ./api/
         local-dir: ./publish-output/api/
-        delete: false
         exclude: |
           **/.git*
           **/.git*/**
@@ -105,7 +104,6 @@ jobs:
         log-level: verbose
         server-dir: ./ui/
         local-dir: ./jjs-web/out/
-        delete: false
         exclude: |
           **/.git*
           **/.git*/**
