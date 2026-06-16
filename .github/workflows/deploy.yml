@@ -59,9 +59,9 @@ jobs:
           **/.git*
           **/.git*/**
           **/node_modules/**
-          **/bin/**
-          **/obj/**
-          **/runtimes/**
+          #**/bin/**
+          #**/obj/**
+          #**/runtimes/**
           **/appsettings.Development.json
 
     # 4. Deploy Next.js UI to Server via FTP
