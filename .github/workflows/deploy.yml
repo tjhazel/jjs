@@ -7,6 +7,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15 # Failsafe to protect your GitHub runner minutes
     
     steps:
     - name: Checkout Code
@@ -40,32 +41,43 @@ jobs:
       working-directory: jjs-web
       run: npm run build
 
-    # 3. Deploy .NET API to Server via SebastianPopp FTP Action
+    # 3. Deploy .NET API to Server via FTP
     - name: Deploy API to FTP
-      uses: sebastianpopp/ftp-action@releases/v2
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
-        host: ${{ secrets.FTP_SERVER }}
-        user: ${{ secrets.FTP_USERNAME }}
+        username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        localDir: "./publish-output/api"
-        remoteDir: "./publish/api"
-        forceSsl: false
-        options: "--delete --parallel=5 --exclude=appsettings.Development.json"
-      env:
-        # This properly sets the global lftp timeout properties without breaking the 'options' CLI string
-        LFTP_COMMANDS: "set net:timeout 10; set net:max-retries 2; set net:idle 5;"
+        server: ${{ secrets.FTP_SERVER }}
+        port: 21
+        protocol: ftp # Uses regular FTP to avoid the previous handshake hangs
+        local_path: './publish-output/api/*'
+        remote_path: './publish/api'
+        args: '-o ConnectTimeout=10'
+        # The full exclusion list is restored here using standard glob patterns
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/bin/**
+          **/obj/**
+          **/runtimes/**
+          **/appsettings.Development.json
 
-    # 4. Deploy Next.js UI to Server via SebastianPopp FTP Action
+    # 4. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
-      uses: sebastianpopp/ftp-action@releases/v2
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
-        host: ${{ secrets.FTP_SERVER }}
-        user: ${{ secrets.FTP_USERNAME }}
+        username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        localDir: "./jjs-web/out"
-        remoteDir: "./publish/ui"
-        forceSsl: false
-        options: "--delete --parallel=5"
-      env:
-        LFTP_COMMANDS: "set net:timeout 10; set net:max-retries 2; set net:idle 5;"
-
+        server: ${{ secrets.FTP_SERVER }}
+        port: 21
+        protocol: ftp
+        local_path: './jjs-web/out/*'
+        remote_path: './publish/ui'
+        args: '-o ConnectTimeout=10'
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.next*
+          **/.next*/**
