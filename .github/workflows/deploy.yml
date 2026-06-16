@@ -49,8 +49,11 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         localDir: "./publish-output/api"
         remoteDir: "./publish/api"
-        forceSsl: false # Change to true if your server enforces FTPS
+        forceSsl: false
         options: "--delete --parallel=5 --exclude=appsettings.Development.json"
+      env:
+        # This properly sets the global lftp timeout properties without breaking the 'options' CLI string
+        LFTP_COMMANDS: "set net:timeout 10; set net:max-retries 2; set net:idle 5;"
 
     # 4. Deploy Next.js UI to Server via SebastianPopp FTP Action
     - name: Deploy Next.js UI to FTP
@@ -61,5 +64,8 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         localDir: "./jjs-web/out"
         remoteDir: "./publish/ui"
-        forceSsl: false # Change to true if your server enforces FTPS
+        forceSsl: false
         options: "--delete --parallel=5"
+      env:
+        LFTP_COMMANDS: "set net:timeout 10; set net:max-retries 2; set net:idle 5;"
+
