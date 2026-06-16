@@ -9,8 +9,9 @@ const nextConfig: NextConfig = {
    output: 'export', //generate static site, which fails with page[id] dynamic route, so we will stick with server side rendering for now.
    distDir: 'out',
    trailingSlash: true,
-   images: {      
-      dangerouslyAllowLocalIP: true, // [!code ++]
+   images: {
+      unoptimized: true,
+      dangerouslyAllowLocalIP: true,
       remotePatterns: [
          {
             protocol: 'https',
