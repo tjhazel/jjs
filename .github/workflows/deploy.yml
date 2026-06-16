@@ -62,6 +62,7 @@ jobs:
           **/bin/**
           **/obj/**
           **/runtimes/**
+           **/appsettings.Development.json
 
     # 4. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
