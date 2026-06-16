@@ -40,6 +40,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{EDC21638
 		claude.md = claude.md
 		.github\workflows\deploy.yml = .github\workflows\deploy.yml
 		README.md = README.md
+		deployment\web.config = deployment\web.config
 	EndProjectSection
 EndProject
 Global

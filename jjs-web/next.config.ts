@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === "development") {
 
 const nextConfig: NextConfig = {
    output: 'export', //generate static site, which fails with page[id] dynamic route, so we will stick with server side rendering for now.
+   assetPrefix: '/ui',
    distDir: 'out',
    trailingSlash: true,
    images: {

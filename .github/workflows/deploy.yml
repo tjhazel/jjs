@@ -48,11 +48,15 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ./
+        server-dir: ./api/     # FIXED: Dropped straight into the API executable domain
         local-dir: ./deployment/
         exclude: |
           **
           !**/app_offline.htm
+
+    # 3.5 Wait for IIS Worker Process to release file handles
+    - name: Sleep for 10 seconds
+      run: sleep 10
 
     # 4. Deploy .NET API to Server via FTP (Excluding configs)
     - name: Deploy API to the server via FTP
@@ -72,7 +76,7 @@ jobs:
           **/node_modules/**
           **/appsettings*.json
 
-    # 5. Deploy ONLY target .NET config files via FTP
+    # 5. Deploy ONLY target .NET config files via FTP -> do not deploy prod file, it will override server settings -> !**/appsettings.Production.json
     - name: Deploy API config files via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.4.0
       with:
@@ -82,12 +86,11 @@ jobs:
         protocol: ftp
         timeout: 900000
         log-level: verbose
-        server-dir: ./api/     # Fixed directory to match your API deployment target
+        server-dir: ./api/ 
         local-dir: ./publish-output/api/
         exclude: |
           **
           !**/appsettings.json
-          !**/appsettings.Production.json
 
     # 6. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
@@ -99,7 +102,7 @@ jobs:
         protocol: ftp
         timeout: 900000
         log-level: verbose
-        server-dir: ./
+        server-dir: ./ui/
         local-dir: ./jjs-web/out/
         exclude: |
           **/.git*
@@ -116,4 +119,4 @@ jobs:
         user: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         forceXml: true
-        command: delete app_offline.htm
+        command: delete api/app_offline.htm 
