@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.0.x' # Targeting .NET 10
-    
+        
     - name: Restore .NET Dependencies
       run: dotnet restore JJS.Api/JJS.Api.csproj
 
@@ -40,47 +40,26 @@ jobs:
       working-directory: jjs-web
       run: npm run build
 
-    # 3. Deploy .NET API to Server via FTP
+    # 3. Deploy .NET API to Server via SebastianPopp FTP Action
     - name: Deploy API to FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+      uses: sebastianpopp/ftp-action@releases/v2
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
+        host: ${{ secrets.FTP_SERVER }}
+        user: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftp
-        port: 21
-        security: loose
-        timeout: 900000
-        log-level: verbose
-        server-dir: ./publish/api/
-        local-dir: ./publish-output/api/
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/bin/**
-          **/obj/**
-          **/runtimes/**
-           **/appsettings.Development.json
+        localDir: "./publish-output/api"
+        remoteDir: "./publish/api"
+        forceSsl: false # Change to true if your server enforces FTPS
+        options: "--delete --parallel=5 --exclude=appsettings.Development.json"
 
-    # 4. Deploy Next.js UI to Server via FTP
+    # 4. Deploy Next.js UI to Server via SebastianPopp FTP Action
     - name: Deploy Next.js UI to FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+      uses: sebastianpopp/ftp-action@releases/v2
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
+        host: ${{ secrets.FTP_SERVER }}
+        user: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftp
-        port: 21
-        security: loose
-        timeout: 900000
-        log-level: verbose
-        server-dir: ./publish/ui/
-        local-dir: ./jjs-web/out/
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/.next*
-          **/.next*/**
-
+        localDir: "./jjs-web/out"
+        remoteDir: "./publish/ui"
+        forceSsl: false # Change to true if your server enforces FTPS
+        options: "--delete --parallel=5"
