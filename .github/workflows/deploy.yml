@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Guard rails to save your runner minutes
+    timeout-minutes: 30 # Increased - self-contained win-x64 publish and FTP upload are large
 
     steps:
     - name: Checkout Code
@@ -23,7 +23,7 @@ jobs:
       run: dotnet restore JJS.Api/JJS.Api.csproj
 
     - name: Build and Publish .NET WebAPI
-      run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -o ./publish-output/api
+      run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -r win-x64 --self-contained true -o ./publish-output/api
 
     # 2. Setup Node.js and Build Next.js 16 UI
     - name: Setup Node.js
@@ -41,22 +41,23 @@ jobs:
       working-directory: jjs-web
       run: npm run build
 
-    # # 3. Shut down the application to release file locks safely
-    # - name: Put App Offline
-    #   uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-    #   with:
-    #     server: ${{ secrets.FTP_SERVER }}
-    #     username: ${{ secrets.FTP_USERNAME }}
-    #     password: ${{ secrets.FTP_PASSWORD }}
-    #     server-dir: ./api/     
-    #     local-dir: ./deployment/
-    #     exclude: |
-    #       **
-    #       !**/app_offline.htm
+    # 3. Shut down the application to release file locks safely
+    - name: Put App Offline
+      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        protocol: ftp
+        server-dir: ./api/     
+        local-dir: ./deployment/
+        exclude: |
+          **
+          !**/app_offline.htm
 
-    # # 3.5 Wait for IIS Worker Process to release file handles
-    # - name: Sleep for 10 seconds
-    #   run: sleep 10
+    # 3.5 Wait for IIS Worker Process to release file handles
+    - name: Sleep for 10 seconds
+      run: sleep 10
 
     # 4. Deploy .NET API to Server via FTP (Excluding configs)
     - name: Deploy API to the server via FTP
@@ -112,14 +113,15 @@ jobs:
           **/.next*/**
 
     # # 7. Upload app_online.htm and allow it to delete app_offline.htm inside /api/
-    # - name: Bring IIS App Back Online
-    #   uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-    #   with:
-    #     server: ${{ secrets.FTP_SERVER }}
-    #     username: ${{ secrets.FTP_USERNAME }}
-    #     password: ${{ secrets.FTP_PASSWORD }}
-    #     server-dir: ./api/     
-    #     local-dir: ./deployment/
-    #     exclude: |
-    #       **
-    #       !**/app_online.htm   # Keeps app_online.htm and deletes app_offline.htm [1]
+    - name: Bring IIS App Back Online
+      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        protocol: ftp
+        server-dir: ./api/     
+        local-dir: ./deployment/
+        exclude: |
+          **
+          !**/app_online.htm   # Keeps app_online.htm and deletes app_offline.htm [1]
