@@ -19,6 +19,18 @@ const nextConfig: NextConfig = {
             port: '7275',
             pathname: '/Image/**',
          },
+         {
+            protocol: 'https',
+            hostname: 'johnandjeri.com',
+            port: '',
+            pathname: '/Image/**',
+         },
+         {
+            protocol: 'http',
+            hostname: 'johnandjeri.com',
+            port: '',
+            pathname: '/Image/**',
+         },
       ],
    },
 };
