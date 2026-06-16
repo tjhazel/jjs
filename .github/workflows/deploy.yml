@@ -41,22 +41,22 @@ jobs:
       working-directory: jjs-web
       run: npm run build
 
-    # 3. Shut down the application to release file locks safely
-    - name: Put App Offline
-      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ./api/     # FIXED: Dropped straight into the API executable domain
-        local-dir: ./deployment/
-        exclude: |
-          **
-          !**/app_offline.htm
+    # # 3. Shut down the application to release file locks safely
+    # - name: Put App Offline
+    #   uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+    #   with:
+    #     server: ${{ secrets.FTP_SERVER }}
+    #     username: ${{ secrets.FTP_USERNAME }}
+    #     password: ${{ secrets.FTP_PASSWORD }}
+    #     server-dir: ./api/     
+    #     local-dir: ./deployment/
+    #     exclude: |
+    #       **
+    #       !**/app_offline.htm
 
-    # 3.5 Wait for IIS Worker Process to release file handles
-    - name: Sleep for 10 seconds
-      run: sleep 10
+    # # 3.5 Wait for IIS Worker Process to release file handles
+    # - name: Sleep for 10 seconds
+    #   run: sleep 10
 
     # 4. Deploy .NET API to Server via FTP (Excluding configs)
     - name: Deploy API to the server via FTP
@@ -69,28 +69,29 @@ jobs:
         timeout: 900000
         log-level: verbose
         server-dir: ./api/
-        local-dir: ./publish-output/api/
+        local-dir: ./publish-output/api
+        delete: false
         exclude: |
           **/.git*
           **/.git*/**
           **/node_modules/**
           **/appsettings*.json
 
-    # 5. Deploy ONLY target .NET config files via FTP -> do not deploy prod file, it will override server settings -> !**/appsettings.Production.json
-    - name: Deploy API config files via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftp
-        timeout: 900000
-        log-level: verbose
-        server-dir: ./api/ 
-        local-dir: ./publish-output/api/
-        exclude: |
-          **
-          !**/appsettings.json
+    # # 5. Deploy ONLY target .NET config files via FTP -> do not deploy prod file, it will override server settings -> !**/appsettings.Production.json
+    # - name: Deploy API config files via FTP
+    #   uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+    #   with:
+    #     server: ${{ secrets.FTP_SERVER }}
+    #     username: ${{ secrets.FTP_USERNAME }}
+    #     password: ${{ secrets.FTP_PASSWORD }}
+    #     protocol: ftp
+    #     timeout: 900000
+    #     log-level: verbose
+    #     server-dir: ./api/ 
+    #     local-dir: ./publish-output/api
+    #     exclude: |
+    #       **
+    #       !**/appsettings.json
 
     # 6. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
@@ -103,7 +104,8 @@ jobs:
         timeout: 900000
         log-level: verbose
         server-dir: ./ui/
-        local-dir: ./jjs-web/out/
+        local-dir: ./jjs-web/out
+        delete: false
         exclude: |
           **/.git*
           **/.git*/**
@@ -111,12 +113,15 @@ jobs:
           **/.next*
           **/.next*/**
 
-    # 7. Delete app_offline.htm to bring the IIS application pool back online
-    - name: Bring IIS App Back Online
-      uses: sebastianpopp/ftp-action@v2.0.0
-      with:
-        host: ${{ secrets.FTP_SERVER }}
-        user: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        forceXml: true
-        command: delete api/app_offline.htm 
+    # # 7. Upload app_online.htm and allow it to delete app_offline.htm inside /api/
+    # - name: Bring IIS App Back Online
+    #   uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+    #   with:
+    #     server: ${{ secrets.FTP_SERVER }}
+    #     username: ${{ secrets.FTP_USERNAME }}
+    #     password: ${{ secrets.FTP_PASSWORD }}
+    #     server-dir: ./api/     
+    #     local-dir: ./deployment/
+    #     exclude: |
+    #       **
+    #       !**/app_online.htm   # Keeps app_online.htm and deletes app_offline.htm [1]
