@@ -18,11 +18,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '10.0.x' # Targeting .NET 10
-        
+    
     - name: Restore .NET Dependencies
       run: dotnet restore JJS.Api/JJS.Api.csproj
 
-    # Output files are built into a flat localized staging folder
     - name: Build and Publish .NET WebAPI
       run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -o ./publish-output/api
 
@@ -42,19 +41,20 @@ jobs:
       working-directory: jjs-web
       run: npm run build
 
-    # 3. Deploy .NET API to Server via MilanMK File Deployer
+    # 3. Deploy .NET API to Server via FTP
     - name: Deploy API to FTP
-      uses: milanmk/actions-file-deployer@v2
+      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
       with:
-        remote-protocol: "ftp"
-        remote-host: ${{ secrets.FTP_SERVER }}
-        remote-user: ${{ secrets.FTP_USERNAME }}
-        remote-password: ${{ secrets.FTP_PASSWORD }}
-        remote-port: 21
-        local-path: "./publish-output/api"
-        remote-path: "./publish/api"
-        sync-delta: true
-        # The full exclusion list is read natively as standard glob arrays
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        protocol: ftp
+        #port: 21
+        #security: loose
+        #timeout: 900000
+        log-level: verbose
+        server-dir: ./publish/api/
+        local-dir: ./publish-output/api/
         exclude: |
           **/.git*
           **/.git*/**
@@ -64,21 +64,24 @@ jobs:
           **/runtimes/**
           **/appsettings.Development.json
 
-    # 4. Deploy Next.js UI to Server via MilanMK File Deployer
+    # 4. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
-      uses: milanmk/actions-file-deployer@v2
+      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
       with:
-        remote-protocol: "ftp"
-        remote-host: ${{ secrets.FTP_SERVER }}
-        remote-user: ${{ secrets.FTP_USERNAME }}
-        remote-password: ${{ secrets.FTP_PASSWORD }}
-        remote-port: 21
-        local-path: "./jjs-web/out"
-        remote-path: "./publish/ui"
-        sync-delta: true
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        protocol: ftp
+        #port: 21
+        #security: loose
+        #timeout: 900000
+        log-level: verbose
+        server-dir: ./publish/ui/
+        local-dir: ./jjs-web/out/
         exclude: |
           **/.git*
           **/.git*/**
           **/node_modules/**
           **/.next*
           **/.next*/**
+
