@@ -16,28 +16,28 @@ jobs:
     - name: Setup .NET 10
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x' # Targeting .NET 10
+        dotnet-version: '10.0.x'
     
     - name: Restore .NET Dependencies
-      run: dotnet restore JJS.Api/JJS.Api.csproj
+      run: dotnet restore jjs/JJS.Api/JJS.Api.csproj
 
     - name: Build and Publish .NET WebAPI
-      run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -o ./publish-output/api
+      run: dotnet publish jjs/JJS.Api/JJS.Api.csproj -c Release -o ./publish-output/api
 
     # 2. Setup Node.js and Build Next.js 16 UI
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22' # Recommended Node version for Next.js 16
+        node-version: '22'
         cache: 'npm'
-        cache-dependency-path: 'jjs-web/package-lock.json'
+        cache-dependency-path: 'jjs/jjs-web/package-lock.json'
 
     - name: Install Next.js Dependencies
-      working-directory: jjs-web
+      working-directory: jjs/jjs-web
       run: npm ci
 
     - name: Build Next.js UI (Static Export)
-      working-directory: jjs-web
+      working-directory: jjs/jjs-web
       run: npm run build
 
     # 3. Deploy .NET API to Server via FTP
@@ -51,7 +51,6 @@ jobs:
         port: 21
         security: loose
         timeout: 900000
-        force-ipv4: true 
         log-level: verbose
         server-dir: ./publish/api/
         local-dir: ./publish-output/api/
@@ -62,7 +61,7 @@ jobs:
           **/bin/**
           **/obj/**
           **/runtimes/**
-           **/appsettings.Development.json
+          **/appsettings.Development.json
 
     # 4. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
@@ -75,14 +74,12 @@ jobs:
         port: 21
         security: loose
         timeout: 900000
-        force-ipv4: true 
         log-level: verbose
         server-dir: ./publish/ui/
-        local-dir: ./jjs-web/out/
+        local-dir: ./jjs/jjs-web/out/
         exclude: |
           **/.git*
           **/.git*/**
           **/node_modules/**
           **/.next*
           **/.next*/**
-
