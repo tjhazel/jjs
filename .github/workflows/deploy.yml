@@ -42,7 +42,7 @@ jobs:
       run: npm run build
 
     # 3. Deploy .NET API to Server via FTP
-    - name: Deploy API to FTP
+    - name: Deploy API to the server via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.4.0
       with:
         server: ${{ secrets.FTP_SERVER }}
@@ -51,7 +51,7 @@ jobs:
         protocol: ftp
         #port: 21
         #security: loose
-        #timeout: 900000
+        timeout: 900000
         log-level: verbose
         server-dir: ./api/
         local-dir: ./publish-output/api/
@@ -60,8 +60,26 @@ jobs:
           **/.git*/**
           **/node_modules/**
           **/appsettings.Development.json
+         
+    # 4. Deploy .NET config files via FTP
+    - name: Deploy API config files via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        protocol: ftp
+        #port: 21
+        #security: loose
+        timeout: 900000
+        log-level: verbose
+        server-dir: ./
+        local-dir: ./publish-output/api/
+        exclude: |
+          **
+          !**/appsettings.json
 
-    # 4. Deploy Next.js UI to Server via FTP
+    # 5. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.4.0
       with:
@@ -71,7 +89,7 @@ jobs:
         protocol: ftp
         #port: 21
         #security: loose
-        #timeout: 900000
+        timeout: 900000
         log-level: verbose
         server-dir: ./
         local-dir: ./jjs-web/out/
