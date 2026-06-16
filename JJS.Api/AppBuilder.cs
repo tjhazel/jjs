@@ -15,6 +15,7 @@ public class AppBuilder
 {
    public static WebApplication BuildApp(WebApplicationBuilder builder, bool isDebug)
    {
+      System.Console.WriteLine($"Building API with environment: {builder.Environment.EnvironmentName}");
       AddAuthentication(builder);
       AddAuthorization(builder);
       AddSwagger(builder);

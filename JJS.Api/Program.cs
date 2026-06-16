@@ -23,18 +23,11 @@ app.UseSwaggerUI(options =>
    //Expose ui as site root under the path base
    options.RoutePrefix = string.Empty;
 
-   options.SwaggerEndpoint("/swagger/v1/swagger.json", "AssistPoint API");
+   options.SwaggerEndpoint("/swagger/v1/swagger.json", "John & Jeri API");
 });
 
 app.MapDefaultEndpoints();
 
-var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Albums");
-app.UseFileServer(new FileServerOptions
-{
-   FileProvider = new PhysicalFileProvider(imgDir),
-   RequestPath = "/Image",
-   EnableDefaultFiles = true,
-});
 
 // Configure the HTTP request pipeline.
 app.UseCors("AllowCors");
@@ -46,5 +39,13 @@ app.UseAuthorization();
 app.UseUserValidationMiddleware();
 
 app.MapControllers();
+
+var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Albums");
+app.UseFileServer(new FileServerOptions
+{
+   FileProvider = new PhysicalFileProvider(imgDir),
+   RequestPath = "/Image",
+   EnableDefaultFiles = true,
+});
 
 await app.RunAsync();
