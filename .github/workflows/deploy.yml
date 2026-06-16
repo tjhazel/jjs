@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Guard rails to prevent wasted action runner minutes
+    timeout-minutes: 15 # Guard rails to save your runner minutes
     
     steps:
     - name: Checkout Code
@@ -22,6 +22,7 @@ jobs:
     - name: Restore .NET Dependencies
       run: dotnet restore JJS.Api/JJS.Api.csproj
 
+    # Output files are built into a flat localized staging folder
     - name: Build and Publish .NET WebAPI
       run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -o ./publish-output/api
 
@@ -41,18 +42,19 @@ jobs:
       working-directory: jjs-web
       run: npm run build
 
-    # 3. Deploy .NET API to Server via FTP Upload Action
+    # 3. Deploy .NET API to Server via MilanMK File Deployer
     - name: Deploy API to FTP
-      uses: Nanceal/ftp-upload-action@v1.0.0
+      uses: milanmk/actions-file-deployer@v2
       with:
-        host: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 21
-        secure: false # Set to true if your host requires explicit FTPS
-        local-dir: ./publish-output/api
-        remote-dir: ./publish/api
-        # Full exclusions array processed cleanly as native globs
+        remote-protocol: "ftp"
+        remote-host: ${{ secrets.FTP_SERVER }}
+        remote-user: ${{ secrets.FTP_USERNAME }}
+        remote-password: ${{ secrets.FTP_PASSWORD }}
+        remote-port: 21
+        local-path: "./publish-output/api"
+        remote-path: "./publish/api"
+        sync-delta: true
+        # The full exclusion list is read natively as standard glob arrays
         exclude: |
           **/.git*
           **/.git*/**
@@ -62,17 +64,18 @@ jobs:
           **/runtimes/**
           **/appsettings.Development.json
 
-    # 4. Deploy Next.js UI to Server via FTP Upload Action
+    # 4. Deploy Next.js UI to Server via MilanMK File Deployer
     - name: Deploy Next.js UI to FTP
-      uses: Nanceal/ftp-upload-action@v1.0.0
+      uses: milanmk/actions-file-deployer@v2
       with:
-        host: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 21
-        secure: false
-        local-dir: ./jjs-web/out
-        remote-dir: ./publish/ui
+        remote-protocol: "ftp"
+        remote-host: ${{ secrets.FTP_SERVER }}
+        remote-user: ${{ secrets.FTP_USERNAME }}
+        remote-password: ${{ secrets.FTP_PASSWORD }}
+        remote-port: 21
+        local-path: "./jjs-web/out"
+        remote-path: "./publish/ui"
+        sync-delta: true
         exclude: |
           **/.git*
           **/.git*/**
