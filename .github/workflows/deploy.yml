@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Failsafe to protect your GitHub runner minutes
+    timeout-minutes: 15 # Guard rails to prevent wasted action runner minutes
     
     steps:
     - name: Checkout Code
@@ -41,19 +41,18 @@ jobs:
       working-directory: jjs-web
       run: npm run build
 
-    # 3. Deploy .NET API to Server via FTP
+    # 3. Deploy .NET API to Server via FTP Upload Action
     - name: Deploy API to FTP
-      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      uses: Nanceal/ftp-upload-action@v1.0.0
       with:
+        host: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server: ${{ secrets.FTP_SERVER }}
         port: 21
-        protocol: ftp # Uses regular FTP to avoid the previous handshake hangs
-        local_path: './publish-output/api/*'
-        remote_path: './publish/api'
-        args: '-o ConnectTimeout=10'
-        # The full exclusion list is restored here using standard glob patterns
+        secure: false # Set to true if your host requires explicit FTPS
+        local-dir: ./publish-output/api
+        remote-dir: ./publish/api
+        # Full exclusions array processed cleanly as native globs
         exclude: |
           **/.git*
           **/.git*/**
@@ -63,18 +62,17 @@ jobs:
           **/runtimes/**
           **/appsettings.Development.json
 
-    # 4. Deploy Next.js UI to Server via FTP
+    # 4. Deploy Next.js UI to Server via FTP Upload Action
     - name: Deploy Next.js UI to FTP
-      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      uses: Nanceal/ftp-upload-action@v1.0.0
       with:
+        host: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server: ${{ secrets.FTP_SERVER }}
         port: 21
-        protocol: ftp
-        local_path: './jjs-web/out/*'
-        remote_path: './publish/ui'
-        args: '-o ConnectTimeout=10'
+        secure: false
+        local-dir: ./jjs-web/out
+        remote-dir: ./publish/ui
         exclude: |
           **/.git*
           **/.git*/**
