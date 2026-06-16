@@ -53,7 +53,7 @@ jobs:
         #security: loose
         #timeout: 900000
         log-level: verbose
-        server-dir: ./publish/api/
+        server-dir: ./api/
         local-dir: ./publish-output/api/
         exclude: |
           **/.git*
@@ -73,7 +73,7 @@ jobs:
         #security: loose
         #timeout: 900000
         log-level: verbose
-        server-dir: ./publish/ui/
+        server-dir: ./
         local-dir: ./jjs-web/out/
         exclude: |
           **/.git*
