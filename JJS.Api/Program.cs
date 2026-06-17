@@ -16,12 +16,20 @@ var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "D
 // 1. SERVE NEXT.JS STATIC FILES AT '/' FIRST
 // Looks for index.html inside the 'wwwroot' folder
 app.UseDefaultFiles();
-app.UseStaticFiles();
+//prevent from caching spa pages
+app.UseStaticFiles(new StaticFileOptions()
+{
+   OnPrepareResponse = context =>
+   {
+      context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
+      context.Context.Response.Headers.Add("Expires", "-1");
+   }
+});
 
 // Configure base path early so middleware (Swagger, static files, etc.) see the trimmed path.
 app.UsePathBase("/api");
 
-//if (builder.Environment.EnvironmentName == "Development")
+if (IS_DEBUG)
 {
    //Expose Swagger UI
    app.UseSwagger();
