@@ -1,13 +1,19 @@
 using JJS.Api;
 using JJS.Api.Middleware;
 using Microsoft.Extensions.FileProviders;
+using System.Reflection;
 
 bool IS_DEBUG = false;
 #if DEBUG
 IS_DEBUG = true;
 #endif
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+   Args = args,
+   // Forces the API to look inside E:\web\m9innova\api instead of the server root
+   ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+});
 
 builder.AddServiceDefaults();
 

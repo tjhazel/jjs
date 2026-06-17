@@ -45,14 +45,14 @@ public class AlbumService(IMetaDataService tagData,
    /// <param name="folder"></param>
    public void ProcessFolder(Dictionary<string, File> flattened, Folder folder)
    {
-      if (folder.Files != null) 
+      if (folder?.Files != null) 
       {
          foreach (var file in folder.Files)
          {
             flattened.Add(file.FullName, file);
          }
       }
-      if (folder.Folders != null)
+      if (folder?.Folders != null)
       {
          foreach (var subFolder in folder.Folders)
          {
@@ -64,6 +64,11 @@ public class AlbumService(IMetaDataService tagData,
    private async Task<Folder> GetFolderFromPath(string path)
    {
       DirectoryInfo dirInfo = new DirectoryInfo(path);
+      if (!dirInfo.Exists)
+      {
+         return null;
+      }
+
       Folder folder = new Folder
       {
          Name = dirInfo.Name,

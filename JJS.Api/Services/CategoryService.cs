@@ -21,6 +21,7 @@ public class CategoryService(ICategoryRepository categoryRepository, IAlbumServi
    {
       Random random = new();
       var photos = await _albumService.GetFlatList();
+      if (photos == null || photos.Count() == 0) return;
 
       foreach (var cat in categories)
       {
