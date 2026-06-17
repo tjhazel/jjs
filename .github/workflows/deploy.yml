@@ -23,7 +23,8 @@ jobs:
       run: dotnet restore JJS.Api/JJS.Api.csproj
 
     - name: Build and Publish .NET WebAPI
-      run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -r win-x64 --self-contained true -o ./publish-output/api
+      run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -r win-x86 -o ./publish-output/api
+   #   run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -r win-x64 --self-contained true -o ./publish-output/api
 
     # 2. Setup Node.js and Build Next.js 16 UI
     - name: Setup Node.js
