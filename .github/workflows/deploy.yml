@@ -2,7 +2,7 @@ name: JJS Monorepo CI/CD Build and FTP Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "develop" ] #[ "main" ]
 
 jobs:
   build-and-deploy:
@@ -76,22 +76,6 @@ jobs:
           **/.git*/**
           **/node_modules/**
           **/appsettings*.json
-
-    # # 5. Deploy ONLY target .NET config files via FTP -> do not deploy prod file, it will override server settings -> !**/appsettings.Production.json
-    # - name: Deploy API config files via FTP
-    #   uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-    #   with:
-    #     server: ${{ secrets.FTP_SERVER }}
-    #     username: ${{ secrets.FTP_USERNAME }}
-    #     password: ${{ secrets.FTP_PASSWORD }}
-    #     protocol: ftp
-    #     timeout: 900000
-    #     log-level: verbose
-    #     server-dir: ./api/ 
-    #     local-dir: ./publish-output/api
-    #     exclude: |
-    #       **
-    #       !**/appsettings.json
 
     # 6. Deploy Next.js UI to Server via FTP
     - name: Deploy Next.js UI to FTP
