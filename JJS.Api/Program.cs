@@ -15,7 +15,7 @@ var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "D
 
 // 1. SERVE NEXT.JS STATIC FILES AT '/' FIRST
 // Looks for index.html inside the 'wwwroot' folder
-app.UseDefaultFiles();
+//app.UseDefaultFiles();
 //prevent from caching spa pages
 app.UseStaticFiles(new StaticFileOptions()
 {
@@ -29,7 +29,7 @@ app.UseStaticFiles(new StaticFileOptions()
 // Configure base path early so middleware (Swagger, static files, etc.) see the trimmed path.
 app.UsePathBase("/api");
 
-if (IS_DEBUG)
+//if (IS_DEBUG)
 {
    //Expose Swagger UI
    app.UseSwagger();
@@ -58,6 +58,6 @@ app.UseFileServer(new FileServerOptions
 // 3. FALLBACK FOR NEXT.JS CLIENT-SIDE ROUTER
 // If a request hits the root domain but doesn't match an API controller or static file, 
 // serve Next.js index.html so the React router handles it.
-app.MapFallbackToFile("index.html");
+//app.MapFallbackToFile("index.html");
 
 await app.RunAsync();
