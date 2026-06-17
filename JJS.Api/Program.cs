@@ -8,20 +8,18 @@ bool IS_DEBUG = false;
 IS_DEBUG = true;
 #endif
 
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-{
-   Args = args,
-   // Forces the API to look inside E:\web\m9innova\api instead of the server root
-   ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
-});
+var builder = WebApplication.CreateBuilder(args);
+//var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+//{
+//   Args = args,
+//   // Forces the API to look inside E:\web\m9innova\api instead of the server root
+//   ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+//});
 
 builder.AddServiceDefaults();
 
 var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "Development");
 
-// 1. SERVE NEXT.JS STATIC FILES AT '/' FIRST
-// Looks for index.html inside the 'wwwroot' folder
-//app.UseDefaultFiles();
 //prevent from caching spa pages
 app.UseStaticFiles(new StaticFileOptions()
 {
@@ -31,6 +29,7 @@ app.UseStaticFiles(new StaticFileOptions()
       context.Context.Response.Headers.Add("Expires", "-1");
    }
 });
+app.UseDefaultFiles();
 
 // Configure base path early so middleware (Swagger, static files, etc.) see the trimmed path.
 app.UsePathBase("/api");
