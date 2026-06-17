@@ -16,7 +16,8 @@ export default function RecipePage() {
       </div>
       <RecipeTable recipes={recipes} isLoading={isLoading} />
       <div className="mt-12 pt-8 border-t border-gray-200 text-center">
-        <img src="http://johnandjeri.com/Images/recipeFooter.jpg" alt="Recipe Footer" className="mx-auto max-w-full" />
+           <img src="/Images/recipeFooter.jpg" alt="Recipe Footer"
+              className="w-full h-[70px] bg-cover bg-center" />
       </div>
     </div>
   );

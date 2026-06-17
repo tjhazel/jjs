@@ -9,16 +9,23 @@ IS_DEBUG = true;
 #endif
 
 var builder = WebApplication.CreateBuilder(args);
-//var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-//{
-//   Args = args,
-//   // Forces the API to look inside E:\web\m9innova\api instead of the server root
-//   ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
-//});
 
 builder.AddServiceDefaults();
 
 var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "Development");
+// Configure base path early so middleware (Swagger, static files, etc.) see the trimmed path.
+
+app.UsePathBase("/api");
+
+//Expose Swagger UI
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+   options.RoutePrefix = string.Empty; // Becomes site root inside /api base
+   options.SwaggerEndpoint("swagger/v1/swagger.json", "John & Jeri API");
+});
+
+app.MapDefaultEndpoints();
 
 //prevent from caching spa pages
 app.UseStaticFiles(new StaticFileOptions()
@@ -29,25 +36,13 @@ app.UseStaticFiles(new StaticFileOptions()
       context.Context.Response.Headers.Add("Expires", "-1");
    }
 });
+
 app.UseDefaultFiles();
 
-// Configure base path early so middleware (Swagger, static files, etc.) see the trimmed path.
-app.UsePathBase("/api");
 
-//if (IS_DEBUG)
-{
-   //Expose Swagger UI
-   app.UseSwagger();
-   app.UseSwaggerUI(options =>
-   {
-      options.RoutePrefix = string.Empty; // Becomes site root inside /api base
-      options.SwaggerEndpoint("swagger/v1/swagger.json", "John & Jeri API");
-   });
-}
 
-app.MapDefaultEndpoints();
 app.UseCors("AllowCors");
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseUserValidationMiddleware();
 app.MapControllers();
