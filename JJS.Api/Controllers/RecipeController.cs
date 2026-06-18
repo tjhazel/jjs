@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JJS.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class RecipeController(IRecipeService recipeService) : Controller
 {
    private readonly IRecipeService _recipeService = recipeService;

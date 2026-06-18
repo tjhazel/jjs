@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace JJS.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class CategoryController(ICategoryService categoryService) : Controller
 {
    private readonly ICategoryService _categoryService = categoryService;
 
    [HttpGet]
-   public async Task<IEnumerable<Category>> GetCategories(int categoryTypeId = 1)
+   public async Task<IEnumerable<Category>> GetCategories(int? categoryTypeId = 1)
    {
-      return await _categoryService.Get(categoryTypeId);
+      return await _categoryService.Get(categoryTypeId.Value);
    }
 }

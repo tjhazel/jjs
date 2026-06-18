@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JJS.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class PostController(IPostService postService) : Controller
 {
    private readonly IPostService _postService = postService;

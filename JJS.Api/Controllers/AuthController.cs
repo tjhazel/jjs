@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JJS.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AuthController(IUserService userService, IHttpContextAccessor httpContext) : Controller
 {
    private readonly IUserService _userService = userService;

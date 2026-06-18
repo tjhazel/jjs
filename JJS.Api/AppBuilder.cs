@@ -102,7 +102,9 @@ public class AppBuilder
       {
          options.AddPolicy("AllowCors",
              policyBuilder => policyBuilder
-                 .WithOrigins("http://localhost:3000", 
+                 .WithOrigins("http://localhost:3000",
+                     "http://localhost:5173",
+                     "http://localhost:5174",
                      "http://localhost:44301",
                      "https://*.johnandjeri.com",
                      "http://*.johnandjeri.com")
@@ -126,6 +128,13 @@ public class AppBuilder
 
    static AppConfig RegisterAppConfiguration(WebApplicationBuilder builder, bool isDebug)
    {
+      builder.Configuration
+      .SetBasePath(AppContext.BaseDirectory) // Forces IIS to look in the API folder
+      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+      .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+      .AddEnvironmentVariables();
+
+
       if (string.IsNullOrWhiteSpace(builder.Configuration[AppConfig.DATABASE_CONNECTION_STRING]))
       {
          throw new Exception("Local connection string not set.");

@@ -8,46 +8,40 @@ bool IS_DEBUG = false;
 IS_DEBUG = true;
 #endif
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+   Args = args,
+   ContentRootPath = AppContext.BaseDirectory
+});
 
 builder.AddServiceDefaults();
 
 var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "Development");
-// Configure base path early so middleware (Swagger, static files, etc.) see the trimmed path.
-
-app.UsePathBase("/api");
-
-//Expose Swagger UI
-app.UseSwagger();
-app.UseSwaggerUI(options =>
-{
-   options.RoutePrefix = string.Empty; // Becomes site root inside /api base
-   options.SwaggerEndpoint("swagger/v1/swagger.json", "John & Jeri API");
-});
 
 app.MapDefaultEndpoints();
 
-//prevent from caching spa pages
-app.UseStaticFiles(new StaticFileOptions()
+app.UseSwagger(options =>
 {
-   OnPrepareResponse = context =>
-   {
-      context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
-      context.Context.Response.Headers.Add("Expires", "-1");
-   }
+   // This maps the underlying raw swagger.json file schema path to:
+   // http://localhost/api/swagger/v1/swagger.json
+   options.RouteTemplate = "api/swagger/{documentName}/swagger.json";
 });
 
-app.UseDefaultFiles();
-
-
+app.UseSwaggerUI(options =>
+{
+   options.RoutePrefix = "api/swagger"; // Cleaned up: Swagger will live at /swagger, freeing up the site root
+   options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "John & Jeri API");
+});
 
 app.UseCors("AllowCors");
-//app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseUserValidationMiddleware();
+
+// 2. Map standard API endpoints natively
 app.MapControllers();
 
-var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "Albums");
+// 3. Map your custom Album/Image physical storage server
+var imgDir = Path.Combine(AppContext.BaseDirectory, "Albums"); // Safe for IIS context root
 app.UseFileServer(new FileServerOptions
 {
    FileProvider = new PhysicalFileProvider(imgDir),
@@ -55,9 +49,31 @@ app.UseFileServer(new FileServerOptions
    EnableDefaultFiles = true,
 });
 
-// 3. FALLBACK FOR NEXT.JS CLIENT-SIDE ROUTER
-// If a request hits the root domain but doesn't match an API controller or static file, 
-// serve Next.js index.html so the React router handles it.
-//app.MapFallbackToFile("index.html");
+// 4. FIX ROOT CONFLICT: Isolate the React frontend static file routing entirely from the API
+app.MapWhen(context =>
+    !context.Request.Path.StartsWithSegments("/api/swagger") &&
+    !context.Request.Path.StartsWithSegments("/api") &&
+    !context.Request.Path.StartsWithSegments("/Image"), // Don't interrupt image streaming
+    uiBuilder =>
+    {
+       // Serve the UI subfolder files relatively with your custom SPA caching rules
+       uiBuilder.UseStaticFiles(new StaticFileOptions
+       {
+          FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "ui")),
+          RequestPath = "",
+          OnPrepareResponse = context =>
+          {
+             context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
+             context.Context.Response.Headers.Add("Expires", "-1");
+          }
+       });
+
+       uiBuilder.UseRouting();
+       uiBuilder.UseEndpoints(endpoints =>
+       {
+          // Fallback route ensures React Router handles any deep-linked client routes seamlessly
+          endpoints.MapFallbackToFile("ui/index.html");
+       });
+    });
 
 await app.RunAsync();

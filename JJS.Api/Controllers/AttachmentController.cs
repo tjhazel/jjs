@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JJS.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AttachmentController(IAttachmentService attachmentService) : Controller
 {
    private readonly IAttachmentService _attachmentService = attachmentService;

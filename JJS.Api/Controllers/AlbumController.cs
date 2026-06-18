@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace JJS.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class AlbumController(IAlbumService albumService) : Controller
 {
    private readonly IAlbumService _albumService = albumService;
