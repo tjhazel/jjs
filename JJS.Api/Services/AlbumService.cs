@@ -124,8 +124,8 @@ public class AlbumService(IMetaDataService tagData,
          CreatedOn = fileInfo.CreationTimeUtc,
          ModifiedOn = fileInfo.LastWriteTimeUtc,
          LastAccessTime = fileInfo.LastAccessTimeUtc,
-         Title = tagData.Title,
-         Comment = tagData.Comment
+         Title = tagData?.Title ?? fileInfo.Name,
+         Comment = tagData?.Comment ?? ""
       };
 
       return photo;

@@ -6,10 +6,13 @@ using MetadataExtractor.Formats.Exif;
 namespace JJS.Api.Services;
 
 [ServiceImplementation(typeof(IMetaDataService))]
-public class MetaDataService : IMetaDataService
+public class MetaDataService() : IMetaDataService
 {
-   public async Task<ImageTag> GetMetadata(string filePath)
+   public async Task<ImageTag?> GetMetadata(string filePath)
    {
+      ImageTag? image = null;
+      try 
+      { 
       string? title = null, comment = null;
       var directories = ImageMetadataReader.ReadMetadata(filePath);
 
@@ -45,11 +48,18 @@ public class MetaDataService : IMetaDataService
          title = Path.GetFileNameWithoutExtension(filePath);
       }
 
-      var image = new ImageTag
+      image = new ImageTag
       {
          Title = title,
          Comment = comment ?? "",
       };
+      }
+      catch (ImageProcessingException ex)
+      {
+         // Log the bad file path so you know exactly which file caused it
+         //_logger.LogWarning($"Skipping corrupted or invalid image file: {filePath}. Error: {ex.Message}");
+         Console.WriteLine($"Skippirng corrupted or invalid image file: {filePath}. Error: {ex.Message}");
+      }
 
       return await Task.FromResult(image);
    }
@@ -100,6 +110,6 @@ public class MetaDataService : IMetaDataService
 
 public interface IMetaDataService
 {
-   Task<ImageTag> GetMetadata(string filePath);
+   Task<ImageTag?> GetMetadata(string filePath);
    // void SaveMetadata(string filePath, ImageTag tag);
 }
