@@ -20,6 +20,20 @@ var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "D
 
 app.MapDefaultEndpoints();
 
+//adding visibility
+app.MapGet("/diag", () => {
+   var uiPath = Path.Combine(builder.Environment.ContentRootPath, "ui");
+   var indexPath = Path.Combine(uiPath, "index.html");
+   return Results.Ok(new
+   {
+      ContentRoot = builder.Environment.ContentRootPath,
+      UiPath = uiPath,
+      UiDirExists = Directory.Exists(uiPath),
+      IndexExists = File.Exists(indexPath),
+      IsDebug = IS_DEBUG
+   });
+});
+
 app.UseSwagger(options =>
 {
    // This maps the underlying raw swagger.json file schema path to:

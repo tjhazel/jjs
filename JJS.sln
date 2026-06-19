@@ -42,27 +42,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{EDC21638
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "jjs-mantine", "jjs-mantine\", "{0F7301A6-9CFC-0435-B939-C3EAD4CD9AE8}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_52216"
-		Debug.AspNetCompiler.PhysicalPath = "jjs-mantine\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52216\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_52216"
-		Release.AspNetCompiler.PhysicalPath = "jjs-mantine\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52216\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "52216"
-		SlnRelativePath = "jjs-mantine\"
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wwwroot", "wwwroot", "{4DAA5D03-D8CA-4CA1-A32F-0EFC865FFDBB}"
 	ProjectSection(SolutionItems) = preProject
 		deployment\web.config = deployment\web.config
@@ -96,10 +75,6 @@ Global
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{0F7301A6-9CFC-0435-B939-C3EAD4CD9AE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F7301A6-9CFC-0435-B939-C3EAD4CD9AE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F7301A6-9CFC-0435-B939-C3EAD4CD9AE8}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F7301A6-9CFC-0435-B939-C3EAD4CD9AE8}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
