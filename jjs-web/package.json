@@ -3,14 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite --port 5173",
-    "build-old": "tsc -b && vite build",
-    "build": "vite build",
-    "localiis": "tsc -b && vite build --mode localiis",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
+   "scripts": {
+      "dev": "vite --port 5173",
+      "build-old": "tsc -b && vite build",
+      "build": "vite build",
+      "localiis-old": "tsc -b && vite build --mode localiis",
+      "localiis": "vite build --mode localiis",
+      "lint": "eslint .",
+      "preview": "vite preview"
+   },
   "dependencies": {
     "@mantine/carousel": "^9.3.2",
     "@mantine/core": "^9.3.2",

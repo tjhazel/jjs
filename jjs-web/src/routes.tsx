@@ -24,92 +24,80 @@ import EditArticlePage, { editArticleLoader } from "@pages/admin/article-editor"
 
 import ManageRecipesPage from '@pages/admin/recipes';
 import EditRecipePage, { editRecipeLoader } from '@pages/admin/recipe-editor';
-
+/*
 export const router = createBrowserRouter([
-   {
-      // Master layout frame wrapping ALL routes
-      path: "/",
-      element: <DashboardLayout />,
-      children: [
-         // ─── 1. PUBLIC INDEX ROUTE ───
-         {
-            index: true, // Matches exactly http://localhost:5173/ with NO security wraps
-            element: <DashboardPage />,
-         },
-
-         // ─── 2. PUBLIC UTILITY PAGES ───
-         {
-            path: "login", // Resolves to /login
-            element: <LoginPage />,
-         },
-         {
-            path: "unauthorized", // Resolves to /unauthorized
-            element: <UnauthorizedPage />,
-         },
-         {
-            path: "about", // Resolves to /about
-            element: <AboutPage />,
-         },
-         {
-            path: "album", // Resolves to /album
-            element: <AlbumPage />,
-         },
-         {
-            path: "article/post/:id", 
-            loader: articleLoader, // 👈 WIRED UP HERE
-            element: <ArticleView />,
-         },
-         {
-            path: "article", // Resolves to /album
-            element: <ArticlePage />,
-         },
-         {  
-            path: "recipe/:id",
-            loader: recipeLoader, // Intercepts string parameter arrays and converts them to numbers
-            element: <RecipeView />,
-         },
-         {
-            path: "recipe", // Resolves to /recipe
-            element: <RecipePage />,
-         },
-
-         // ─── 3. PROTECTED SUBSYSTEM (Strict Role Guarding) ───
-         {
-    element: <ProtectedRoute requiredRoles={["Admin"]} />,
+  {
+    path: "*",
+    element: <DashboardPage />,
+  }
+], {
+  basename: "/",
+});
+*/
+export const router = createBrowserRouter([
+  {
+    // FIX: Match BOTH the standard slash "/" and the server's empty string context ""
+    path: "/", 
+    element: <DashboardLayout />,
     children: [
+      // ─── 1. PUBLIC INDEX ROUTE ───
       {
-        /* 
-          👉 NESTED ADMIN STRUCTURE: All sub-routes listed inside this children block 
-          will now automatically render inside AdminLayout rather than DashboardLayout!
-        */
-        element: <AdminLayout />, 
+        index: true, // This will cleanly capture both instances
+        element: <DashboardPage />,
+      },
+      // ─── 2. PUBLIC UTILITY PAGES ───
+      {
+        path: "login",
+        element: <LoginPage />,
+      },
+      {
+        path: "unauthorized",
+        element: <UnauthorizedPage />,
+      },
+      {
+        path: "about",
+        element: <AboutPage />,
+      },
+      {
+        path: "album",
+        element: <AlbumPage />,
+      },
+      {
+        path: "article/post/:id",
+        loader: articleLoader,
+        element: <ArticleView />,
+      },
+      {
+        path: "article",
+        element: <ArticlePage />,
+      },
+      {
+        path: "recipe/:id",
+        loader: recipeLoader,
+        element: <RecipeView />,
+      },
+      {
+        path: "recipe",
+        element: <RecipePage />,
+      },
+      // ─── 3. PROTECTED SUBSYSTEM ───
+      {
+        element: <ProtectedRoute requiredRoles={["Admin"]} />,
         children: [
           {
-            path: "admin", 
-            element: <AdminPage />, // Resolves to /admin
-          },
-          {
-             path: "admin/recipe/:id", 
-            loader: editRecipeLoader, 
-            element: <EditRecipePage />,
-          },
-          {
-            path: "admin/recipes", 
-            element: <ManageRecipesPage />, // Resolves to /admin/recipe
-          },
-          { 
-            path: "admin/article/:id", 
-            loader: editArticleLoader, // Parses parameters cleanly to type-safe options
-            element: <EditArticlePage />,
-         },
-          {
-            path: "admin/articles", 
-            element: <ManageArticlesPage />, // Resolves to /admin/recipe
-          },
-        ]
-      }
+            element: <AdminLayout />,
+            children: [
+              { path: "admin", element: <AdminPage /> },
+              { path: "admin/recipe/:id", loader: editRecipeLoader, element: <EditRecipePage /> },
+              { path: "admin/recipes", element: <ManageRecipesPage /> },
+              { path: "admin/article/:id", loader: editArticleLoader, element: <EditArticlePage /> },
+              { path: "admin/articles", element: <ManageArticlesPage /> },
+            ]
+          }
+        ],
+      },
     ],
-  },
-      ],
-   },
-]);
+  }
+], {
+  basename: "/",
+});

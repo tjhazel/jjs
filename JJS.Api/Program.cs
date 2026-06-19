@@ -56,6 +56,7 @@ app.MapControllers();
 
 // 3. Map your custom Album/Image physical storage server
 var imgDir = Path.Combine(AppContext.BaseDirectory, "Albums"); // Safe for IIS context root
+if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir); // Ensure the directory exists at startup
 app.UseFileServer(new FileServerOptions
 {
    FileProvider = new PhysicalFileProvider(imgDir),
@@ -64,31 +65,38 @@ app.UseFileServer(new FileServerOptions
 });
 
 // 4. FIX ROOT CONFLICT: Isolate the React frontend static file routing entirely from the API
-app.MapWhen(context =>
-!IS_DEBUG &&
-    !context.Request.Path.StartsWithSegments("/api/swagger") &&
-    !context.Request.Path.StartsWithSegments("/api") &&
-    !context.Request.Path.StartsWithSegments("/Image"), // Don't interrupt image streaming
-    uiBuilder =>
-    {
-       // Serve the UI subfolder files relatively with your custom SPA caching rules
-       uiBuilder.UseStaticFiles(new StaticFileOptions
-       {
-          FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "ui")),
-          RequestPath = "",
-          OnPrepareResponse = context =>
-          {
-             context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
-             context.Context.Response.Headers.Add("Expires", "-1");
-          }
-       });
+app.MapWhen(context => !IS_DEBUG
+    && !context.Request.Path.StartsWithSegments("/api/swagger")
+    && !context.Request.Path.StartsWithSegments("/api")
+   // && !context.Request.Path.StartsWithSegments("/Image")
+   ,
+uiBuilder => {
 
-       uiBuilder.UseRouting();
-       uiBuilder.UseEndpoints(endpoints =>
-       {
-          // Fallback route ensures React Router handles any deep-linked client routes seamlessly
-          endpoints.MapFallbackToFile("ui/index.html");
-       });
-    });
+   var uiPhysicalPath = Path.Combine(builder.Environment.ContentRootPath, "ui");
+   var uiFileProvider = new PhysicalFileProvider(uiPhysicalPath);
+
+   // Set back to "" to pass validation rules natively
+   uiBuilder.UseStaticFiles(new StaticFileOptions
+   {
+      FileProvider = uiFileProvider,
+      RequestPath = "",
+      OnPrepareResponse = context => {
+         context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
+         context.Context.Response.Headers.Add("Expires", "-1");
+      }
+   });
+
+   uiBuilder.UseRouting();
+
+   uiBuilder.UseEndpoints(endpoints => {
+      // Fallback natively delivers index.html content when root "/" is requested
+      endpoints.MapFallbackToFile("index.html", new StaticFileOptions
+      {
+         FileProvider = uiFileProvider,
+         RequestPath = ""
+      });
+   });
+});
+
 
 await app.RunAsync();
