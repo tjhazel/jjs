@@ -1,5 +1,4 @@
 name: JJS Monorepo CI/CD Build and FTP Deploy
-
 on:
   push:
     branches: [ "develop" ] #[ "main" ]
@@ -7,8 +6,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30 # Increased - self-contained win-x64 publish and FTP upload are large
-
+    timeout-minutes: 30 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -17,7 +15,7 @@ jobs:
     - name: Setup .NET 10
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x' # Targeting .NET 10
+        dotnet-version: '10.0.x'  # Targeting .NET 10
 
     - name: Restore .NET Dependencies
       run: dotnet restore JJS.Api/JJS.Api.csproj
@@ -25,20 +23,23 @@ jobs:
     - name: Build and Publish .NET WebAPI
       run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -r win-x86 -o ./publish-output/api
 
-    # 2. Setup Node.js and Build Next.js 16 UI
+    # 2. Setup Node.js and Build Vite UI
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22' # Recommended Node version for Next.js 16
+        node-version: '22' # Kept on Node 22 to avoid the Node 20 deprecation warning
         cache: 'npm'
-        cache-dependency-path: 'jjs-web/package-lock.json'
+        # FIX: Point this to your new Vite directory package-lock.json
+        cache-dependency-path: 'ui/package-lock.json' 
 
-    - name: Install Next.js Dependencies
-      working-directory: jjs-web
+    - name: Install npm Dependencies
+      # FIX: Change working directory to your new Vite folder name (assuming 'ui')
+      working-directory: ui 
       run: npm ci
 
-    - name: Build Next.js UI (Static Export)
-      working-directory: jjs-web
+    - name: Build UI (Vite Static Production Build)
+      # FIX: Change working directory to your new Vite folder name
+      working-directory: ui 
       run: npm run build
 
     # 3. Shut down the application to release file locks safely
@@ -77,8 +78,8 @@ jobs:
           **/node_modules/**
           **/appsettings*.json
 
-    # 6. Deploy Next.js UI to Server via FTP
-    - name: Deploy Next.js UI to FTP
+    # 6. Deploy Vite UI to Server via FTP
+    - name: Deploy Vite UI to FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.4.0
       with:
         server: ${{ secrets.FTP_SERVER }}
@@ -88,15 +89,14 @@ jobs:
         timeout: 900000
         log-level: verbose
         server-dir: ./ui/
-        local-dir: ./jjs-web/out/
+        # FIX: Vite outputs static files to 'dist' folder instead of Next.js 'out'
+        local-dir: ./ui/dist/ 
         exclude: |
           **/.git*
           **/.git*/**
           **/node_modules/**
-          **/.next*
-          **/.next*/**
 
-    # # 7. Upload app_online.htm and allow it to delete app_offline.htm inside /api/
+    # 7. Upload app_online.htm and allow it to delete app_offline.htm
     - name: Bring IIS App Back Online
       uses: SamKirkland/FTP-Deploy-Action@v4.4.0
       with:
@@ -108,4 +108,4 @@ jobs:
         local-dir: ./deployment/
         exclude: |
           **
-          !**/app_online.htm   # Keeps app_online.htm and deletes app_offline.htm [1]
+          !**/app_online.htm
