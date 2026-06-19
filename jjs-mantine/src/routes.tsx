@@ -19,9 +19,11 @@ import UnauthorizedPage from "@pages/unauthorized";
 // Core Pages
 import DashboardPage from "@pages/dashboard"; // Public index page now
 import AdminPage from "@pages/admin/main";     // 👉 IMPORTED NEW ADMIN HUB PAGE
-import RecipeAdminPage from "@pages/admin/recipes";
 import ManageArticlesPage from "@pages/admin/articles";
 import EditArticlePage, { editArticleLoader } from "@pages/admin/article-editor";
+
+import ManageRecipesPage from '@pages/admin/recipes';
+import EditRecipePage, { editRecipeLoader } from '@pages/admin/recipe-editor';
 
 export const router = createBrowserRouter([
    {
@@ -87,8 +89,13 @@ export const router = createBrowserRouter([
             element: <AdminPage />, // Resolves to /admin
           },
           {
+             path: "admin/recipe/:id", 
+            loader: editRecipeLoader, 
+            element: <EditRecipePage />,
+          },
+          {
             path: "admin/recipes", 
-            element: <RecipeAdminPage />, // Resolves to /admin/recipe
+            element: <ManageRecipesPage />, // Resolves to /admin/recipe
           },
           { 
             path: "admin/article/:id", 
