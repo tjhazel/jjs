@@ -29,17 +29,16 @@ jobs:
       with:
         node-version: '22' # Kept on Node 22 to avoid the Node 20 deprecation warning
         cache: 'npm'
-        # FIX: Point this to your new Vite directory package-lock.json
-        cache-dependency-path: 'ui/package-lock.json' 
+        cache-dependency-path: 'jjs-web/package-lock.json' 
 
     - name: Install npm Dependencies
       # FIX: Change working directory to your new Vite folder name (assuming 'ui')
-      working-directory: ui 
+      working-directory: jjs-web 
       run: npm ci
 
     - name: Build UI (Vite Static Production Build)
       # FIX: Change working directory to your new Vite folder name
-      working-directory: ui 
+      working-directory: jjs-web 
       run: npm run build
 
     # 3. Shut down the application to release file locks safely
@@ -90,7 +89,7 @@ jobs:
         log-level: verbose
         server-dir: ./ui/
         # FIX: Vite outputs static files to 'dist' folder instead of Next.js 'out'
-        local-dir: ./ui/dist/ 
+        local-dir: ./jjs-web/dist/ 
         exclude: |
           **/.git*
           **/.git*/**
