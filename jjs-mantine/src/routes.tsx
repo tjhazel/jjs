@@ -4,6 +4,7 @@ import { createBrowserRouter } from "react-router";
 // Layout & Route Guards
 import { ProtectedRoute } from "@lib/auth/protectedRoute";
 import { DashboardLayout } from "@components/layout/DashboardLayout";
+import { AdminLayout } from "@components/layout/AdminLayout";
 
 // Public Pages
 import LoginPage from "@pages/login";
@@ -17,7 +18,10 @@ import UnauthorizedPage from "@pages/unauthorized";
 
 // Core Pages
 import DashboardPage from "@pages/dashboard"; // Public index page now
-import RecipeAdminPage from "@pages/admin/recipe";
+import AdminPage from "@pages/admin/main";     // 👉 IMPORTED NEW ADMIN HUB PAGE
+import RecipeAdminPage from "@pages/admin/recipes";
+import ManageArticlesPage from "@pages/admin/articles";
+import EditArticlePage, { editArticleLoader } from "@pages/admin/article-editor";
 
 export const router = createBrowserRouter([
    {
@@ -69,14 +73,36 @@ export const router = createBrowserRouter([
 
          // ─── 3. PROTECTED SUBSYSTEM (Strict Role Guarding) ───
          {
-            element: <ProtectedRoute requiredRoles={["Admin"]} />,
-            children: [
-               {
-                  path: "admin/recipe", // Resolves to /admin/recipe
-                  element: <RecipeAdminPage />,
-               },
-            ],
+    element: <ProtectedRoute requiredRoles={["Admin"]} />,
+    children: [
+      {
+        /* 
+          👉 NESTED ADMIN STRUCTURE: All sub-routes listed inside this children block 
+          will now automatically render inside AdminLayout rather than DashboardLayout!
+        */
+        element: <AdminLayout />, 
+        children: [
+          {
+            path: "admin", 
+            element: <AdminPage />, // Resolves to /admin
+          },
+          {
+            path: "admin/recipes", 
+            element: <RecipeAdminPage />, // Resolves to /admin/recipe
+          },
+          { 
+            path: "admin/article/:id", 
+            loader: editArticleLoader, // Parses parameters cleanly to type-safe options
+            element: <EditArticlePage />,
          },
+          {
+            path: "admin/articles", 
+            element: <ManageArticlesPage />, // Resolves to /admin/recipe
+          },
+        ]
+      }
+    ],
+  },
       ],
    },
 ]);

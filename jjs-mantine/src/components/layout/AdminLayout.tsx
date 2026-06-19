@@ -3,9 +3,9 @@ import { AppShell, Text, NavLink } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, useNavigate, useLocation } from 'react-router'; // Grabbed from v8 core
 import CategorySelector from '../article/CategorySelector';
-import { HeaderMenu } from './HeaderMenu';
+import {AdminHeader} from './AdminHeader';
 
-export function DashboardLayout() {
+export function AdminLayout() {
    // Handles mobile toggle states out of the box
    //const [opened, { toggle }] = useDisclosure();
    const [opened] = useDisclosure();
@@ -18,10 +18,10 @@ export function DashboardLayout() {
          navbar={{ width: 250, breakpoint: 'sm', collapsed: { mobile: !opened } }}
          padding="md"
       >
-         {/* ─── Header View Frame ─── */}
-         <AppShell.Header>
-            <HeaderMenu />
-         </AppShell.Header>
+        
+ <AppShell.Header style={{ backgroundColor: 'var(--mantine-color-dark-8)', borderBottom: '1px solid var(--mantine-color-dark-6)' }}>
+         <AdminHeader />   
+      </AppShell.Header>
 
          {/* ─── Sidebar Navigation Frame ─── */}
          <AppShell.Navbar p="md">
