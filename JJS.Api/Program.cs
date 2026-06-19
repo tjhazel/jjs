@@ -51,6 +51,7 @@ app.UseFileServer(new FileServerOptions
 
 // 4. FIX ROOT CONFLICT: Isolate the React frontend static file routing entirely from the API
 app.MapWhen(context =>
+!IS_DEBUG &&
     !context.Request.Path.StartsWithSegments("/api/swagger") &&
     !context.Request.Path.StartsWithSegments("/api") &&
     !context.Request.Path.StartsWithSegments("/Image"), // Don't interrupt image streaming

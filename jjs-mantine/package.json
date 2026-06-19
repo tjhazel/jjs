@@ -3,30 +3,35 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-   "scripts": {
-      "dev": "vite",
-      "build": "tsc -b && vite build",
-      "localiis": "tsc -b && vite build --mode localiis",
-      "lint": "eslint .",
-      "preview": "vite preview"
-   },
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "tsc -b && vite build",
+    "localiis": "tsc -b && vite build --mode localiis",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@mantine/carousel": "^9.3.2",
     "@mantine/core": "^9.3.2",
+    "@mantine/dates": "^9.3.2",
     "@mantine/form": "^9.3.2",
     "@mantine/hooks": "^9.3.2",
     "@react-oauth/google": "^0.13.5",
+    "@tabler/icons-react": "^3.44.0",
     "axios": "^1.18.0",
+    "dayjs": "^1.11.21",
     "embla-carousel": "^8.5.2",
     "embla-carousel-react": "^8.5.2",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-markdown": "^10.1.0",
     "react-router": "^8.0.0",
     "swr": "^2.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@eslint/js": "^10.0.1",
+    "@react-router/dev": "^8.0.1",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^24.12.3",

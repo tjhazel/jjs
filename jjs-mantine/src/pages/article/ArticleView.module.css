@@ -1,0 +1,22 @@
+.prose {
+  color: var(--mantine-color-gray-8);
+  font-size: var(--mantine-font-size-sm);
+  line-height: 1.7;
+}
+
+.prose p {
+  margin-top: 0;
+  margin-bottom: var(--mantine-spacing-md);
+}
+
+.prose h1, .prose h2, .prose h3 {
+  color: var(--mantine-color-dark-9);
+  font-weight: 600;
+  margin-top: var(--mantine-spacing-xl);
+  margin-bottom: var(--mantine-spacing-sm);
+}
+
+.prose ul, .prose ol {
+  margin-bottom: var(--mantine-spacing-md);
+  padding-left: var(--mantine-spacing-xl);
+}

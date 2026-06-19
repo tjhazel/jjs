@@ -21,7 +21,7 @@
       /* Linting */
       "noUnusedLocals": true,
       "noUnusedParameters": true,
-      "erasableSyntaxOnly": true,
+      "erasableSyntaxOnly": false,
       "noFallthroughCasesInSwitch": true,
       /* Paths */
       //"baseUrl": ".",
@@ -29,6 +29,7 @@
          "@api/*": [ "./src/api/*" ],
          "@components/*": [ "./src/components/*" ],
          "@lib/*": [ "./src/lib/*" ],
+         "@pages/*": [ "./src/pages/*" ],
          "@/*": [ "./src/*" ]
       }
    }, 

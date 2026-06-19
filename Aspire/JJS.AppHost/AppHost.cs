@@ -15,9 +15,15 @@ var api = builder.AddProject<Projects.JJS_Api>("jjs-api")
 //   .WithNpmPackageInstallation()
 //   ;
 
-//produces a clean startup dashboard
-var ui = builder.AddNpmApp(name: "jjs-web-ui", workingDirectory: "../../jjs-web", scriptName: "dev")
-    .WithHttpEndpoint(port: 3000, env: "PORT")
+////produces a clean startup dashboard
+//var ui = builder.AddNpmApp(name: "jjs-web-ui", workingDirectory: "../../jjs-web", scriptName: "dev")
+//    .WithHttpEndpoint(port: 3000, env: "PORT")
+//    .WithExternalHttpEndpoints()
+//    .WithReference(api)
+//    .WaitFor(api);
+
+var ui = builder.AddNpmApp(name: "jjs-web-ui2", workingDirectory: "../../jjs-mantine", scriptName: "dev")
+    .WithHttpEndpoint(port: 5174, env: "PORT")
     .WithExternalHttpEndpoints()
     .WithReference(api)
     .WaitFor(api);

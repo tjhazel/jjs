@@ -1,0 +1,28 @@
+.card {
+  border-color: var(--mantine-color-gray-2);
+}
+
+.card:hover {
+  border-color: var(--mantine-color-gray-4);
+}
+
+.imageWrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+.image {
+  transition: transform 150ms ease;
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+.footerText {
+  transition: color 150ms ease;
+}
+
+.card:hover .footerText {
+  color: var(--mantine-color-gray-7);
+}
