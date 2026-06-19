@@ -31,19 +31,10 @@ jobs:
         cache: 'npm'
         cache-dependency-path: 'jjs-web/package-lock.json' 
 
-    # 2.5 resolve MODULE_NOT_FOUND
     - name: Install npm Dependencies
-      working-directory: jjs-web
-      # FIX: Force npm to download the Linux 64-bit binary required by Rolldown/Vite
-      run: |
-        npm config set library-config:cpu "x64"
-        npm config set library-config:os "linux"
-        npm ci
-
-    # - name: Install npm Dependencies
-    #   # FIX: Change working directory to your new Vite folder name (assuming 'ui')
-    #   working-directory: jjs-web 
-    #   run: npm ci
+      # FIX: Change working directory to your new Vite folder name (assuming 'ui')
+      working-directory: jjs-web 
+      run: npm ci
 
     - name: Build UI (Vite Static Production Build)
       # FIX: Change working directory to your new Vite folder name
