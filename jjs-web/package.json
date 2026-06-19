@@ -9,6 +9,7 @@
     "build": "vite build",
     "localiis-old": "tsc -b && vite build --mode localiis",
     "localiis": "vite build --mode localiis",
+    "winhost": "vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview"
   },

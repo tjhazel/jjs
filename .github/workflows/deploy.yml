@@ -39,7 +39,7 @@ jobs:
     - name: Build UI (Vite Static Production Build)
       # FIX: Change working directory to your new Vite folder name
       working-directory: jjs-web 
-      run: npm run build
+      run: npm run winhost
 
     # 3. Shut down the application to release file locks safely
     - name: Put App Offline
