@@ -1,4 +1,4 @@
-import { Box, Container, Image } from '@mantine/core';
+import { Box, Center, Container, Image, Loader, Stack, Text } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { useApiContext } from '@api/ApiContext';
 import { useCarouselImages } from '@api/album/image-fetcher';
@@ -9,7 +9,18 @@ import { Category_Home } from '@api/post/category';
 function DashboardPage() {
   const { httpGet } = useApiContext();
   const { data: carouselImages } = useCarouselImages(httpGet);
-  const { data: posts } = usePosts(httpGet);
+  const { data: posts, isLoading } = usePosts(httpGet);
+
+   if (isLoading) {
+      return (
+         <Center py="xl">
+            <Stack align="center" gap="xs">
+               <Loader size="lg" type="dots" />
+               <Text size="sm" c="dimmed">Loading posts...</Text>
+            </Stack>
+         </Center>
+      );
+   }
 
   const slides = (carouselImages || []).map((img) => (
     <Carousel.Slide key={img.path}
@@ -42,8 +53,18 @@ function DashboardPage() {
         </Carousel>
       </Box>
 
-      <Box bg="var(--mantine-color-indigo-light)">
-        <ArticleList posts={posts?.filter(y => y.categoryIds.includes(Category_Home))} />
+        <Box bg="var(--mantine-color-indigo-light)">
+           {isLoading && 
+              <Center py="xl">
+                 <Stack align="center" gap="xs">
+                    <Loader size="lg" type="dots" />
+                    <Text size="sm" c="dimmed">Loading posts...</Text>
+                 </Stack>
+              </Center>
+           }
+           {!isLoading &&
+              <ArticleList posts={posts?.filter(y => y.categoryIds.includes(Category_Home))} />
+           }
       </Box>
     </Container>
   );
