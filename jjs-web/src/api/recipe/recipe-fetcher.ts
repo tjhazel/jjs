@@ -1,14 +1,15 @@
-import type { HttpError, TGet } from "@/lib/httpClient";
-import type { Recipe, RecipeDetail } from "./recipe";
-import useSWR from "swr";
+import type { HttpError, TGet, TPost } from "@/lib/httpClient";
+import type { RecipeDetail } from "./recipe";
+import useSWR, { mutate } from "swr";
 import { swrOptions } from "@/lib/swr.functions";
 
 export const recipeBaseUrl = `api/recipe`;
 export const getRecipeUrl = (id: number) => `${recipeBaseUrl}/${id}`;
+export const recipeSaveUrl = `${recipeBaseUrl}`;
 
 export function useRecipe(httpGet: TGet) {
   console.log('posting to this', recipeBaseUrl, httpGet)
-   const { data, isValidating, error } = useSWR<Recipe[], HttpError>(
+   const { data, isValidating, error } = useSWR<RecipeDetail[], HttpError>(
       recipeBaseUrl,
       httpGet,
       { ...swrOptions }
@@ -35,4 +36,10 @@ export function useSingleRecipe(httpGet: TGet, id: number) {
     isLoading: !error && !data && isValidating,
     error: error?.message
   };
+}
+
+export const saveRecipe = async (httpPost: TPost, model: RecipeDetail) => {
+   const result = await httpPost(recipeSaveUrl, model)
+      .then(() => mutate(recipeSaveUrl));
+   return result;
 }

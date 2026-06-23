@@ -6,7 +6,7 @@ import { swrOptions } from "@/lib/swr.functions";
 
 export const postBaseUrl = `api/post`;
 //export const getPostUrl = (id: number) => `${postBaseUrl}/${id}`;
-export const postSaveUrl = `${postBaseUrl}/Save`;
+export const postSaveUrl = `${postBaseUrl}`;
 
 export function usePosts(httpGet: TGet) {
    const { data, isValidating, error } = useSWR<PostDetail[], HttpError>(

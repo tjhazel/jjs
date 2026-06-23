@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
-import { Container, Stack, Title, Text, Button, Alert, Group } from '@mantine/core';
+import { Container, Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
 import { useRecipe } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
@@ -53,6 +53,17 @@ export default function EditRecipePage() {
 
   const showLoading = !isNew && isLoading;
   const recipeNotFound = !isNew && !isLoading && !recipe;
+
+   if (showLoading) {
+      return (
+         <Center py="xl">
+            <Group gap="sm">
+               <Loader size="sm" type="dots" />
+               <Text c="dimmed">Loading recipes...</Text>
+            </Group>
+         </Center>
+      );
+   }
 
   return (
     <Container size="xl" py="md">

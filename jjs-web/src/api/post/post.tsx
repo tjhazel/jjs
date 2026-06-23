@@ -3,14 +3,14 @@ export interface Post {
   title: string;
   previewText: string;
   body: string;
-  releaseDate?: string;
-  expireDate?: string;
+  releaseDate?: Date;
+  expireDate?: Date;
   commentsEnabled : boolean;
   approved  : boolean;
   viewCount: number;
-  createdDate: string; // ISO string or date-like
+  createdDate: Date; // ISO string or date-like
   createdByFk: string;
-  modifiedDate : string; // ISO string or date-like
+  modifiedDate : Date; // ISO string or date-like
   modifiedByFk : string;
 }
 

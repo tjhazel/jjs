@@ -83,7 +83,7 @@ export default function ManageArticles({ posts, isLoading }: ManageArticlesProps
   return (
     <Stack gap="xl" w="100%">
       <Table.ScrollContainer minWidth={700} visibleFrom="sm">
-        <Table variant="simple" layout="fixed" highlightOnHover withBorder>
+        <Table variant="simple" layout="fixed" highlightOnHover withTableBorder>
           <Table.Thead>
             <Table.Tr>
               {renderTh('title', 'Title')}

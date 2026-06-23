@@ -18,7 +18,7 @@ public partial class RecipeRepository(AppConfig appConfig) : IRecipeRepository
 
    public async Task<RecipeDetailViewModel> GetRecipe(int recipeId)
    {
-      var results = await GetRecipeViewModel<RecipeDetailViewModel>();
+      var results = await GetRecipeViewModel<RecipeDetailViewModel>(recipeId);
       return results.First();
    }
 

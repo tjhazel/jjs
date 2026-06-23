@@ -100,7 +100,7 @@ export default function RecipeTable({ recipes, isLoading }: RecipeTableProps) {
       
       {/* ─── Desktop Table Layout Frame (Visible from Breakpoint Small) ─── */}
       <Table.ScrollContainer minWidth={600} visibleFrom="sm">
-        <Table variant="simple" layout="fixed" highlightOnHover withBorder>
+        <Table variant="simple" layout="fixed" highlightOnHover withTableBorder>
           <Table.Thead>
             <Table.Tr>
               {renderTh('name', 'Name')}

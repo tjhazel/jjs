@@ -83,7 +83,7 @@ export const formatDateLong = (date: GenericDate): string => {
 
 // comparison functions //
 export const isDateAfter = (beforeDate: GenericDate, afterDate: GenericDate, units: dayjs.OpUnitType = 'millisecond'): boolean => {
-   return dayjs(afterDate).isAfter(dayjs(afterDate), units);
+   return dayjs(beforeDate).isAfter(dayjs(afterDate), units);
 }
 
 export const compareDates = (firstDate: GenericDate, secondDate: GenericDate): boolean => {

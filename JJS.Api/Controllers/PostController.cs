@@ -16,7 +16,7 @@ public class PostController(IPostService postService) : Controller
       return await _postService.GetAll();
    }
 
-   [HttpPost]
+   [HttpPost, HttpPut]
    public async Task<int> Save(Post model)
    {
       return await _postService.Save(model);

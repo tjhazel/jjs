@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
-import { Container, Stack, Title, Text, Button, Alert, Group } from '@mantine/core';
+import { Container, Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
 import { usePosts } from '@api/post/post-fetcher';
 import { useApiContext } from '@api/ApiContext';
@@ -59,6 +59,17 @@ export default function EditArticlePage() {
 
   const showLoading = !isNew && isLoading;
   const articleNotFound = !isNew && !isLoading && !article;
+
+   if (showLoading) {
+      return (
+         <Center py="xl">
+            <Group gap="sm">
+               <Loader size="sm" type="dots" />
+               <Text c="dimmed">Loading articles...</Text>
+            </Group>
+         </Center>
+      );
+   }
 
   return (
     <Container size="xl" py="md">

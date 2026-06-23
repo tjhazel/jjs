@@ -5,22 +5,17 @@ import {
   TextInput, Textarea, Card, Title, Text, Stack, 
   SimpleGrid, Grid, Switch, Group, Button, Box, NumberInput 
 } from '@mantine/core';
-import { recipeSchema } from '@api/recipe/recipeSchema';
+import { recipeSchema, DEFAULT_RECIPE } from '@api/recipe/recipeSchema';
 import type { RecipeDetail } from '@api/recipe/recipe';
 import { formatDate } from '@lib/time.functions';
 
 interface RecipeEditorProps {
-  recipe?: RecipeDetail;
+  recipe?: RecipeDetail | null;
   isSaving?: boolean;
   onSave: (data: any) => void;
   onCancel?: () => void;
 }
 
-const DEFAULT_RECIPE = {
-  name: "", description: "", recipeSource: "", course: "", dishType: "",
-  calories: 0, fat: 0, numberServed: 2, prepTime: "", cookTime: "",
-  estimatedCost: 0.00, isViewableByPublic: false, recipeCategoryIds: [],
-};
 
 export default function RecipeEditor({ recipe, isSaving = false, onSave, onCancel }: RecipeEditorProps) {
   const form = useForm({
@@ -44,7 +39,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         cookTime: recipe.cookTime || "",
         estimatedCost: recipe.estimatedCost || 0,
         isViewableByPublic: recipe.isViewableByPublic || false,
-        recipeCategoryIds: recipe.recipeCategoryIds || [],
+        recipeCategoryIds: recipe.recipeCategoryIds || [] as number[],
       });
     }
   }, [recipe]);
@@ -141,7 +136,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
               </Button>
             )}
           </Group>
-          {!isNew && <Text fontFamily="monospace" size="xs" c="dimmed">ID: {recipe?.recipeId}</Text>}
+          {!isNew && <Text ff="monospace" size="xs" c="dimmed">ID: {recipe?.recipeId}</Text>}
         </Group>
       </Stack>
     </Box>

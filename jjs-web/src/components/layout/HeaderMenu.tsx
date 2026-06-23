@@ -65,32 +65,53 @@ export function HeaderMenu() {
    };
 
    const items = links.map((link) => {
-      const menuItems = link.links?.map((item) => (
-         <Menu.Item key={item.link} component={Link} to={item.link.startsWith('http') ? undefined : item.link} href={item.link.startsWith('http') ? item.link : undefined} target={item.link.startsWith('http') ? '_blank' : undefined}>
-            {/* 🔴 Using custom helper inside Menu.Item for clean navigation layout */}
+      const menuItems = link.links?.map((item) => {
+         const isExternal = item.link.startsWith('http');
+
+         if (isExternal) {
+            return (
+            <Menu.Item
+               key={item.link}
+               component="a"
+               href={item.link}
+               target="_blank"
+               rel="noopener noreferrer"
+            >
+               {renderLink(item.link, item.label, classes.dropdownLink, close)}
+            </Menu.Item>
+            );
+         }
+
+         return (
+            <Menu.Item
+            key={item.link}
+            component={Link}
+            to={item.link}
+            >
             {renderLink(item.link, item.label, classes.dropdownLink, close)}
-         </Menu.Item>
-      ));
+            </Menu.Item>
+         );
+      });
 
       if (menuItems) {
          return (
             <Menu key={link.label} trigger="hover" transitionProps={{ exitDuration: 0 }} withinPortal>
-               <Menu.Target>
-                  {/* Kept as a simple unclickable placeholder anchor trigger for hover */}
-                  <a href={link.link} className={classes.link} onClick={(e) => e.preventDefault()}>
-                     <Center>
-                        <span className={classes.linkLabel}>{link.label}</span>
-                        <IconChevronDown size={14} stroke={1.5} />
-                     </Center>
-                  </a>
-               </Menu.Target>
-               <Menu.Dropdown>{menuItems}</Menu.Dropdown>
+            <Menu.Target>
+               <a href={link.link} className={classes.link} onClick={(e) => e.preventDefault()}>
+                  <Center>
+                  <span className={classes.linkLabel}>{link.label}</span>
+                  <IconChevronDown size={14} stroke={1.5} />
+                  </Center>
+               </a>
+            </Menu.Target>
+            <Menu.Dropdown>{menuItems}</Menu.Dropdown>
             </Menu>
          );
       }
 
       return renderLink(link.link, link.label, classes.link);
-   });
+      });
+
 
    return (
        <header className={classes.header}>
@@ -140,7 +161,7 @@ function DrawerLinksGroup({
                <IconChevronDown size={14} stroke={1.5} style={{ transform: opened ? 'rotate(180deg)' : 'none', transition: 'transform 200ms ease' }} />
             </Group>
          </UnstyledButton>
-         <Collapse in={opened}>
+         <Collapse expanded={opened}>
             {link.links?.map((subLink) => renderLinkHelper(subLink.link, subLink.label, classes.subLink, onLinkClick))}
          </Collapse>
       </>

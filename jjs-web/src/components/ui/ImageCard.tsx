@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Card, Image, Text, Box } from '@mantine/core';
+import { Card, Image, Text, Box, AspectRatio } from '@mantine/core';
 import classes from './ImageCard.module.css';
 
 interface ImageCardProps {
@@ -37,13 +37,14 @@ export default function ImageCard(props: ImageCardProps) {
     >
       {imageUrl && (
         <Card.Section style={{ overflow: 'hidden' }}>
-          <Box className={classes.imageWrapper}>
-            <Image
-              src={imageUrl}
-              alt={alt ?? title}
-              aspectRatio={16 / 9}
-              className={classes.image}
-            />
+            <Box className={classes.imageWrapper}>
+               <AspectRatio ratio={16 / 9}>
+                  <Image
+                    src={imageUrl}
+                    alt={alt ?? title}
+                    className={classes.image}
+                    />
+             </AspectRatio>
           </Box>
         </Card.Section>
       )}

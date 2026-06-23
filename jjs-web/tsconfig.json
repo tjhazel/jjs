@@ -6,6 +6,6 @@
    ],
    "compilerOptions": {
     "skipLibCheck": true,
-    "noEmitOnError": false
+    //"noEmitOnError": false
   }
 }

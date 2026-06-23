@@ -1,5 +1,3 @@
-using Google.Protobuf.WellKnownTypes;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
 var api = builder.AddProject<Projects.JJS_Api>("jjs-api")
@@ -22,8 +20,8 @@ var api = builder.AddProject<Projects.JJS_Api>("jjs-api")
 //    .WithReference(api)
 //    .WaitFor(api);
 
-var ui = builder.AddNpmApp(name: "jjs-web-ui2", workingDirectory: "../../jjs-mantine", scriptName: "dev")
-    .WithHttpEndpoint(port: 5174, env: "PORT")
+var ui = builder.AddNpmApp(name: "jjs-web-ui", workingDirectory: "../../jjs-web", scriptName: "dev")
+    //.WithHttpEndpoint(port: 5173, env: "PORT")
     .WithExternalHttpEndpoints()
     .WithReference(api)
     .WaitFor(api);

@@ -34,10 +34,40 @@ export function useCarouselImages(httpGet: TGet) {
 
 
   const carouselImages: ImageSummary[] = [
+     {
+      path: '/images/carousel/athens-view.jpg',
+      title: 'Athens View',
+      description: 'A view of the city of Athens, Greece after a short(ish) hike up to the top of Mount Lycabettus'
+    },
+   {
+      path: '/images/carousel/parthenon.jpg',
+      title: 'Three Amigos at the Parthenon',
+      description: 'Great day visiting the Parthenon in Athens, Greece'
+    },
     {
-      path: '/images/carousel/150000Miles.jpg',
-      title: '150k miles and still not famous',
-      description: '150,000 miles and we never got featured on a TV commercial'
+      path: '/images/carousel/eiffeltower.jpg',
+      title: 'Three Amigos at the Eiffel Tower',
+      description: 'Great day visiting the Eiffel Tower in Paris, France'
+    },
+    {
+      path: '/images/carousel/eiffelatnight.jpg',
+      title: 'The Eiffel Tower after dark',
+      description: 'Super sparkly Eiffel Tower in Paris, France'
+    },
+  {
+      path: '/images/carousel/TokyoTower-3.jpg',
+      title: 'The Tokyo Tower',
+      description: 'Tokyo Tower in Tokyo, Japan'
+    },  
+    {
+      path: '/images/carousel/DisneyEarthquake.jpg',
+      title: 'Disney Earthquake',
+      description: 'Fun day at Disney Tokyo with a little earthquake thrown in for good measure'
+    },    
+    {
+      path: '/images/carousel/MeaningofLife.jpg',
+      title: 'Naya and the Meaning of Life',
+      description: 'She is contemplating the meaning of life - or maybe just bored'
     },
      {
       path: '/images/carousel/bristol.jpg',

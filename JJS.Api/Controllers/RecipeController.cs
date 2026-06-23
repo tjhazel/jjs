@@ -22,4 +22,10 @@ public class RecipeController(IRecipeService recipeService) : Controller
    {
       return await _recipeService.GetSingleRecipe(recipeId);
    }
+
+   [HttpPost, HttpPut]
+   public async Task<int> Post(RecipeViewModel model)
+   {
+      throw new NotImplementedException("Post method is not implemented yet.");
+   }
 }

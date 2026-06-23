@@ -3,11 +3,10 @@ import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import { DateInput } from '@mantine/dates';
 import { TextInput, Textarea, Card, Title, Text, Stack, SimpleGrid, Grid, Checkbox, Switch, Group, Button, Box, Divider } from '@mantine/core';
-import { articleSchema } from '@api/post/articleSchema';
+import { articleSchema, DEFAULT_POST, type FormValues } from '@api/post/articleSchema';
 import type { PostDetail } from '@api/post/post';
 import type { Category } from '@api/post/category';
 import { formatDate } from '@lib/time.functions';
-import type z from 'zod';
 
 interface ArticleEditorProps {
   post?: PostDetail;
@@ -17,22 +16,6 @@ interface ArticleEditorProps {
   onCancel?: () => void;
 }
 
-const DEFAULT_POST: Partial<PostDetail> = {
-  title: "",
-  previewText: "",
-  body: "",
-  releaseDate: "",
-  expireDate: "",
-  commentsEnabled: false,
-  approved: false,
-  viewCount: 0,
-  imageUrl: "",
-  href: "",
-  categoryIds: [],
-  categories: [],
-};
-
-type FormValues = z.infer<typeof articleSchema>;
 
 export default function ArticleEditor({ post, categories = [], isSaving = false, onSave, onCancel }: ArticleEditorProps) {
   const form = useForm<FormValues>({
@@ -101,8 +84,9 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Scheduling</Title>
             <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-              <DateInput label="Release Date" description="Leave blank to publish immediately" placeholder="Pick date" radius="none" clearable value={form.getValues().releaseDate ? new Date(form.getValues().releaseDate!) : null} onChange={(date) => form.setFieldValue('releaseDate', date ? date.toISOString() : null)} error={form.errors.releaseDate} />
-              <DateInput label="Expire Date" description="Leave blank to never expire" placeholder="Pick date" radius="none" clearable value={form.getValues().expireDate ? new Date(form.getValues().expireDate!) : null} onChange={(date) => form.setFieldValue('expireDate', date ? date.toISOString() : null)} error={form.errors.expireDate} />
+              <DateInput label="Release Date" 
+              description="Leave blank to publish immediately" placeholder="Pick date" radius="none" clearable key={form.key('releaseDate')}  error={form.errors.releaseDate} />
+              <DateInput label="Expire Date" description="Leave blank to never expire" placeholder="Pick date" radius="none" clearable key={form.key('expireDate')} error={form.errors.expireDate} />
             </SimpleGrid>
           </Stack>
         </Card>
@@ -156,7 +140,7 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
             <Button type="submit" color="dark" radius="none" loading={isSaving} disabled={!form.isDirty()}>{isNew ? 'Create Post' : 'Save Changes'}</Button>
             {onCancel && <Button type="button" variant="subtle" color="gray" radius="none" onClick={onCancel}>Cancel</Button>}
           </Group>
-          {!isNew && <Text fontFamily="monospace" size="xs" c="dimmed">ID: {post?.postId}</Text>}
+          {!isNew && <Text ff="monospace" size="xs" c="dimmed">ID: {post?.postId}</Text>}
         </Group>
       </Stack>
     </Box>

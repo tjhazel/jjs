@@ -16,3 +16,10 @@ export const recipeSchema = z.object({
   isViewableByPublic: z.boolean(),
   recipeCategoryIds: z.array(z.number()),
 });
+
+
+export const DEFAULT_RECIPE = {
+  name: "", description: "", recipeSource: "", course: "", dishType: "",
+  calories: 0, fat: 0, numberServed: 2, prepTime: "", cookTime: "",
+  estimatedCost: 0.00, isViewableByPublic: false, recipeCategoryIds: [] as number[],
+};

@@ -103,7 +103,7 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
       
       {/* ─── Desktop Table Layout Frame ─── */}
       <Table.ScrollContainer minWidth={750} visibleFrom="sm">
-        <Table variant="simple" layout="fixed" highlightOnHover withBorder>
+        <Table variant="simple" layout="fixed" highlightOnHover withTableBorder>
           <Table.Thead>
             <Table.Tr>
               {renderTh('name', 'Name')}
