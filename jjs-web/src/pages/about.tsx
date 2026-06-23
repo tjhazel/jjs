@@ -1,130 +1,64 @@
-import { useState } from 'react';
-import reactLogo from '../assets/react.svg';
-import viteLogo from '../assets/vite.svg';
-import heroImg from '../assets/hero.png';
-import { Center, Paper, Stack, Box } from "@mantine/core";
-//import { useDisclosure } from '@mantine/hooks'
+import { useState, useEffect } from 'react';
+import { Center, Paper, Container, Typography, Loader, Alert } from "@mantine/core";
+import Markdown from 'react-markdown';
+
+// 1. Point to the public RAW format url of your main branch README.md
+const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/main/README.md";
 
 export default function AboutPage() {
-   const [count, setCount] = useState(0)
-  // const [opened, { toggle }] = useDisclosure();
+   const [markdown, setMarkdown] = useState<string>("");
+   const [loading, setLoading] = useState<boolean>(true);
+   const [error, setError] = useState<string | null>(null);
+
+   useEffect(() => {
+      // eslint-disable-next-line no-debugger
+      debugger;
+      // 2. Fetch markdown plain text over HTTP on component initialization
+      fetch(GITHUB_README_URL)
+         .then((response) => {
+            if (!response.ok) {
+               throw new Error(`Failed to load repository history (${response.status})`);
+            }
+            return response.text();
+         })
+         .then((text) => {
+            setMarkdown(text);
+            setLoading(false);
+         })
+         .catch((err) => {
+            setError(err.message || "An unexpected error occurred");
+            setLoading(false);
+         });
+   }, []);
 
    return (
-      // Center utility element forces children to snap perfectly into middle vertical/horizontal bounds
-      <Center h="100vh" bg="var(--mantine-color-gray-0)">
-         {/* Paper creates a styled clean container card with optional shadow depth and layout pads */}
-         <Paper radius="md" p="xl" withBorder w={400} bg="white">
-            <Stack gap="xl" align="center">
-               <Box style={{ textAlign: "center" }}>
-                  <section id="center">
-                     <div className="hero">
-                        <img src={heroImg} className="base" width="170" height="179" alt="" />
-                        <img src={reactLogo} className="framework" alt="React logo" />
-                        <img src={viteLogo} className="vite" alt="Vite logo" />
-                     </div>
-                     <div>
-                        <h1>Get started</h1>
-                        <p>
-                           Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-                        </p>
-                     </div>
-                     <button
-                        type="button"
-                        className="counter"
-                        onClick={() => setCount((count) => count + 1)}
-                     >
-                        Count is {count}
-                     </button>
-                  </section>
+      <Center mih="100vh" bg="var(--mantine-color-gray-0)" p="md">
+         <Container size="sm" w="100%">
+            <Paper radius="md" p="xl" withBorder bg="white" shadow="sm">
 
-                  <div className="ticks"></div>
+               {/* State 1: Loading state displays Mantine's theme loader spinner */}
+               {loading && (
+                  <Center h={200}>
+                     <Loader color="blue" size="md" type="dots" />
+                  </Center>
+               )}
 
-                  <section id="next-steps">
-                     <div id="docs">
-                        <svg className="icon" role="presentation" aria-hidden="true">
-                           <use href="/icons.svg#documentation-icon"></use>
-                        </svg>
-                        <h2>Documentation</h2>
-                        <p>Your questions, answered</p>
-                        <ul>
-                           <li>
-                              <a href="https://vite.dev/" target="_blank">
-                                 <img className="logo" src={viteLogo} alt="" />
-                                 Explore Vite
-                              </a>
-                           </li>
-                           <li>
-                              <a href="https://react.dev/" target="_blank">
-                                 <img className="button-icon" src={reactLogo} alt="" />
-                                 Learn more
-                              </a>
-                           </li>
-                        </ul>
-                     </div>
-                     <div id="social">
-                        <svg className="icon" role="presentation" aria-hidden="true">
-                           <use href="/icons.svg#social-icon"></use>
-                        </svg>
-                        <h2>Connect with us</h2>
-                        <p>Join the Vite community</p>
-                        <ul>
-                           <li>
-                              <a href="https://github.com/vitejs/vite" target="_blank">
-                                 <svg
-                                    className="button-icon"
-                                    role="presentation"
-                                    aria-hidden="true"
-                                 >
-                                    <use href="/icons.svg#github-icon"></use>
-                                 </svg>
-                                 GitHub
-                              </a>
-                           </li>
-                           <li>
-                              <a href="https://chat.vite.dev/" target="_blank">
-                                 <svg
-                                    className="button-icon"
-                                    role="presentation"
-                                    aria-hidden="true"
-                                 >
-                                    <use href="/icons.svg#discord-icon"></use>
-                                 </svg>
-                                 Discord
-                              </a>
-                           </li>
-                           <li>
-                              <a href="https://x.com/vite_js" target="_blank">
-                                 <svg
-                                    className="button-icon"
-                                    role="presentation"
-                                    aria-hidden="true"
-                                 >
-                                    <use href="/icons.svg#x-icon"></use>
-                                 </svg>
-                                 X.com
-                              </a>
-                           </li>
-                           <li>
-                              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                                 <svg
-                                    className="button-icon"
-                                    role="presentation"
-                                    aria-hidden="true"
-                                 >
-                                    <use href="/icons.svg#bluesky-icon"></use>
-                                 </svg>
-                                 Bluesky
-                              </a>
-                           </li>
-                        </ul>
-                     </div>
-                  </section>
+               {/* State 2: Error handling handles bad networks or 404 targets */}
+               {error && (
+                  <Alert variant="light" color="red" title="Network Error">
+                     {error}. Please check the repository availability.
+                  </Alert>
+               )}
 
-                  <div className="ticks"></div>
-                  <section id="spacer"></section>
-               </Box>
-            </Stack>
-         </Paper>
+               {/* State 3: Active rendering pipeline parsing Markdown directly into layout tree */}
+               {!loading && !error && (
+                  <Typography>
+                     <Markdown>{markdown}</Markdown>
+                  </Typography>
+               )}
+
+            </Paper>
+         </Container>
       </Center>
    );
 }
