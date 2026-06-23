@@ -26,6 +26,7 @@ The jjs repository carries a rich history that mirrors the evolution of the web 
 ## 📂 Architecture Overview
 The repository structure follows standard .NET Aspire and decoupled React frontend conventions:
 
+```text
 ├── .github/workflows/    # GitHub Actions CI/CD workflows
 ├── src/
 │   ├── Jjs.AppHost/      # .NET Aspire AppHost (orchestrates backend & frontend)
@@ -33,7 +34,7 @@ The repository structure follows standard .NET Aspire and decoupled React fronte
 │   ├── Jjs.ApiService/   # Backend REST/gRPC API service (.NET 10)
 │   └── jjs-frontend/     # React + TypeScript single page application
 └── README.md
-
+```
 ------------------------------
 ## 🛠️ Getting Started## Prerequisites
 Before running the application locally, ensure you have the following installed:
@@ -74,12 +75,3 @@ The repository uses automated GitHub Actions workflows defined under .github/wor
 * Validates the .NET 10 backend builds and runs automated test suites.
    * Lints and builds the React/TypeScript frontend.
    * Generates telemetry check summaries.
-
-------------------------------
-If you want to flesh out the feature set, let me know:
-
-* Did the recipes and travel blogs/comments get migrated into this new architecture?
-* Are you using Markdown files, a database, or an external API to store that historical content now?
-
-I can add a "Features" or "Data Migration" section to show how the old content lives on in the new stack.
-
