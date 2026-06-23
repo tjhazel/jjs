@@ -1,7 +1,7 @@
 name: JJS Monorepo CI/CD Build and FTP Deploy
 on:
   push:
-    branches: [ "develop" ] #[ "main" ]
+    branches: [ "main" ] #[ "develop" ]
 
 jobs:
   build-and-deploy:
