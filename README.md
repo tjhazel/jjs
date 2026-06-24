@@ -1,4 +1,10 @@
-## jjs
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+![.Net](https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white)
+![Google](https://img.shields.io/badge/google-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![Mantine](https://img.shields.io/badge/Mantine-ffffff.svg?style=for-the-badge&logo=Mantine&logoColor=339af0)
+![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white)
+
 A modern, cloud-native web application built with .NET 10, orchestrated via .NET Aspire, and featuring a highly responsive frontend powered by React, TypeScript, and Mantine UI. Continuous integration and deployment are fully managed using GitHub Actions.
 
 > 🎨 **Brand Identity:** The application's `favicon.svg` is a special digital asset created directly from an original hand-drawn illustration by **Sidney**.
@@ -33,6 +39,7 @@ The jjs repository carries a rich history that mirrors the evolution of the web 
 The repository structure follows standard .NET Aspire and decoupled React frontend conventions:
 
 ```text
+
 ├── .github/workflows/    # GitHub Actions CI/CD workflows
 ├── Aspire/
 │   ├── JJS.AppHost/      # .NET Aspire AppHost (orchestrates backend & frontend)

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Center, Paper, Container, Typography, Loader, Alert } from "@mantine/core";
+import { Center, Paper, Container, Typography, Loader, Alert, Image } from "@mantine/core";
 import Markdown from 'react-markdown';
 
 // 1. Point to the public RAW format url of your main branch README.md
 const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/main/README.md";
+//const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/develop/README.md";
 
 export default function AboutPage() {
    const [markdown, setMarkdown] = useState<string>("");
@@ -11,8 +12,6 @@ export default function AboutPage() {
    const [error, setError] = useState<string | null>(null);
 
    useEffect(() => {
-      // eslint-disable-next-line no-debugger
-      debugger;
       // 2. Fetch markdown plain text over HTTP on component initialization
       fetch(GITHUB_README_URL)
          .then((response) => {
@@ -32,8 +31,14 @@ export default function AboutPage() {
    }, []);
 
    return (
-      <Center mih="100vh" bg="var(--mantine-color-gray-0)" p="md">
-         <Container size="sm" w="100%">
+      <Center mih="100vh" bg="var(--mantine-color-gray-0)" p="xl">
+         <Container size="lg" w="100%">
+             <Image
+               radius="md"
+               h={200}
+               src="/images/panorama.jpg"
+            />
+
             <Paper radius="md" p="xl" withBorder bg="white" shadow="sm">
 
                {/* State 1: Loading state displays Mantine's theme loader spinner */}

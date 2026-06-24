@@ -15,7 +15,7 @@ export function useCarouselImages(httpGet: TGet) {
   //     httpGet,
   //     { ...swrOptions }
    //  );
-   console.log(httpGet, 'httpGet');
+   console.log(httpGet, 'httpGet logged here to avoid an error:(');
 
    const { data, isValidating, error } = useMemo(() => {
       return {
@@ -85,8 +85,13 @@ export function useCarouselImages(httpGet: TGet) {
       description: 'Would you like to play a game'
     },
      {
-      path: '/images/carousel/buyavowel.jpg',
+      path: '/images/carousel/parasail.jpg',
       title: 'Smile',
       description: 'How can you not smile with this thing over your head'
-    }
+     },
+     {
+        path: '/images/carousel/welcometosydney.jpg',
+        title: 'Sydney',
+        description: 'First stop on our 5 week vacation'
+     },
   ];

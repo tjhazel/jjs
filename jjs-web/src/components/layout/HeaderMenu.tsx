@@ -13,8 +13,9 @@ import {
    UnstyledButton,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Link } from 'react-router'; // 🔴 React Router v8 Link component
+import { Link } from 'react-router'; 
 import classes from './HeaderMenu.module.css';
+import { useAuth } from "@/lib/auth/authContext";
 
 const links = [
    { link: '/', label: 'Home' },
@@ -31,18 +32,12 @@ const links = [
       ],
    },
    { link: '/about', label: 'About' },
-   {
-      link: '#2',
-      label: 'Admin',
-      links: [
-         { link: '/login', label: 'Login' },
-         { link: '/admin/recipe', label: 'Recipe Management' },
-         { link: '/admin/articles', label: 'Article Management' },
-      ],
-   },
+   { link: '/login', label: 'Login' }
 ];
 
 export function HeaderMenu() {
+   const { user } = useAuth();
+
    const [opened, { toggle, close }] = useDisclosure(false);
 
    // Helper utility to render either an external standard anchor tag or a native router link
@@ -59,7 +54,7 @@ export function HeaderMenu() {
 
       return (
          <Link key={to} to={to} className={className} onClick={onClickCb}>
-            {label}
+            {user?.googleId && to.startsWith('/login') ? user.name : label}
          </Link>
       );
    };
@@ -115,16 +110,15 @@ export function HeaderMenu() {
 
    return (
        <header className={classes.header}>
-    {/* 👉 FIXED: Changed size from "md" to "xl" to match your dashboard page widths */}
-    <Container size="xl" h="100%">
-      <div className={classes.inner}>
-        <Image h={30} w="auto" fit="contain" alt="Logo" src="/images/logopig-sm.png" />
-        <Group gap={5} visibleFrom="sm">
-          {items}
-        </Group>
-        <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" aria-label="Toggle navigation" />
-      </div>
-    </Container>
+         <Container size="xl" h="100%">
+            <div className={classes.inner}>
+            <Image h={30} w="auto" fit="contain" alt="Logo" src="/images/logopig-sm.png" />
+            <Group gap={5} visibleFrom="sm">
+               {items}
+            </Group>
+            <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" aria-label="Toggle navigation" />
+            </div>
+         </Container>
 
     {/* Mobile Drawer Layout */}
     <Drawer opened={opened} onClose={close} size="100%" padding="md" title="Navigation" hiddenFrom="sm" zIndex={1000000}>
@@ -142,7 +136,6 @@ export function HeaderMenu() {
    );
 }
 
-// ─── Refactored Mobile Submenu Drawer ───────────────────────────────────
 function DrawerLinksGroup({
    link,
    onLinkClick,

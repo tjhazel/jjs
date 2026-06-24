@@ -7,7 +7,9 @@ Swap useGoogleLogin for the GoogleLogin component, which returns a proper ID tok
 components/auth/GoogleSignInButton.tsx — replace the button with:
 */
 import { useGoogleLogin } from "@react-oauth/google";
-import { useAuth, type GoogleCredentialResponse } from "@/lib/auth/authContext";
+import { useAuth } from "@/lib/auth/authContext";
+import type { GoogleCredentialResponse } from '@/lib/auth/authUtils'; 
+
 import { useState } from "react";
 
 interface GoogleSignInButtonProps {
