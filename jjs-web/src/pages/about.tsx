@@ -3,8 +3,8 @@ import { Center, Paper, Container, Typography, Loader, Alert, Image } from "@man
 import Markdown from 'react-markdown';
 
 // 1. Point to the public RAW format url of your main branch README.md
-const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/main/README.md";
-//const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/develop/README.md";
+//const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/main/README.md";
+const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/develop/README.md";
 
 export default function AboutPage() {
    const [markdown, setMarkdown] = useState<string>("");

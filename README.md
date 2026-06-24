@@ -4,6 +4,7 @@
 ![Google](https://img.shields.io/badge/google-4285F4?style=for-the-badge&logo=google&logoColor=white)
 ![Mantine](https://img.shields.io/badge/Mantine-ffffff.svg?style=for-the-badge&logo=Mantine&logoColor=339af0)
 ![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white)
+![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
 A modern, cloud-native web application built with .NET 10, orchestrated via .NET Aspire, and featuring a highly responsive frontend powered by React, TypeScript, and Mantine UI. Continuous integration and deployment are fully managed using GitHub Actions.
 
