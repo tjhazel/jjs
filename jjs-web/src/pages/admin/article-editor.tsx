@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
 import { Container, Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
-import { usePosts } from '@api/post/post-fetcher';
+import { usePosts, savePost } from '@api/post/post-fetcher';
+import { useCategories } from '@api/post/category-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import ArticleEditor from '@components/article/edit/ArticleEditor';
 import type { PostDetail } from '@api/post/post';
@@ -29,8 +30,9 @@ export const editArticleLoader = async ({ params }: LoaderFunctionArgs) => {
 // 🟢 2. THE EDITING WRAPPER ROUTE COMPONENT
 export default function EditArticlePage() {
   const navigate = useNavigate();
-  const { httpGet } = useApiContext();
+  const { httpGet, httpPost } = useApiContext();
   const { data: posts, isLoading, error } = usePosts(httpGet);
+  const { data: categories, isLoading: isLoadingCategories } = useCategories(httpGet);
 
   // Safely retrieve parameters prepared by the route loader above
   const { id, isNew } = useLoaderData() as { id: number | null; isNew: boolean };
@@ -42,13 +44,16 @@ export default function EditArticlePage() {
 
   const handleSave = async (formData: PostDetail) => {
     setIsSaving(true);
-    setSaveError(null);
+     setSaveError(null);
+
+
     try {
       if (isNew) {
         console.log('Sending creation payload to database:', formData);
       } else {
         console.log(`Sending updates for article ID ${id}:`, formData);
-      }
+       }
+       await savePost(httpPost, formData);
       navigate('/admin');
     } catch (err: any) {
       setSaveError(err?.message || 'An error occurred while saving the document.');
@@ -57,7 +62,7 @@ export default function EditArticlePage() {
     }
   };
 
-  const showLoading = !isNew && isLoading;
+   const showLoading = !isNew && (isLoading || isLoadingCategories);
   const articleNotFound = !isNew && !isLoading && !article;
 
    if (showLoading) {
@@ -106,7 +111,7 @@ export default function EditArticlePage() {
         {!articleNotFound && (
           <ArticleEditor
             post={article}
-            categories={[]}
+            categories={categories}
             isSaving={isSaving}
             onSave={handleSave}
             onCancel={() => navigate('/admin')}

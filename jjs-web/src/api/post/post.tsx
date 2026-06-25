@@ -8,18 +8,18 @@ export interface Post {
   commentsEnabled : boolean;
   approved  : boolean;
   viewCount: number;
-  createdDate: Date; // ISO string or date-like
-  createdByFk: string;
-  modifiedDate : Date; // ISO string or date-like
-  modifiedByFk : string;
+  createdDate?: Date; // ISO string or date-like
+  createdByFk?: string;
+  modifiedDate? : Date; // ISO string or date-like
+  modifiedByFk? : string;
 }
 
 export interface PostDetail extends Post {
-   createdBy: string;
-   modifiedBy: string;
+   createdBy?: string;
+   modifiedBy?: string;
 
    imageUrl?: string;
    href?: string;
    categoryIds: number[];
-   categories: string[];
+   categories?: string[];
 }

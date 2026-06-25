@@ -1,4 +1,5 @@
 ﻿using JJS.Api.Models.People;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -60,15 +61,15 @@ public static class UserExtensions
          return null;
       }
 
-      var email = claimsUser.GetClaimValue(JwtRegisteredClaimNames.Email);
       var lastActivity = claimsUser.GetClaimValue(JwtRegisteredClaimNames.AuthTime);
 
       var appUser = new ClaimsUser
       {
          Email = claimsUser.GetClaimValue(ClaimTypes.Email),
-         DisplayName = claimsUser.GetClaimValue(ClaimTypes.Name),
+         DisplayName = claimsUser.GetClaimValue(ClaimTypes.Name) ??
+                           claimsUser.GetClaimValue("name"),
          Role = claimsUser.GetClaimValue(ClaimTypes.Role),
-         LastActivityDate = lastActivity == null ? DateTime.Now : DateTime.Parse(lastActivity),
+         LastActivityDate = lastActivity == null ? DateTime.UtcNow : DateTime.Parse(lastActivity),
       };
 
       return appUser;

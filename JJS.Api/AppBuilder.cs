@@ -53,9 +53,12 @@ public class AppBuilder
    {
       builder.Services.AddAuthorization(options =>
       {
-         //something here
+         //NOTE: not using policies at this time, but leaving in place for future use
+         options.AddPolicy("ArticleAdmin", policy =>
+             policy.RequireRole("Admin"));
       });
    }
+
    static void AddSwagger(WebApplicationBuilder builder)
    {
       builder.Services.AddSwaggerGen(c =>

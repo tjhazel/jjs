@@ -1,5 +1,7 @@
-﻿using JJS.Api.Models.Post;
+﻿using JJS.Api.Extensions;
+using JJS.Api.Models.Post;
 using JJS.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JJS.Api.Controllers;
@@ -13,10 +15,13 @@ public class PostController(IPostService postService) : Controller
    [HttpGet]
    public async Task<IEnumerable<PostViewModel>> GetAll()
    {
+      var user = User.GetUserFromClaims();
+      Console.WriteLine($"User: {user?.DisplayName}, {user?.Role}");
       return await _postService.GetAll();
    }
 
-   [HttpPost, HttpPut]
+   [HttpPost]
+   [Authorize(Roles = "Admin")]
    public async Task<int> Save(Post model)
    {
       return await _postService.Save(model);

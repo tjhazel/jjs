@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from '@mantine/form';
-import { zodResolver } from 'mantine-form-zod-resolver';
+import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { DateInput } from '@mantine/dates';
 import { TextInput, Textarea, Card, Title, Text, Stack, SimpleGrid, Grid, Checkbox, Switch, Group, Button, Box, Divider } from '@mantine/core';
 import { articleSchema, DEFAULT_POST, type FormValues } from '@api/post/articleSchema';
@@ -18,10 +18,12 @@ interface ArticleEditorProps {
 
 
 export default function ArticleEditor({ post, categories = [], isSaving = false, onSave, onCancel }: ArticleEditorProps) {
-  const form = useForm<FormValues>({
+   console.log('post to edit:', post)
+
+   const form = useForm<FormValues>({
     mode: 'uncontrolled',
-    initialValues: DEFAULT_POST as FormValues,
-    validate: zodResolver(articleSchema),
+    initialValues: DEFAULT_POST,
+     validate: zod4Resolver(articleSchema),
   });
 
   useEffect(() => {
@@ -32,7 +34,8 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
         body: post.body ?? '',
         imageUrl: post.imageUrl ?? '',
         href: post.href ?? '',
-        categoryIds: post.categoryIds ?? [],
+         // Map numeric IDs to strings so they match Mantine Checkbox UI state
+         categoryIds: post.categoryIds ? post.categoryIds.map(String) : [],
         commentsEnabled: !!post.commentsEnabled,
         approved: !!post.approved,
         viewCount: post.viewCount ?? 0,
@@ -47,15 +50,21 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
 
   // Combine validated form values with base post properties to satisfy PostDetail
   const handleSubmit = (values: FormValues) => {
-    const updatedPostData: PostDetail = {
-      ...(post || {}),
-      ...values,
-      // Fallback handlers to ensure types strictly map back to your entity
-      releaseDate: values.releaseDate ?? "",
-      expireDate: values.expireDate ?? "",
-    } as PostDetail;
+     const updatedPostData: PostDetail = {
+        // 1. Roll down the existing post model (retains original audit fields if editing)
+        ...(post || {}),
 
-    onSave(updatedPostData);
+        // 2. Mix in form inputs
+        ...values,
+
+        // 3. Apply explicit type maps to satisfy API entity rules
+        categoryIds: values.categoryIds.map(Number),
+        releaseDate: values.releaseDate ?? undefined,
+        expireDate: values.expireDate ?? undefined,
+     };
+
+     console.log('updatedPostdata', updatedPostData);
+     onSave(updatedPostData);
   };
 
   return (
@@ -84,24 +93,54 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Scheduling</Title>
             <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-              <DateInput label="Release Date" 
-              description="Leave blank to publish immediately" placeholder="Pick date" radius="none" clearable key={form.key('releaseDate')}  error={form.errors.releaseDate} />
-              <DateInput label="Expire Date" description="Leave blank to never expire" placeholder="Pick date" radius="none" clearable key={form.key('expireDate')} error={form.errors.expireDate} />
-            </SimpleGrid>
+                    <DateInput
+                       label="Release Date"
+                       description="Leave blank to publish immediately"
+                       placeholder="Pick date"
+                       radius="none"
+                       clearable
+                       key={form.key('releaseDate')}
+                       {...form.getInputProps('releaseDate')} // FIX: restitch the value tracking loop
+                    />
+                    <DateInput
+                       label="Expire Date"
+                       description="Leave blank to never expire"
+                       placeholder="Pick date"
+                       radius="none"
+                       clearable
+                       key={form.key('expireDate')}
+                       {...form.getInputProps('expireDate')}  // FIX: restitch the value tracking loop
+                    />            </SimpleGrid>
           </Stack>
         </Card>
 
-        {categories.length > 0 && (
-          <Card withBorder padding="xl" radius="none">
-            <Stack gap="md">
-              <Checkbox.Group label="Categories" value={form.getValues().categoryIds?.map(String) || []} onChange={(values) => form.setFieldValue('categoryIds', values.map(Number))} error={form.errors.categoryIds}>
-                <Group gap="md" mt="xs">
-                  {categories.map((cat) => <Checkbox key={cat.categoryId} value={String(cat.categoryId)} label={cat.title} radius="none" />)}
-                </Group>
-              </Checkbox.Group>
-            </Stack>
-          </Card>
-        )}
+           {categories.length > 0 && (
+              <Card withBorder padding="xl" radius="none">
+                 <Stack gap="md">
+                    {/* 
+        FIX: Avoid spreading directly in an uncontrolled conditional block.
+        Explicitly read values and bind change handlers via form.setFieldValue.
+      */}
+                    <Checkbox.Group
+                       label="Categories"
+                       key={form.key('categoryIds')}
+                       {...form.getInputProps('categoryIds')}
+                    >
+                       <Group gap="md" mt="xs">
+                          {categories.map((cat) => (
+                             <Checkbox
+                                key={cat.categoryId}
+                                // FIX 2: Convert number ID to string so Mantine's group can track selection states
+                                value={String(cat.categoryId)}
+                                label={cat.title}
+                                radius="none" 
+                             />
+                          ))}
+                       </Group>
+                    </Checkbox.Group>
+                 </Stack>
+              </Card>
+           )}
 
         <Card withBorder padding="xl" radius="none">
           <Stack gap="md">

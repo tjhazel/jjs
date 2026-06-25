@@ -6,8 +6,6 @@ import { swrOptions } from "@lib/swr.functions";
 export const categoryBaseUrl = `api/category?categoryTypeId=1`;
 
 export function useCategories(httpGet: TGet) {
-
-   console.log('useCategories', categoryBaseUrl)
    const { data, isValidating, error } = useSWR<Category[], HttpError>(
       categoryBaseUrl,
       httpGet,

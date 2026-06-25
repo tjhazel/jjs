@@ -1,6 +1,8 @@
-﻿using JJS.Api.Services;
+﻿using JJS.Api.Extensions;
+using JJS.Api.Services;
+using System.Data;
+using System.Security.Claims;
 using System.Text;
-using JJS.Api.Extensions;
 
 namespace JJS.Api.Middleware;
 
@@ -11,6 +13,13 @@ public class UserValidationMiddleware(RequestDelegate next)
    public async Task Invoke(HttpContext httpContext,
        IUserService userService)
    {
+      // Completely skip authorization logic for CORS preflight requests
+      if (HttpMethods.IsOptions(httpContext.Request.Method))
+      {
+         await _next(httpContext);
+         return;
+      }
+
       //string token = null;
       //if (!string.IsNullOrWhiteSpace(httpContext.Request.Headers[HeaderNames.Authorization]))
       //{
@@ -24,6 +33,8 @@ public class UserValidationMiddleware(RequestDelegate next)
          //Want to validate logged in user maps to a record in the database - if not try to add user to system
          //If unable to add user or user is disabled then return 403 to client
          var user = await userService.Get(claimsUser.Email);
+
+
          var invalidUser = false;
          if (user == null)
          {
@@ -35,11 +46,10 @@ public class UserValidationMiddleware(RequestDelegate next)
                Email = claimsUser.Email,
                DisplayName = claimsUser.DisplayName ?? claimsUser.Email,
                IsDisabled = false,
-               LastActivityDate = claimsUser.LastActivityDate,
-               Role = claimsUser.Role ?? "guest"
+               LastActivityDate = DateTime.UtcNow,
+               Role = claimsUser.Role ?? "Guest"
             };
             await userService.Merge(user);
-
          }
          else if (user.IsDisabled)
          {
@@ -54,6 +64,13 @@ public class UserValidationMiddleware(RequestDelegate next)
             //This stops pipeline processing
             return;
          }
+
+         //update user role so we can access User in the stack and use Authorize(Role
+         var appClaims = httpContext.User.Claims.ToList();
+         appClaims.Add(new Claim(ClaimTypes.Role, user.Role));
+         string authType = httpContext.User.Identity?.AuthenticationType ?? "CustomTokenAuth";
+         var appIdentity = new ClaimsIdentity(appClaims, authType);
+         httpContext.User = new ClaimsPrincipal(appIdentity);
       }
 
       await _next(httpContext);

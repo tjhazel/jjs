@@ -18,6 +18,46 @@ builder.AddServiceDefaults();
 
 var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "Development");
 
+// ==========================================
+// 1. GLOBAL HTTP PIPELINE CONFIGURATIONS
+// ==========================================
+app.UseSwagger(options => {
+   options.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+});
+
+app.UseSwaggerUI(options => {
+   options.RoutePrefix = "api/swagger";
+   options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "John & Jeri API");
+});
+
+app.UseCors("AllowCors");
+
+// ==========================================
+// 2. SECURITY & CUSTOM IDENTITY MIDDLEWARE
+// ==========================================
+// FIX: Placed sequentially BEFORE any mapping filters run
+app.UseAuthentication();
+app.UseUserValidationMiddleware();
+app.UseAuthorization();
+
+
+// ==========================================
+// 3. PHYSICAL STATIC FILE SERVERS
+// ==========================================
+var imgDir = Path.Combine(AppContext.BaseDirectory, "Albums");
+if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir);
+
+app.UseFileServer(new FileServerOptions
+{
+   FileProvider = new PhysicalFileProvider(imgDir),
+   RequestPath = "/Image",
+   EnableDefaultFiles = true,
+});
+
+
+// ==========================================
+// 4. TERMINAL ENDPOINT MAPPINGS (MUST BE LAST)
+// ==========================================
 app.MapDefaultEndpoints();
 
 //adding visibility
@@ -33,36 +73,21 @@ app.MapGet("/diag", () => {
       IsDebug = IS_DEBUG
    });
 });
-
-app.UseSwagger(options =>
+app.MapGet("/api/debug-auth", (HttpContext context) =>
 {
-   // This maps the underlying raw swagger.json file schema path to:
-   // http://localhost/api/swagger/v1/swagger.json
-   options.RouteTemplate = "api/swagger/{documentName}/swagger.json";
+   var user = context.User;
+   return Results.Ok(new
+   {
+      IsAuthenticated = user.Identity?.IsAuthenticated,
+      AuthenticationType = user.Identity?.AuthenticationType, // If null or empty, Authorize fails!
+      HasAdminRole = user.IsInRole("Admin"),
+      Claims = user.Claims.Select(c => new { c.Type, c.Value }).ToList()
+   });
 });
-
-app.UseSwaggerUI(options =>
-{
-   options.RoutePrefix = "api/swagger"; // Cleaned up: Swagger will live at /swagger, freeing up the site root
-   options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "John & Jeri API");
-});
-
-app.UseCors("AllowCors");
-app.UseAuthorization();
-app.UseUserValidationMiddleware();
 
 // 2. Map standard API endpoints natively
 app.MapControllers();
 
-// 3. Map your custom Album/Image physical storage server
-var imgDir = Path.Combine(AppContext.BaseDirectory, "Albums"); // Safe for IIS context root
-if (!Directory.Exists(imgDir)) Directory.CreateDirectory(imgDir); // Ensure the directory exists at startup
-app.UseFileServer(new FileServerOptions
-{
-   FileProvider = new PhysicalFileProvider(imgDir),
-   RequestPath = "/Image",
-   EnableDefaultFiles = true,
-});
 
 // 4. FIX ROOT CONFLICT: Isolate the React frontend static file routing entirely from the API
 app.MapWhen(context => !IS_DEBUG
