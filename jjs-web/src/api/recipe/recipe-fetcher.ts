@@ -23,9 +23,9 @@ export function useRecipe(httpGet: TGet) {
    };
 }
 
-export function useSingleRecipe(httpGet: TGet, id: number) {
+export function useSingleRecipe(httpGet: TGet, id: number | null) {
   const { data, isValidating, error } = useSWR<RecipeDetail, HttpError>(
-    getRecipeUrl(id),
+    id ? getRecipeUrl(id) : null,
     httpGet,
     { ...swrOptions }
   );

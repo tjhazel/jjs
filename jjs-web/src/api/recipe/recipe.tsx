@@ -14,15 +14,15 @@ export interface Recipe {
    prepTime?: string;
    cookTime?: string;
    estimatedCost: number;
-   pictureFk: number;
+   pictureFk?: number;
    isViewableByPublic: boolean;
    viewCount: number;
-   createdDate: string; // ISO string or date-like
-   createdByFk: string;
-   createdBy: string;
-   modifiedDate: string; // ISO string or date-like
-   modifiedByFk: string;
-   modifiedBy: string;
+   createdDate?: Date; 
+   createdByFk?: string;
+   createdBy?: string;
+   modifiedDate?: Date; 
+   modifiedByFk?: string;
+   modifiedBy?: string;
 
    recipeCategoryIds: number[];
    recipeCategories: string[];
@@ -35,9 +35,10 @@ export interface RecipeDetail extends Recipe {
 }
 
 export interface Ingredient {
-  ingredientsXrefId?: number;
+  ingredientsXrefId: number;
   ingredientFk: number;
-  amount: number;
+  unitOfMeasureFk: number;
+  amount: string;
   unitOfMeasure: string;
   ingredient: string;
   description: string;
@@ -45,8 +46,19 @@ export interface Ingredient {
 }
 
 export interface Instruction {
-  recipeInstructionId?: number;
+  recipeInstructionId: number;
   name: string;
   instruction: string;
   sequence: number;
+}
+
+export interface IngredientLookup {
+  ingredientId: number;
+  name: string;
+}
+
+export interface UnitOfMeasureLookup {
+  unitOfMeasureId: number;
+  name: string;
+  pluralName: string;
 }

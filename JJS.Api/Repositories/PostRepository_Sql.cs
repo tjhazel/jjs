@@ -33,7 +33,7 @@ public partial class PostRepository
       where @isPublic <> 1
         or (@isPublic = 1 
            and p.approved = 1
-           and (p.releaseDate is null or p.releaseDate >= getutcdate())
+           and (p.releaseDate is null or p.releaseDate <= getutcdate())
            and (p.[ExpireDate] is null or p.[ExpireDate] is null or p.[ExpireDate] <= getutcdate())
            )  
       group by p.PostId

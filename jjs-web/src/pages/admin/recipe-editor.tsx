@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
 import { Container, Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
-import { useRecipe, saveRecipe } from '@api/recipe/recipe-fetcher';
+import { useSingleRecipe, saveRecipe } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import type { RecipeDetail } from '@api/recipe/recipe';
 import RecipeEditor from '@components/recipe/edit/RecipeEditor';
@@ -26,14 +26,13 @@ export const editRecipeLoader = async ({ params }: LoaderFunctionArgs) => {
 export default function EditRecipePage() {
   const navigate = useNavigate();
   const { httpGet, httpPost } = useApiContext();
-  const { data: recipes, isLoading, error } = useRecipe(httpGet);
 
   const { id, isNew } = useLoaderData() as { id: number | null; isNew: boolean };
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const recipe = isNew ? undefined : recipes?.find((r) => r.recipeId === id);
+  const { data: recipe, isLoading, error } = useSingleRecipe(httpGet, isNew ? null : id);
 
   const handleSave = async (formData: RecipeDetail) => {
     setIsSaving(true);

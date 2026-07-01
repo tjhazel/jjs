@@ -8,9 +8,9 @@ export interface Post {
   commentsEnabled : boolean;
   approved  : boolean;
   viewCount: number;
-  createdDate?: Date; // ISO string or date-like
+  createdDate?: Date; 
   createdByFk?: string;
-  modifiedDate? : Date; // ISO string or date-like
+  modifiedDate? : Date; 
   modifiedByFk? : string;
 }
 

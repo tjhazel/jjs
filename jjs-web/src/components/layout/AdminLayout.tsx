@@ -36,7 +36,7 @@ export function AdminLayout() {
             />
             <NavLink
                label="Recipe Administration"
-               active={location.pathname === "/admin/recipe"}
+               active={location.pathname === "/admin/recipes"}
                onClick={() => navigate("/admin/recipe")}
             />
             <CategorySelector selectedCategory={null} onCategoryChange={() => { }} />
