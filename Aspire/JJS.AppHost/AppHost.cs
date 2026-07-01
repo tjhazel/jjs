@@ -1,27 +1,13 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 var api = builder.AddProject<Projects.JJS_Api>("jjs-api")
+   //.WithHttpEndpoint(port: 5000, targetPort: 5000, name: "http", isProxied: false)
+   .WithHttpsEndpoint(port: 5001, targetPort: 5001, name: "https", isProxied: false)
    .WithExternalHttpEndpoints()
 ;
 
-////shows the correct port on dashboard, but console logs show a random port.  
-//var ui = builder.AddViteApp(name: "todo-ui", workingDirectory: "../todoUi")
-//   .WithHttpEndpoint(port: 3000, name: "frontend", env: "PORT")
-//   .WithExternalHttpEndpoints()
-//   .WithReference(api)
-//   .WaitFor(api)
-//   .WithNpmPackageInstallation()
-//   ;
-
-////produces a clean startup dashboard
-//var ui = builder.AddNpmApp(name: "jjs-web-ui", workingDirectory: "../../jjs-web", scriptName: "dev")
-//    .WithHttpEndpoint(port: 3000, env: "PORT")
-//    .WithExternalHttpEndpoints()
-//    .WithReference(api)
-//    .WaitFor(api);
-
 var ui = builder.AddNpmApp(name: "jjs-web-ui", workingDirectory: "../../jjs-web", scriptName: "dev")
-    //.WithHttpEndpoint(port: 5173, env: "PORT")
+    .WithHttpEndpoint(port: 5173, targetPort: 5173, env: "dev", name: "dev-ui", isProxied: false)
     .WithExternalHttpEndpoints()
     .WithReference(api)
     .WaitFor(api);
