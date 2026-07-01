@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
 import { Container, Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
-import { usePosts, savePost } from '@api/post/post-fetcher';
+import { useAllPosts, savePost } from '@api/post/post-fetcher';
 import { useCategories } from '@api/post/category-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import ArticleEditor from '@components/article/edit/ArticleEditor';
@@ -31,7 +31,7 @@ export const editArticleLoader = async ({ params }: LoaderFunctionArgs) => {
 export default function EditArticlePage() {
   const navigate = useNavigate();
   const { httpGet, httpPost } = useApiContext();
-  const { data: posts, isLoading, error } = usePosts(httpGet);
+   const { data: posts, isLoading, error } = useAllPosts(httpGet);
   const { data: categories, isLoading: isLoadingCategories } = useCategories(httpGet);
 
   // Safely retrieve parameters prepared by the route loader above

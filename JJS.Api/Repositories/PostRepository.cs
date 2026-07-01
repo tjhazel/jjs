@@ -11,7 +11,7 @@ public partial class PostRepository(AppConfig appConfig) : IPostRepository
 {
    private readonly AppConfig _appConfig = appConfig;
 
-   public async Task<IEnumerable<PostViewModel>> GetAll()
+   public async Task<IEnumerable<PostViewModel>> GetAll(bool isPublic)
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
@@ -30,9 +30,17 @@ public partial class PostRepository(AppConfig appConfig) : IPostRepository
                   }
                   return post;
                },
+               param: new { isPublic },
                splitOn: "CategoryIds,Categories");
 
       return result;
+   }
+
+   public async Task View(int postId)
+   {
+      await using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      await db.ExecuteAsync(View_Sql, new { postId });
    }
 
    public async Task<int> Save(Post model)
@@ -46,6 +54,7 @@ public partial class PostRepository(AppConfig appConfig) : IPostRepository
 
 public interface IPostRepository
 {
-   Task<IEnumerable<PostViewModel>> GetAll();
+   Task<IEnumerable<PostViewModel>> GetAll(bool isPublic);
+   Task View(int postId);
    Task<int> Save(Post model);
 }

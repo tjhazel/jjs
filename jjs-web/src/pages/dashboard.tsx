@@ -4,12 +4,14 @@ import { useApiContext } from '@api/ApiContext';
 import { useCarouselImages } from '@api/album/image-fetcher';
 import { usePosts } from '@api/post/post-fetcher';
 import ArticleList from '@components/article/ArticleList';
-import { Category_Home } from '@api/post/category';
+//import { Category_Home } from '@api/post/category';
 
 function DashboardPage() {
   const { httpGet } = useApiContext();
   const { data: carouselImages } = useCarouselImages(httpGet);
-  const { data: posts, isLoading } = usePosts(httpGet);
+   const { data: homePosts, isLoading } = usePosts(httpGet);
+
+   //const homePosts = posts?.filter(y => y.categoryIds.includes(Category_Home));
 
    if (isLoading) {
       return (
@@ -63,7 +65,7 @@ function DashboardPage() {
               </Center>
            }
            {!isLoading &&
-              <ArticleList posts={posts?.filter(y => y.categoryIds.includes(Category_Home))} />
+              <ArticleList posts={homePosts} />
            }
       </Box>
     </Container>

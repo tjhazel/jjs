@@ -90,6 +90,7 @@ export const router = createBrowserRouter([
               { path: "admin", element: <AdminPage /> },
               { path: "admin/recipe/:id", loader: editRecipeLoader, element: <EditRecipePage /> },
               { path: "admin/recipes", element: <ManageRecipesPage /> },
+              { path: "admin/post/new", loader: () => ({ id: null, isNew: true }), element: <EditArticlePage /> },
               { path: "admin/article/:id", loader: editArticleLoader, element: <EditArticlePage /> },
               { path: "admin/articles", element: <ManageArticlesPage /> },
             ]

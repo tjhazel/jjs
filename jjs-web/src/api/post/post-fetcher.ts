@@ -1,16 +1,31 @@
-import type { HttpError, TGet, TPost } from "@/lib/httpClient";
+import type { HttpError, TGet, TPatch, TPost } from "@/lib/httpClient";
 import type { PostDetail } from "./post";
 import useSWR, { mutate } from "swr";
 import { swrOptions } from "@/lib/swr.functions";
 
 
-export const postBaseUrl = `api/post`;
-//export const getPostUrl = (id: number) => `${postBaseUrl}/${id}`;
-export const postSaveUrl = `${postBaseUrl}`;
+export const basePostUrl = `api/post`;
+export const viewPostUrl = (id: number) => `${basePostUrl}/view/${id}`;
+export const allPostsUrl = `${basePostUrl}/getall`;
+export const postSaveUrl = `${basePostUrl}`;
 
 export function usePosts(httpGet: TGet) {
    const { data, isValidating, error } = useSWR<PostDetail[], HttpError>(
-      postBaseUrl,
+      basePostUrl,
+      httpGet,
+      { ...swrOptions }
+   );
+
+   return {
+      data: data,
+      isLoading: !error && !data && isValidating,
+      error: error?.message
+   };
+}
+
+export function useAllPosts(httpGet: TGet) {
+   const { data, isValidating, error } = useSWR<PostDetail[], HttpError>(
+      allPostsUrl,
       httpGet,
       { ...swrOptions }
    );
@@ -41,9 +56,22 @@ export function useGetPost(httpGet: TGet, id?: number) {
    };
 }
 
+export const viewPost = async (httpPatch: TPatch, postId: number) => {
+   const url = viewPostUrl(postId);
+   const result = await httpPatch(url)
+      .then(() => {
+         mutate(basePostUrl);
+         mutate(allPostsUrl)
+      });
+   return result;
+}
+
 export const savePost = async (httpPost: TPost, post: PostDetail) => {
    const result = await httpPost(postSaveUrl, post)
-      .then(() => mutate(postSaveUrl));
+      .then(() => {
+         mutate(basePostUrl);
+         mutate(allPostsUrl)
+      });
    return result;
 }
 

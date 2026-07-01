@@ -1,8 +1,9 @@
+import { useEffect, useRef } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs  } from 'react-router'; // 👉 Import useLoaderData hook
 import Markdown from 'react-markdown';
 import { Container, Button, Title, Text, Group, Divider, Center, Loader, Stack } from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
-import { usePosts } from '@api/post/post-fetcher';
+import { usePosts, viewPost } from '@api/post/post-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import classes from './ArticleView.module.css';
 
@@ -24,11 +25,21 @@ export const articleLoader = async ({ params }: LoaderFunctionArgs) => {
 
 export default function ArticleView() {
   const navigate = useNavigate();
-  const { httpGet } = useApiContext();
+  const { httpGet, httpPatch } = useApiContext();
   const { data: posts } = usePosts(httpGet);
 
   // 👉 Pull parsed id state directly out of the route data layer
   const { id } = useLoaderData() as { id: number };
+
+  const article = posts?.find((y) => y.postId === id);
+
+  const viewTracked = useRef(false);
+  useEffect(() => {
+    if (article?.postId && !viewTracked.current) {
+      viewTracked.current = true;
+      viewPost(httpPatch, article.postId);
+    }
+  }, [article?.postId]);
 
   // 1. Handle Initial Loading State
   if (!posts) {
@@ -41,8 +52,6 @@ export default function ArticleView() {
       </Center>
     );
   }
-
-  const article = posts.find((y) => y.postId === id);
 
   // 2. Handle Missing/Not Found Article State
   if (!article) {

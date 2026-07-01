@@ -1,20 +1,41 @@
 ﻿using JJS.Api.Models;
+using JJS.Api.Models.People;
 using JJS.Api.Models.Post;
 using JJS.Api.Repositories;
 
 namespace JJS.Api.Services;
 
 [ServiceImplementation(typeof(IPostService))]
-public class PostService(IPostRepository postRepository, IAlbumService albumService) :IPostService
+public class PostService(
+   IPostRepository postRepository, 
+   IAlbumService albumService,
+   IUserService userService) :IPostService
 {
    private readonly IPostRepository _postRepository = postRepository;
    private readonly IAlbumService _albumService = albumService;
+   private readonly IUserService _userService = userService;
+
+   public async Task<IEnumerable<PostViewModel>> GetPublic()
+   {
+      var allPosts = await _postRepository.GetAll(isPublic: true);
+      await MatchImages(allPosts);
+      return allPosts
+         .OrderByDescending(p => p.ReleaseDate ?? p.CreatedDate)
+         .ToArray();
+   }
+
+   public async Task View(int postId)
+   {
+      await _postRepository.View(postId);
+   }
 
    public async Task<IEnumerable<PostViewModel>> GetAll()
    {
-      var allPosts = await _postRepository.GetAll();
+      var allPosts = await _postRepository.GetAll(isPublic: false);
       await MatchImages(allPosts);
-      return allPosts;
+      return allPosts
+         .OrderByDescending(p => p.ReleaseDate ?? p.CreatedDate)
+         .ToArray(); ;
    }
 
    /// <summary>
@@ -62,15 +83,28 @@ public class PostService(IPostRepository postRepository, IAlbumService albumServ
       }
    }
 
-   public async Task<int> Save(Post model)
+   public async Task<int> Save(Post model, ClaimsUser user)
    {
+      var existingUser = await _userService.Get(user.Email);
+
+      if (!model.PostId.HasValue)
+      {
+         model.CreatedDate = DateTime.UtcNow;
+         model.CreatedByFk = existingUser?.Id;
+      }
+      model.ModifiedDate = DateTime.UtcNow;
+      model.ModifiedByFk = existingUser?.Id;
+
       return await _postRepository.Save(model);
    }
 }
 
 public interface IPostService
 {
+   Task<IEnumerable<PostViewModel>> GetPublic();
+   Task View(int postId);
+
    Task<IEnumerable<PostViewModel>> GetAll();
-   Task<int> Save(Post model);
+   Task<int> Save(Post model, ClaimsUser user);
 
 }

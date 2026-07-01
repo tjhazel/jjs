@@ -30,6 +30,12 @@ public partial class PostRepository
          ) cat on cat.PostFk = p.PostId
         join Users cu on cu.Id = p.CreatedByFk
         join Users mu on mu.Id = p.ModifiedByFk
+      where @isPublic <> 1
+        or (@isPublic = 1 
+           and p.approved = 1
+           and (p.releaseDate is null or p.releaseDate >= getutcdate())
+           and (p.[ExpireDate] is null or p.[ExpireDate] is null or p.[ExpireDate] <= getutcdate())
+           )  
       group by p.PostId
          ,p.Title
          ,p.PreviewText
@@ -46,6 +52,10 @@ public partial class PostRepository
          ,p.ModifiedByFk
          ,mu.DisplayName
       ;
+      """;
+
+   const string View_Sql = """
+      update Posts set ViewCount = ViewCount + 1 where PostId = @postId;
       """;
 
    const string MERGE_SQL = """

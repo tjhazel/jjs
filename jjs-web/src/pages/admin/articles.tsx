@@ -1,14 +1,14 @@
 import { useNavigate } from 'react-router';
 import { Container, Stack, Group, Title, Button, Alert, Text } from '@mantine/core';
 import { IconPlus, IconAlertCircle } from '@tabler/icons-react';
-import { usePosts } from '@api/post/post-fetcher';
+import { useAllPosts } from '@api/post/post-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import ManageArticles from '@components/article/edit/ManageArticles'; // 👉 Points directly to your component path
 
 export default function ManageArticlesPage() {
   const navigate = useNavigate();
   const { httpGet } = useApiContext();
-  const { data: posts, error, isLoading } = usePosts(httpGet);
+   const { data: posts, error, isLoading } = useAllPosts(httpGet);
 
   return (
     <Container size="xl" py="md">
