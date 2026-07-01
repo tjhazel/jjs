@@ -9,14 +9,13 @@ interface ManageRecipesProps {
   isLoading: boolean;
 }
 
-type SortKey = 'name' | 'course' | 'dishType' | 'estimatedCost' | 'isViewableByPublic';
+type SortKey = 'name' | 'course' | 'dishType' | 'estimatedCost' | 'isViewableByPublic' | 'modifiedDate';
 
 export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps) {
   const navigate = useNavigate();
 
-  // Sorting and Pagination Layout States
-  const [sortBy, setSortBy] = useState<SortKey | null>(null);
-  const [reverseSortDirection, setReverseSortDirection] = useState(false);
+  const [sortBy, setSortBy] = useState<SortKey | null>('modifiedDate');
+  const [reverseSortDirection, setReverseSortDirection] = useState(true);
   const [activePage, setActivePage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -39,7 +38,6 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
     );
   }
 
-  // Client-Side Sorting Engine Array Maps
   const handleSort = (field: SortKey) => {
     if (sortBy === field) {
       setReverseSortDirection((current) => !current);
@@ -53,27 +51,31 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
   const sortedData = [...recipes].sort((a, b) => {
     if (!sortBy) return 0;
 
-    const valA = a[sortBy];
-    const valB = b[sortBy];
-
     if (sortBy === 'estimatedCost') {
-      return reverseSortDirection 
-        ? (valB as number) - (valA as number) 
-        : (valA as number) - (valB as number);
+      const valA = a.estimatedCost ?? 0;
+      const valB = b.estimatedCost ?? 0;
+      return reverseSortDirection ? valB - valA : valA - valB;
     }
 
     if (sortBy === 'isViewableByPublic') {
       return reverseSortDirection
-        ? Number(valB) - Number(valA)
-        : Number(valA) - Number(valB);
+        ? Number(b.isViewableByPublic) - Number(a.isViewableByPublic)
+        : Number(a.isViewableByPublic) - Number(b.isViewableByPublic);
     }
 
+    if (sortBy === 'modifiedDate') {
+      const valA = a.modifiedDate ? new Date(a.modifiedDate).getTime() : 0;
+      const valB = b.modifiedDate ? new Date(b.modifiedDate).getTime() : 0;
+      return reverseSortDirection ? valB - valA : valA - valB;
+    }
+
+    const valA = a[sortBy] ?? '';
+    const valB = b[sortBy] ?? '';
     return reverseSortDirection
       ? String(valB).localeCompare(String(valA))
       : String(valA).localeCompare(String(valB));
   });
 
-  // Dynamic Pagination Calculations
   const totalPages = Math.ceil(sortedData.length / pageSize);
   const paginatedData = sortedData.slice(
     (activePage - 1) * pageSize,
@@ -88,8 +90,8 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
           <Text size="sm" fw={600} c="dark.9">{label}</Text>
           <Center>
             {!isCurrent && <IconSelector size={16} stroke={1.5} color="var(--mantine-color-gray-4)" />}
-            {isCurrent && (reverseSortDirection 
-              ? <IconChevronDown size={16} stroke={1.5} /> 
+            {isCurrent && (reverseSortDirection
+              ? <IconChevronDown size={16} stroke={1.5} />
               : <IconChevronUp size={16} stroke={1.5} />
             )}
           </Center>
@@ -100,7 +102,7 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
 
   return (
     <Stack gap="xl" w="100%">
-      
+
       {/* ─── Desktop Table Layout Frame ─── */}
       <Table.ScrollContainer minWidth={750} visibleFrom="sm">
         <Table variant="simple" layout="fixed" highlightOnHover withTableBorder>
@@ -111,6 +113,7 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
               {renderTh('dishType', 'Dish Type')}
               {renderTh('estimatedCost', 'Cost')}
               {renderTh('isViewableByPublic', 'Visibility')}
+              {renderTh('modifiedDate', 'Modified')}
               <Table.Th style={{ width: 80 }} />
             </Table.Tr>
           </Table.Thead>
@@ -124,11 +127,16 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
                 <Table.Td><Text size="sm" truncate fw={500}>{recipe.name}</Text></Table.Td>
                 <Table.Td><Text size="sm">{recipe.course}</Text></Table.Td>
                 <Table.Td><Text size="sm">{recipe.dishType}</Text></Table.Td>
-                <Table.Td><Text size="sm">${recipe.estimatedCost.toFixed(2)}</Text></Table.Td>
+                <Table.Td><Text size="sm">${(recipe.estimatedCost ?? 0).toFixed(2)}</Text></Table.Td>
                 <Table.Td>
                   <Badge color={recipe.isViewableByPublic ? 'green' : 'orange'} radius="none" variant="light">
                     {recipe.isViewableByPublic ? 'Public' : 'Private'}
                   </Badge>
+                </Table.Td>
+                <Table.Td>
+                  <Text size="sm" c="dimmed">
+                    {recipe.modifiedDate ? new Date(recipe.modifiedDate).toLocaleDateString() : '—'}
+                  </Text>
                 </Table.Td>
                 <Table.Td onClick={(e) => e.stopPropagation()}>
                   <Button
@@ -163,7 +171,10 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
             <Stack gap={4}>
               <Text size="sm" c="gray.7"><strong>Course:</strong> {recipe.course}</Text>
               <Text size="sm" c="gray.7"><strong>Type:</strong> {recipe.dishType}</Text>
-              <Text size="sm" c="gray.7"><strong>Cost:</strong> ${recipe.estimatedCost.toFixed(2)}</Text>
+              <Text size="sm" c="gray.7"><strong>Cost:</strong> ${(recipe.estimatedCost ?? 0).toFixed(2)}</Text>
+              <Text size="sm" c="gray.7">
+                <strong>Modified:</strong> {recipe.modifiedDate ? new Date(recipe.modifiedDate).toLocaleDateString() : '—'}
+              </Text>
               <Group gap="xs">
                 <Text size="sm" c="gray.7"><strong>Visibility:</strong></Text>
                 <Badge color={recipe.isViewableByPublic ? 'green' : 'orange'} radius="none" size="xs" variant="light">

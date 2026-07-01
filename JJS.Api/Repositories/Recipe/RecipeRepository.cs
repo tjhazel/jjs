@@ -3,6 +3,7 @@ using JJS.Api.Models;
 using JJS.Api.Models.Configuration;
 using JJS.Api.Models.Recipe;
 using Microsoft.Data.SqlClient;
+using RecipeModel = JJS.Api.Models.Recipe.Recipe;
 
 namespace JJS.Api.Repositories.Recipe;
 
@@ -20,6 +21,14 @@ public partial class RecipeRepository(AppConfig appConfig) : IRecipeRepository
    {
       var results = await GetRecipeViewModel<RecipeDetailViewModel>(recipeId);
       return results.First();
+   }
+
+   public async Task<int> Save(RecipeModel model)
+   {
+      await using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      model.RecipeId = await db.ExecuteScalarAsync<int>(MERGE_SQL, model);
+      return model.RecipeId;
    }
 
    private async Task<IEnumerable<T>> GetRecipeViewModel<T>(int? recipeId = null) where T : RecipeViewModel
@@ -53,4 +62,5 @@ public interface IRecipeRepository
 {
    Task<IEnumerable<RecipeViewModel>> GetRecipes();
    Task<RecipeDetailViewModel> GetRecipe(int recipeId);
+   Task<int> Save(RecipeModel model);
 }

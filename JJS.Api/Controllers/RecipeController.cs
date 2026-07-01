@@ -1,6 +1,9 @@
-﻿using JJS.Api.Models.Recipe;
+﻿using JJS.Api.Extensions;
+using JJS.Api.Models.Recipe;
 using JJS.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace JJS.Api.Controllers;
 
@@ -23,9 +26,11 @@ public class RecipeController(IRecipeService recipeService) : Controller
       return await _recipeService.GetSingleRecipe(recipeId);
    }
 
-   [HttpPost, HttpPut]
-   public async Task<int> Post(RecipeViewModel model)
+   [HttpPost]
+   [Authorize(Roles = "Admin")]
+   public async Task<int> Save(RecipeDetailViewModel model)
    {
-      throw new NotImplementedException("Post method is not implemented yet.");
+      var user = User.GetUserFromClaims();
+      return await _recipeService.Save(model, user);
    }
 }

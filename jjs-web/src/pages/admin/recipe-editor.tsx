@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
 import { Container, Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
-import { useRecipe } from '@api/recipe/recipe-fetcher';
+import { useRecipe, saveRecipe } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
+import type { RecipeDetail } from '@api/recipe/recipe';
 import RecipeEditor from '@components/recipe/edit/RecipeEditor';
 
 // 🟢 1. ROUTER LOADER INTERCEPTOR
@@ -24,7 +25,7 @@ export const editRecipeLoader = async ({ params }: LoaderFunctionArgs) => {
 // 🟢 2. ROUTE WRAPPER VIEW PAGE
 export default function EditRecipePage() {
   const navigate = useNavigate();
-  const { httpGet } = useApiContext();
+  const { httpGet, httpPost } = useApiContext();
   const { data: recipes, isLoading, error } = useRecipe(httpGet);
 
   const { id, isNew } = useLoaderData() as { id: number | null; isNew: boolean };
@@ -34,7 +35,7 @@ export default function EditRecipePage() {
 
   const recipe = isNew ? undefined : recipes?.find((r) => r.recipeId === id);
 
-  const handleSave = async (formData: any) => {
+  const handleSave = async (formData: RecipeDetail) => {
     setIsSaving(true);
     setSaveError(null);
     try {
@@ -42,8 +43,9 @@ export default function EditRecipePage() {
         console.log('Posting new recipe payload:', formData);
       } else {
         console.log(`Putting updates for recipe ID ${id}:`, formData);
-      }
-      navigate('/admin/recipe');
+       }
+      await saveRecipe(httpPost, formData)
+      navigate('/admin/recipes');
     } catch (err: any) {
       setSaveError(err?.message || 'Failed to submit modifications.');
     } finally {

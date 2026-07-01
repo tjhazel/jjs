@@ -40,6 +40,6 @@ export function useSingleRecipe(httpGet: TGet, id: number) {
 
 export const saveRecipe = async (httpPost: TPost, model: RecipeDetail) => {
    const result = await httpPost(recipeSaveUrl, model)
-      .then(() => mutate(recipeSaveUrl));
+      .then(() => mutate(recipeBaseUrl));
    return result;
 }

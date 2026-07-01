@@ -17,8 +17,8 @@ public class Recipe
    public int? PictureFk { get; set; }
    public required bool IsViewableByPublic { get; set; }
    public int ViewCount { get; set; }
-   public DateTime CreatedDate { get; set; }
-   public required Guid CreatedByFk { get; set; }
-   public DateTime ModifiedDate { get; set; }
-   public required Guid ModifiedByFk { get; set; }
+   public DateTime? CreatedDate { get; set; }
+   public Guid? CreatedByFk { get; set; }
+   public DateTime? ModifiedDate { get; set; }
+   public Guid? ModifiedByFk { get; set; }
 }
