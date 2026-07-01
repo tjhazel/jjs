@@ -1,0 +1,79 @@
+# Dependencies & Package Managers
+node_modules/
+vendor/
+.pnpm-store/
+.yarn/
+
+# Build and Output Directories
+dist/
+build/
+.next/
+.nuxt/
+out/
+target/
+bin/
+obj/
+
+# === React / Vite Frontend (jjs-web) ===
+jjs-web/node_modules/
+jjs-web/dist/
+jjs-web/build/
+jjs-web/.vite/
+jjs-web/package-lock.json
+jjs-web/npm-debug.log*
+jjs-web/yarn-debug.log*
+jjs-web/yarn-error.log*
+
+# Cache, Tests, & System files
+.cache/
+__pycache__/
+.pytest_cache/
+coverage/
+.git/
+.DS_Store
+
+# Heavy Assets & Media (Massive Token Wasters)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.mp4
+*.pdf
+
+# Multi-megabyte Lock files & Logs
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.log
+
+# === .NET Core & Framework Specifics ===
+bin/
+obj/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+.idea/
+.project/
+_ReSharper.*/
+*.vshost.*
+*.gpState
+
+# === Databases & Migration Overheads ===
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+*.ndf
+*.bak
+*.trn
+*.chk
+*.sqldump
+# Exclude heavy seed scripts & local migrations while keeping actual schema code
+migrations/*.sql
+seeds/
+data-dumps/
