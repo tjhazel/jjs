@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Center, Paper, Container, TypographyStylesProvider, Loader, Alert, Image } from "@mantine/core";
+import { Center, Paper, Container, Loader, Alert, Image } from "@mantine/core";
 import Markdown from 'react-markdown';
 
 const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/develop/README.md";
@@ -51,7 +51,7 @@ export default function AboutPage() {
                )}
 
                {!loading && !error && (
-                  <TypographyStylesProvider>
+                  <div className="mantine-typography">
                      <Markdown
                         components={{
                            a({ href, children }) {
@@ -74,7 +74,7 @@ export default function AboutPage() {
                      >
                         {markdown}
                      </Markdown>
-                  </TypographyStylesProvider>
+                  </div>
                )}
 
             </Paper>
