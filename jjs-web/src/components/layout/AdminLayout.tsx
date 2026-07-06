@@ -1,13 +1,11 @@
-import { AppShell, Text, NavLink } from '@mantine/core';
+import { AppShell, Group, Text, NavLink } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Outlet, useNavigate, useLocation } from 'react-router'; // Grabbed from v8 core
+import { Outlet, useNavigate, useLocation } from 'react-router';
 import CategorySelector from '../article/CategorySelector';
 import {AdminHeader} from './AdminHeader';
 
 export function AdminLayout() {
-   // Handles mobile toggle states out of the box
-   //const [opened, { toggle }] = useDisclosure();
-   const [opened] = useDisclosure();
+   const [opened, { toggle }] = useDisclosure();
    const navigate = useNavigate();
    const location = useLocation();
 
@@ -15,12 +13,13 @@ export function AdminLayout() {
       <AppShell
          header={{ height: 60 }}
          navbar={{ width: 250, breakpoint: 'sm', collapsed: { mobile: !opened } }}
+         footer={{ height: 44 }}
          padding="md"
       >
-        
- <AppShell.Header style={{ backgroundColor: 'var(--mantine-color-dark-8)', borderBottom: '1px solid var(--mantine-color-dark-6)' }}>
-         <AdminHeader />   
-      </AppShell.Header>
+
+         <AppShell.Header style={{ backgroundColor: 'var(--mantine-color-dark-8)', borderBottom: '1px solid var(--mantine-color-dark-6)' }}>
+            <AdminHeader navOpened={opened} onNavToggle={toggle} />
+         </AppShell.Header>
          <AppShell.Navbar p="md">
             <Text size="xs" fw={700} c="dimmed" mb="sm" tt="uppercase">
                Control Panel
@@ -47,8 +46,10 @@ export function AdminLayout() {
          <AppShell.Main>
             <Outlet />
          </AppShell.Main>
-         <AppShell.Footer>
-            <p>© 2006 - {new Date().getFullYear()} johnandjeri.com. All rights reserved.</p>
+         <AppShell.Footer visibleFrom="sm">
+            <Group h={44} px="md" align="center">
+               <Text size="sm" c="dimmed">© 2006 - {new Date().getFullYear()} johnandjeri.com. All rights reserved.</Text>
+            </Group>
          </AppShell.Footer>
       </AppShell>
    );
