@@ -25,13 +25,36 @@ public class AlbumService(IMetaDataService tagData,
 
    private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = false };
 
-   // L1: memory cache → L2: JSON file → L3: full filesystem scan
+   // Tested once per process lifetime; null = not yet checked.
+   private static bool? _fileSystemWritable = null;
+
+   private bool CanWriteFiles()
+   {
+      if (_fileSystemWritable.HasValue) return _fileSystemWritable.Value;
+
+      try
+      {
+         var probe = Path.Combine(_appConfig.RootPath, ".write-probe");
+         System.IO.File.WriteAllText(probe, "probe");
+         System.IO.File.Delete(probe);
+         _fileSystemWritable = true;
+      }
+      catch
+      {
+         _fileSystemWritable = false;
+         Console.WriteLine("[AlbumService] File system is read-only — album cache will be memory-only.");
+      }
+
+      return _fileSystemWritable.Value;
+   }
+
+   // L1: memory cache → L2: JSON file (writable hosts only) → L3: full filesystem scan
    public async Task<Folder> Get()
    {
       if (_cacheService.TryGetValue(_albumRoot, out Folder cached).Result)
          return cached;
 
-      if (System.IO.File.Exists(_cacheFilePath))
+      if (CanWriteFiles() && System.IO.File.Exists(_cacheFilePath))
       {
          try
          {
@@ -58,8 +81,21 @@ public class AlbumService(IMetaDataService tagData,
    private async Task<Folder> BuildAndSaveCacheAsync()
    {
       var folder = await GetFolderFromPath(_albumRoot);
-      var json = JsonSerializer.Serialize(folder, _jsonOptions);
-      await System.IO.File.WriteAllTextAsync(_cacheFilePath, json);
+
+      if (CanWriteFiles())
+      {
+         try
+         {
+            var json = JsonSerializer.Serialize(folder, _jsonOptions);
+            await System.IO.File.WriteAllTextAsync(_cacheFilePath, json);
+         }
+         catch
+         {
+            _fileSystemWritable = false; // flip the flag if the probe passed but the real write fails
+            Console.WriteLine("[AlbumService] Failed to write album cache file — falling back to memory-only.");
+         }
+      }
+
       await _cacheService.Set(_albumRoot, DateTime.UtcNow.AddDays(365), folder);
       return folder;
    }
