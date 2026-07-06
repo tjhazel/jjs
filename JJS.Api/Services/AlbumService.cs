@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using JJS.Api.Models;
 using JJS.Api.Models.Album;
 using JJS.Api.Models.Configuration;
+using JJS.Api.Repositories;
 using JJS.Api.Services.Cache;
 using File = JJS.Api.Models.Album.File;
 
@@ -11,63 +13,42 @@ namespace JJS.Api.Services;
 public class AlbumService(IMetaDataService tagData,
       AppConfig appConfig,
       IHttpContextAccessor httpContextAccessor,
-      ICacheService cacheService): IAlbumService
+      ICacheService cacheService,
+      IAttachmentRepository attachmentRepository): IAlbumService
 {
    private readonly IMetaDataService _tagData = tagData;
    private readonly AppConfig _appConfig = appConfig;
    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
    private readonly ICacheService _cacheService = cacheService;
+   private readonly IAttachmentRepository _attachmentRepository = attachmentRepository;
 
    private readonly string _albumRoot = Path.Combine(appConfig.RootPath, "Albums");
    private readonly string _siteRoot = appConfig.RootPath;
-   private readonly string _cacheFilePath = Path.Combine(appConfig.RootPath, "album-cache.json");
    private readonly string[] _filters = ["*.jpg", "*.png", "*.gif"];
 
+   private const string AlbumCacheName = "album-cache";
    private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = false };
 
-   // Tested once per process lifetime; null = not yet checked.
-   private static bool? _fileSystemWritable = null;
-
-   private bool CanWriteFiles()
-   {
-      if (_fileSystemWritable.HasValue) return _fileSystemWritable.Value;
-
-      try
-      {
-         var probe = Path.Combine(_appConfig.RootPath, ".write-probe");
-         System.IO.File.WriteAllText(probe, "probe");
-         System.IO.File.Delete(probe);
-         _fileSystemWritable = true;
-      }
-      catch
-      {
-         _fileSystemWritable = false;
-         Console.WriteLine("[AlbumService] File system is read-only — album cache will be memory-only.");
-      }
-
-      return _fileSystemWritable.Value;
-   }
-
-   // L1: memory cache → L2: JSON file (writable hosts only) → L3: full filesystem scan
+   // L1: memory cache → L2: Attachments table → L3: full filesystem scan
    public async Task<Folder> Get()
    {
       if (_cacheService.TryGetValue(_albumRoot, out Folder cached).Result)
          return cached;
 
-      if (CanWriteFiles() && System.IO.File.Exists(_cacheFilePath))
+      try
       {
-         try
+         var row = await _attachmentRepository.GetByName(AlbumCacheName);
+         if (row?.Content?.Length > 0)
          {
-            var json = await System.IO.File.ReadAllTextAsync(_cacheFilePath);
-            var folder = JsonSerializer.Deserialize<Folder>(json, _jsonOptions);
+            var folder = JsonSerializer.Deserialize<Folder>(row.Content, _jsonOptions);
             if (folder != null)
             {
                await _cacheService.Set(_albumRoot, DateTime.UtcNow.AddDays(365), folder);
                return folder;
             }
          }
-         catch { /* corrupted cache file — fall through to full scan */ }
       }
+      catch { /* stale or unreadable row — fall through to full scan */ }
 
       return await BuildAndSaveCacheAsync();
    }
@@ -82,18 +63,21 @@ public class AlbumService(IMetaDataService tagData,
    {
       var folder = await GetFolderFromPath(_albumRoot);
 
-      if (CanWriteFiles())
+      try
       {
-         try
+         var bytes = JsonSerializer.SerializeToUtf8Bytes(folder, _jsonOptions);
+         await _attachmentRepository.Upsert(new Attachment
          {
-            var json = JsonSerializer.Serialize(folder, _jsonOptions);
-            await System.IO.File.WriteAllTextAsync(_cacheFilePath, json);
-         }
-         catch
-         {
-            _fileSystemWritable = false; // flip the flag if the probe passed but the real write fails
-            Console.WriteLine("[AlbumService] Failed to write album cache file — falling back to memory-only.");
-         }
+            Name     = AlbumCacheName,
+            FileName = "album-cache.json",
+            FileSize = bytes.Length,
+            ContentType = "application/json",
+            Content  = bytes
+         });
+      }
+      catch (Exception ex)
+      {
+         Console.WriteLine($"[AlbumService] Failed to persist album cache to DB: {ex.Message}");
       }
 
       await _cacheService.Set(_albumRoot, DateTime.UtcNow.AddDays(365), folder);
