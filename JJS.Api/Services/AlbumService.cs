@@ -1,8 +1,8 @@
-﻿using JJS.Api.Models;
+﻿using System.Text.Json;
+using JJS.Api.Models;
 using JJS.Api.Models.Album;
 using JJS.Api.Models.Configuration;
 using JJS.Api.Services.Cache;
-using Microsoft.Extensions.Configuration.UserSecrets;
 using File = JJS.Api.Models.Album.File;
 
 namespace JJS.Api.Services;
@@ -17,14 +17,50 @@ public class AlbumService(IMetaDataService tagData,
    private readonly AppConfig _appConfig = appConfig;
    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
    private readonly ICacheService _cacheService = cacheService;
- 
+
    private readonly string _albumRoot = Path.Combine(appConfig.RootPath, "Albums");
    private readonly string _siteRoot = appConfig.RootPath;
-   private string[] _filters = { "*.jpg", "*.png", "*.gif" };
+   private readonly string _cacheFilePath = Path.Combine(appConfig.RootPath, "album-cache.json");
+   private readonly string[] _filters = ["*.jpg", "*.png", "*.gif"];
 
+   private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = false };
+
+   // L1: memory cache → L2: JSON file → L3: full filesystem scan
    public async Task<Folder> Get()
    {
-      var folder = await _cacheService.GetCachedValue(GetFolderFromPath, _albumRoot, _albumRoot);
+      if (_cacheService.TryGetValue(_albumRoot, out Folder cached).Result)
+         return cached;
+
+      if (System.IO.File.Exists(_cacheFilePath))
+      {
+         try
+         {
+            var json = await System.IO.File.ReadAllTextAsync(_cacheFilePath);
+            var folder = JsonSerializer.Deserialize<Folder>(json, _jsonOptions);
+            if (folder != null)
+            {
+               await _cacheService.Set(_albumRoot, DateTime.UtcNow.AddDays(365), folder);
+               return folder;
+            }
+         }
+         catch { /* corrupted cache file — fall through to full scan */ }
+      }
+
+      return await BuildAndSaveCacheAsync();
+   }
+
+   public async Task<Folder> Refresh()
+   {
+      await _cacheService.Clear(_albumRoot);
+      return await BuildAndSaveCacheAsync();
+   }
+
+   private async Task<Folder> BuildAndSaveCacheAsync()
+   {
+      var folder = await GetFolderFromPath(_albumRoot);
+      var json = JsonSerializer.Serialize(folder, _jsonOptions);
+      await System.IO.File.WriteAllTextAsync(_cacheFilePath, json);
+      await _cacheService.Set(_albumRoot, DateTime.UtcNow.AddDays(365), folder);
       return folder;
    }
 
@@ -45,11 +81,11 @@ public class AlbumService(IMetaDataService tagData,
    /// <param name="folder"></param>
    public void ProcessFolder(Dictionary<string, File> flattened, Folder folder)
    {
-      if (folder?.Files != null) 
+      if (folder?.Files != null)
       {
          foreach (var file in folder.Files)
          {
-            flattened.Add(file.FullName, file);
+            flattened.TryAdd(file.RelativePath ?? file.Name, file);
          }
       }
       if (folder?.Folders != null)
@@ -190,6 +226,7 @@ public class AlbumService(IMetaDataService tagData,
 public interface IAlbumService
 {
    Task<Folder> Get();
+   Task<Folder> Refresh();
    Task<Dictionary<string, File>> GetFlatList();
    string GetFullFilePath(string relativePath);
    string GetContentType(string path);

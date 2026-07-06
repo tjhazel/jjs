@@ -1,37 +1,41 @@
-import { Container, Stack, Title, Text, SimpleGrid } from '@mantine/core';
-import ImageCard from '@components/ui/ImageCard'; // Adjust this path to where your ImageCard lives
+import { useState } from 'react';
+import { Container, Stack, Title, Text, SimpleGrid, Divider, Group, Button } from '@mantine/core';
+import { IconRefresh } from '@tabler/icons-react';
+import ImageCard from '@components/ui/ImageCard';
+import { useApiContext } from '@api/ApiContext';
 
 export default function AdminPage() {
-  const placeholderCards = [
-    {
-      id: 1,
-      title: "Posts",
-      description: "Edit all posts",
-      link: "/admin/articles",
-    },
-     {
-      id: 2,
-      title: "Recipes",
-      description: "Edit all recipes",
-      link: "/admin/recipes",
+  const { httpPost } = useApiContext();
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshResult, setRefreshResult] = useState<string | null>(null);
+
+  const handleRefreshAlbum = async () => {
+    setRefreshing(true);
+    setRefreshResult(null);
+    try {
+      const result = await httpPost<{ fileCount: number }>('api/album/refresh');
+      setRefreshResult(`Cache rebuilt — ${result.fileCount} images indexed.`);
+    } catch {
+      setRefreshResult('Refresh failed. Check server logs.');
+    } finally {
+      setRefreshing(false);
     }
+  };
+
+  const placeholderCards = [
+    { id: 1, title: "Posts",   description: "Edit all posts",   link: "/admin/articles" },
+    { id: 2, title: "Recipes", description: "Edit all recipes", link: "/admin/recipes"  },
   ];
 
   return (
     <Container size="xl" py="md">
       <Stack gap="xl">
-        
-        {/* Heading Block replacing PageContainer header logic */}
+
         <Stack gap={4}>
-          <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">
-            Administration
-          </Title>
-          <Text size="sm" c="dimmed">
-            Manage your site content and settings.
-          </Text>
+          <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">Administration</Title>
+          <Text size="sm" c="dimmed">Manage your site content and settings.</Text>
         </Stack>
 
-        {/* Responsive Grid Matrix matching your 4-column layout intent */}
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
           {placeholderCards.map((card) => (
             <ImageCard
@@ -41,13 +45,33 @@ export default function AdminPage() {
               previewLines={2}
               link={card.link}
               footerText="Manage more →"
-              /* 
-                imageUrl is omitted here. ImageCard will adapt 
-                automatically and render as a text-only card.
-              */
             />
           ))}
         </SimpleGrid>
+
+        <Divider />
+
+        <Stack gap="sm">
+          <Title order={2} size="h4" fw={600} c="dark.9">System Tools</Title>
+          <Text size="sm" c="dimmed">
+            Rebuilds the album image cache from disk. Run this after adding or removing photos.
+          </Text>
+          <Group align="center">
+            <Button
+              leftSection={<IconRefresh size={16} />}
+              variant="default"
+              loading={refreshing}
+              onClick={handleRefreshAlbum}
+            >
+              Refresh Album Cache
+            </Button>
+            {refreshResult && (
+              <Text size="sm" c={refreshResult.includes('failed') ? 'red' : 'teal'}>
+                {refreshResult}
+              </Text>
+            )}
+          </Group>
+        </Stack>
 
       </Stack>
     </Container>
