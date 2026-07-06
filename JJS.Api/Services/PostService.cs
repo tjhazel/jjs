@@ -1,4 +1,5 @@
-﻿using JJS.Api.Models;
+﻿using System.Text.RegularExpressions;
+using JJS.Api.Models;
 using JJS.Api.Models.People;
 using JJS.Api.Models.Post;
 using JJS.Api.Repositories;
@@ -38,50 +39,108 @@ public class PostService(
          .ToArray(); ;
    }
 
-   /// <summary>
-   /// Method used to try to match an image to a post
-   /// </summary>
-   /// <param name="posts"></param>
-   /// <returns></returns>
    private async Task MatchImages(IEnumerable<PostViewModel> posts)
    {
-      Random random = new();
-      Dictionary<string, Models.Album.File> usedImages = new();
+      var rng = new Random();
+      var usedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      var photos = (await _albumService.GetFlatList()).Values.ToList();
 
-      var photos = await _albumService.GetFlatList();
       foreach (var post in posts)
       {
-         var first = photos.Values.FirstOrDefault(y =>
+         var available = photos.Where(p => !usedPaths.Contains(p.HttpPath)).ToList();
 
-               post.Body.Contains(y.Title, StringComparison.OrdinalIgnoreCase) ||
-               post.Title.Contains(y.Title, StringComparison.OrdinalIgnoreCase) ||
+         var best = available
+            .Select(img => (img, score: ScoreImage(img, post)))
+            .Where(x => x.score >= 15)
+            .OrderByDescending(x => x.score)
+            .FirstOrDefault();
 
-               //post.Body.Contains(y.Comment, StringComparison.OrdinalIgnoreCase) ||
-               //post.Title.Contains(y.Comment, StringComparison.OrdinalIgnoreCase) ||
+         var winner = best.img
+                      ?? available.OrderBy(_ => rng.Next()).FirstOrDefault()
+                      ?? photos.OrderBy(_ => rng.Next()).FirstOrDefault();
 
-               post.Body.Contains(y.Name, StringComparison.OrdinalIgnoreCase) ||
-               post.Title.Contains(y.Name, StringComparison.OrdinalIgnoreCase) ||
-               
-               string.Join(' ', post.Categories ?? []).Contains(y.Title, StringComparison.OrdinalIgnoreCase)
-            );
-
-         int attempts = 0;
-         //no matches, grab a random image
-         while (first == null && attempts++ < 10 && photos.Count > 0)
+         if (winner is not null)
          {
-            var nextImg = photos.Values.ElementAt(random.Next(photos.Count));
-            if (!usedImages.ContainsKey(nextImg.HttpPath))
-            {
-               first = nextImg;
-            }
-         }
-         if (first != null)
-         {
-            post.ImageUrl = first.HttpPath;
-            usedImages[first.HttpPath] = first;
+            post.ImageUrl = winner.HttpPath;
+            usedPaths.Add(winner.HttpPath);
          }
       }
    }
+
+   private static int ScoreImage(Models.Album.File img, PostViewModel post)
+   {
+      int score = 0;
+
+      var imgTitle   = Tokenize(img.Title);
+      var imgName    = Tokenize(Path.GetFileNameWithoutExtension(img.Name));
+      var imgComment = Tokenize(img.Comment);
+      var imgFolders = FolderTags(img.RelativePath)
+                          .SelectMany(Tokenize)
+                          .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+      var postTitle      = Tokenize(post.Title);
+      var postPreview    = Tokenize(post.PreviewText);
+      var postBody       = Tokenize(post.Body);
+      var postCategories = (post.Categories ?? [])
+                              .SelectMany(Tokenize)
+                              .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+      // Exact EXIF title ↔ post title
+      if (string.Equals(img.Title, post.Title, StringComparison.OrdinalIgnoreCase))
+         score += 100;
+
+      // EXIF title tokens
+      score += imgTitle.Count(t => postTitle.Contains(t))      * 20;
+      score += imgTitle.Count(t => postCategories.Contains(t)) * 15;
+      score += imgTitle.Count(t => postPreview.Contains(t))    * 8;
+      score += imgTitle.Count(t => postBody.Contains(t))       * 3;
+
+      // Folder path tokens (implicit category tags)
+      score += imgFolders.Count(t => postTitle.Contains(t))      * 20;
+      score += imgFolders.Count(t => postCategories.Contains(t)) * 15;
+      score += imgFolders.Count(t => postPreview.Contains(t))    * 8;
+      score += imgFolders.Count(t => postBody.Contains(t))       * 3;
+
+      // Filename tokens
+      score += imgName.Count(t => postTitle.Contains(t))      * 10;
+      score += imgName.Count(t => postCategories.Contains(t)) * 8;
+      score += imgName.Count(t => postPreview.Contains(t))    * 4;
+
+      // EXIF comment tokens
+      score += imgComment.Count(t => postTitle.Contains(t))      * 8;
+      score += imgComment.Count(t => postCategories.Contains(t)) * 6;
+
+      // Date proximity bonus
+      var postDate = post.ReleaseDate ?? post.CreatedDate;
+      if (postDate.HasValue)
+      {
+         var days = Math.Abs((img.CreatedOn - postDate.Value).TotalDays);
+         if (days <= 30) score += 15;
+         else if (days <= 60) score += 8;
+      }
+
+      return score;
+   }
+
+   private static readonly HashSet<string> _stopWords = new(StringComparer.OrdinalIgnoreCase)
+   {
+      "the","a","an","and","or","but","in","on","at","to","for","of",
+      "with","by","from","as","is","was","are","were","been","this","that",
+      "it","its","we","you","my","our","i","he","she","they","be","have","has"
+   };
+
+   private static HashSet<string> Tokenize(string? input)
+   {
+      if (string.IsNullOrWhiteSpace(input)) return [];
+      return [.. Regex.Split(input, @"[^a-zA-Z0-9]+")
+         .Where(t => t.Length >= 3 && !_stopWords.Contains(t))];
+   }
+
+   private static IEnumerable<string> FolderTags(string relativePath) =>
+      relativePath.Split('/', '\\', StringSplitOptions.RemoveEmptyEntries)
+                  .Where(s => !s.Contains('.')
+                           && !s.Equals("Image",  StringComparison.OrdinalIgnoreCase)
+                           && !s.Equals("Albums", StringComparison.OrdinalIgnoreCase));
 
    public async Task<int> Save(Post model, ClaimsUser user)
    {
