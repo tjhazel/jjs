@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs  } from 'react-router'; // 👉 Import useLoaderData hook
-import Markdown from 'react-markdown';
+import MarkdownViewer from '@components/ui/MarkdownViewer';
 import { Container, Button, Title, Text, Group, Divider, Center, Loader, Stack } from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { usePosts, viewPost } from '@api/post/post-fetcher';
@@ -113,7 +113,7 @@ export default function ArticleView() {
 
         {/* Markdown Content Area */}
         <div className={classes.prose}>
-          <Markdown>{article.body}</Markdown>
+          <MarkdownViewer>{article.body}</MarkdownViewer>
         </div>
 
       </Stack>

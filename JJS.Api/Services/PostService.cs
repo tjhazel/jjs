@@ -19,10 +19,7 @@ public class PostService(
    public async Task<IEnumerable<PostViewModel>> GetPublic()
    {
       var allPosts = await _postRepository.GetAll(isPublic: true);
-      await MatchImages(allPosts);
-      return allPosts
-         .OrderByDescending(p => p.ReleaseDate ?? p.CreatedDate)
-         .ToArray();
+      return await FixUpResults(allPosts);
    }
 
    public async Task View(int postId)
@@ -33,10 +30,15 @@ public class PostService(
    public async Task<IEnumerable<PostViewModel>> GetAll()
    {
       var allPosts = await _postRepository.GetAll(isPublic: false);
-      await MatchImages(allPosts);
-      return allPosts
+      return await FixUpResults(allPosts);
+   }
+
+   private async Task<IEnumerable<PostViewModel>> FixUpResults(IEnumerable<PostViewModel> posts)
+   {
+      await MatchImages(posts);
+      return posts
          .OrderByDescending(p => p.ReleaseDate ?? p.CreatedDate)
-         .ToArray(); ;
+         .ToArray();
    }
 
    private async Task MatchImages(IEnumerable<PostViewModel> posts)

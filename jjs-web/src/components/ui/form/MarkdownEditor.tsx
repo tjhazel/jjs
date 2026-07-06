@@ -4,7 +4,7 @@ import {
   InputWrapper, Divider,
   type InputWrapperProps,
 } from '@mantine/core';
-import Markdown from 'react-markdown';
+import MarkdownViewer from '@components/ui/MarkdownViewer';
 import {
   IconBold, IconItalic, IconStrikethrough,
   IconH1, IconH2, IconBlockquote, IconCode, IconLink,
@@ -205,7 +205,7 @@ export default function MarkdownEditor({
           <Tabs.Panel value="preview">
             <Box p="md" style={{ minHeight: `calc(${minRows} * 1.625rem + 1rem)` }}>
               {text.trim()
-                ? <Markdown>{text}</Markdown>
+                ? <MarkdownViewer>{text}</MarkdownViewer>
                 : <Text size="sm" c="dimmed" fs="italic">Nothing to preview.</Text>
               }
             </Box>

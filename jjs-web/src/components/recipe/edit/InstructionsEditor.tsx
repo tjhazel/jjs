@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Card, TextInput, Textarea, ActionIcon, Group, Text, Button, Stack, Box, SegmentedControl } from '@mantine/core';
 import { IconTrash, IconChevronUp, IconChevronDown, IconPlus } from '@tabler/icons-react';
-import Markdown from 'react-markdown';
+import MarkdownViewer from '@components/ui/MarkdownViewer';
 import type { Instruction } from '@api/recipe/recipe';
 
 interface Props {
@@ -82,7 +82,7 @@ function InstructionRow({ instruction, index, isFirst, isLast, onUpdate, onMoveU
             style={{ border: '1px solid var(--mantine-color-gray-3)', minHeight: 72 }}
           >
             {instruction.instruction?.trim()
-              ? <Markdown>{instruction.instruction}</Markdown>
+              ? <MarkdownViewer>{instruction.instruction}</MarkdownViewer>
               : <Text size="sm" c="dimmed">Nothing to preview.</Text>
             }
           </Box>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Center, Paper, Container, Loader, Alert, Image } from "@mantine/core";
-import Markdown from 'react-markdown';
+import MarkdownViewer from '@components/ui/MarkdownViewer';
 
 const GITHUB_README_URL = "https://raw.githubusercontent.com/tjhazel/jjs/refs/heads/develop/README.md";
 
@@ -52,7 +52,7 @@ export default function AboutPage() {
 
                {!loading && !error && (
                   <div className="mantine-typography">
-                     <Markdown
+                     <MarkdownViewer
                         components={{
                            a({ href, children }) {
                               return (
@@ -61,19 +61,10 @@ export default function AboutPage() {
                                  </a>
                               );
                            },
-                           img({ src, alt }) {
-                              return (
-                                 <img
-                                    src={src}
-                                    alt={alt}
-                                    style={{ maxWidth: '100%', borderRadius: 4 }}
-                                 />
-                              );
-                           },
                         }}
                      >
                         {markdown}
-                     </Markdown>
+                     </MarkdownViewer>
                   </div>
                )}
 
