@@ -117,6 +117,12 @@ public class AppBuilder
                  .AllowAnyMethod()
                  .AllowCredentials()
                  .AllowAnyHeader());
+
+         //options.AddDefaultPolicy(
+         //   policy =>policy
+         //   .AllowAnyOrigin()
+         //   .AllowAnyMethod()
+         //   .AllowAnyHeader());
       });
    }
 

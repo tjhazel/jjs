@@ -72,7 +72,9 @@ app.MapGet("/diag", () => {
       IndexExists = File.Exists(indexPath),
       IsDebug = IS_DEBUG
    });
-});
+})
+.WithMetadata(new Microsoft.AspNetCore.Mvc.ProducesResponseTypeAttribute(200)); //show in swagger
+
 app.MapGet("/api/debug-auth", (HttpContext context) =>
 {
    var user = context.User;
@@ -83,7 +85,8 @@ app.MapGet("/api/debug-auth", (HttpContext context) =>
       HasAdminRole = user.IsInRole("Admin"),
       Claims = user.Claims.Select(c => new { c.Type, c.Value }).ToList()
    });
-});
+})
+.WithMetadata(new Microsoft.AspNetCore.Mvc.ProducesResponseTypeAttribute(200));
 
 // 2. Map standard API endpoints natively
 app.MapControllers();
