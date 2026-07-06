@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Box, Group, ActionIcon, Tooltip, Text, Tabs, Textarea,
-  InputWrapper, Divider,
+  InputWrapper, Divider, Menu,
   type InputWrapperProps,
 } from '@mantine/core';
 import MarkdownViewer from '@components/ui/MarkdownViewer';
 import {
   IconBold, IconItalic, IconStrikethrough,
   IconH1, IconH2, IconBlockquote, IconCode, IconLink,
-  IconList, IconListNumbers, IconMinus, IconPhoto,
+  IconList, IconListNumbers, IconMinus, IconPhoto, IconDots,
 } from '@tabler/icons-react';
 import { useApiContext } from '@api/ApiContext';
 import classes from './MarkdownEditor.module.css';
@@ -116,29 +116,48 @@ export default function MarkdownEditor({
 
   // ── Toolbar definition ───────────────────────────────────────────────────
 
-  type ToolItem = { icon: React.ReactNode; label: string; action: () => void; loading?: boolean } | null;
+  type ToolItem = { icon: React.ReactNode; label: string; action: () => void; loading?: boolean };
 
-  const tools: ToolItem[] = [
-    { icon: <IconH1 size={14} />, label: 'Heading 1', action: () => prependLines('# ') },
-    { icon: <IconH2 size={14} />, label: 'Heading 2', action: () => prependLines('## ') },
+  // Always visible inline
+  const primaryTools: (ToolItem | null)[] = [
+    { icon: <IconH1 size={14} />,   label: 'Heading 1',    action: () => prependLines('# ') },
+    { icon: <IconH2 size={14} />,   label: 'Heading 2',    action: () => prependLines('## ') },
     null,
-    { icon: <IconBold size={14} />, label: 'Bold', action: () => wrap('**', '**', 'bold text') },
-    { icon: <IconItalic size={14} />, label: 'Italic', action: () => wrap('*', '*', 'italic text') },
-    { icon: <IconStrikethrough size={14} />, label: 'Strikethrough', action: () => wrap('~~', '~~', 'struck text') },
+    { icon: <IconBold size={14} />,   label: 'Bold',        action: () => wrap('**', '**', 'bold text') },
+    { icon: <IconItalic size={14} />, label: 'Italic',      action: () => wrap('*', '*', 'italic text') },
     null,
-    { icon: <IconBlockquote size={14} />, label: 'Quote', action: () => prependLines('> ') },
-    { icon: <IconCode size={14} />, label: 'Inline code', action: () => wrap('`', '`', 'code') },
-    { icon: <IconLink size={14} />, label: 'Link', action: () => wrap('[', '](url)', 'link text') },
+    { icon: <IconCode size={14} />,   label: 'Inline code', action: () => wrap('`', '`', 'code') },
+    { icon: <IconLink size={14} />,   label: 'Link',        action: () => wrap('[', '](url)', 'link text') },
     null,
-    { icon: <IconList size={14} />, label: 'Unordered list', action: () => prependLines('- ') },
-    { icon: <IconListNumbers size={14} />, label: 'Ordered list', action: () => prependLines('1. ') },
-    null,
-    { icon: <IconMinus size={14} />, label: 'Horizontal rule', action: () => insert('\n\n---\n\n') },
+    { icon: <IconList size={14} />,   label: 'Unordered list', action: () => prependLines('- ') },
     ...(uploadEndpoint ? [
-      null as ToolItem,
+      null as null,
       { icon: <IconPhoto size={14} />, label: 'Insert image', loading: uploading, action: () => fileInputRef.current?.click() },
     ] : []),
   ];
+
+  // Hidden behind "…" overflow menu
+  const overflowTools: (ToolItem | null)[] = [
+    { icon: <IconStrikethrough size={14} />, label: 'Strikethrough', action: () => wrap('~~', '~~', 'struck text') },
+    { icon: <IconBlockquote size={14} />,    label: 'Quote',         action: () => prependLines('> ') },
+    { icon: <IconListNumbers size={14} />,   label: 'Ordered list',  action: () => prependLines('1. ') },
+    null,
+    { icon: <IconMinus size={14} />,         label: 'Horizontal rule', action: () => insert('\n\n---\n\n') },
+  ];
+
+  const renderInlineButton = (t: ToolItem, i: number) => (
+    <Tooltip key={i} label={t.label} withArrow fz="xs" openDelay={400}>
+      <ActionIcon
+        variant="subtle" color="gray" size="sm"
+        onMouseDown={e => { e.preventDefault(); t.action(); }}
+        disabled={disabled || uploading}
+        loading={t.loading}
+        aria-label={t.label}
+      >
+        {t.icon}
+      </ActionIcon>
+    </Tooltip>
+  );
 
   // ── Render ───────────────────────────────────────────────────────────────
 
@@ -159,24 +178,44 @@ export default function MarkdownEditor({
           </Box>
 
           {tab === 'write' && (
-            <Group gap={2} px="xs" py={4} wrap="wrap" className={classes.toolbar}>
-              {tools.map((t, i) =>
-                t === null ? (
-                  <Divider key={i} orientation="vertical" h={16} mx={2} style={{ alignSelf: 'center' }} />
-                ) : (
-                  <Tooltip key={i} label={t.label} withArrow fz="xs" openDelay={400}>
+            <Group gap={2} px="xs" py={4} wrap="nowrap" className={classes.toolbar}>
+              {primaryTools.map((t, i) =>
+                t === null
+                  ? <Divider key={i} orientation="vertical" h={16} mx={2} style={{ alignSelf: 'center' }} />
+                  : renderInlineButton(t, i)
+              )}
+
+              <Divider orientation="vertical" h={16} mx={2} style={{ alignSelf: 'center' }} />
+
+              <Menu shadow="md" position="bottom-end" withinPortal>
+                <Menu.Target>
+                  <Tooltip label="More" withArrow fz="xs" openDelay={400}>
                     <ActionIcon
                       variant="subtle" color="gray" size="sm"
-                      onMouseDown={e => { e.preventDefault(); t.action(); }}
                       disabled={disabled || uploading}
-                      loading={t.loading}
-                      aria-label={t.label}
+                      aria-label="More formatting options"
                     >
-                      {t.icon}
+                      <IconDots size={14} />
                     </ActionIcon>
                   </Tooltip>
-                )
-              )}
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {overflowTools.map((t, i) =>
+                    t === null
+                      ? <Menu.Divider key={i} />
+                      : (
+                        <Menu.Item
+                          key={i}
+                          leftSection={t.icon}
+                          fz="sm"
+                          onClick={() => t.action()}
+                        >
+                          {t.label}
+                        </Menu.Item>
+                      )
+                  )}
+                </Menu.Dropdown>
+              </Menu>
             </Group>
           )}
 

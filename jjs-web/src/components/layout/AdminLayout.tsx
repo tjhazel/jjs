@@ -3,6 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import CategorySelector from '../article/CategorySelector';
 import {AdminHeader} from './AdminHeader';
+import classes from './AdminLayout.module.css';
 
 export function AdminLayout() {
    const [opened, { toggle }] = useDisclosure();
@@ -11,9 +12,9 @@ export function AdminLayout() {
 
    return (
       <AppShell
-         header={{ height: 60 }}
+         header={{ height: 44 }}
          navbar={{ width: 250, breakpoint: 'sm', collapsed: { mobile: !opened } }}
-         footer={{ height: 44 }}
+         footer={{ height: { base: 0, sm: 44 } }}
          padding="md"
       >
 
@@ -43,7 +44,7 @@ export function AdminLayout() {
             <CategorySelector selectedCategory={null} onCategoryChange={() => { }} />
 
          </AppShell.Navbar>
-         <AppShell.Main>
+         <AppShell.Main className={classes.main}>
             <Outlet />
          </AppShell.Main>
          <AppShell.Footer visibleFrom="sm">

@@ -80,10 +80,10 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
 
   return (
     <Box component="form" onSubmit={form.onSubmit(handleSubmit)} noValidate>
-      <Stack gap="xl">
+      <Stack gap={{ base: 'xs', sm: 'xl' }}>
 
         {/* ─── Core Info ─── */}
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Core Content</Title>
             <TextInput withAsterisk label="Recipe Name" radius="none"
@@ -102,7 +102,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         </Card>
 
         {/* ─── Classifications ─── */}
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Classifications</Title>
             <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
@@ -115,7 +115,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         </Card>
 
         {/* ─── Metrics ─── */}
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Cooking Metrics & Cost</Title>
             <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
@@ -136,7 +136,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         </Card>
 
         {/* ─── Ingredients ─── */}
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Ingredients</Title>
             <IngredientsEditor ingredients={ingredients} onChange={setIngredients} />
@@ -144,7 +144,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         </Card>
 
         {/* ─── Instructions ─── */}
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Instructions</Title>
             <InstructionsEditor instructions={instructions} onChange={setInstructions} />
@@ -152,7 +152,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         </Card>
 
         {/* ─── Visibility ─── */}
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Visibility Settings</Title>
             <Switch
@@ -171,7 +171,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
 
         {/* ─── Audit ─── */}
         {!isNew && (
-          <Card withBorder padding="xl" radius="none" bg="var(--mantine-color-gray-0)">
+          <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none" bg="var(--mantine-color-gray-0)">
             <Stack gap="md">
               <Title order={2} size="h4" fw={600} c="dark.9">Audit Overview</Title>
               <Grid>

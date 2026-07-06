@@ -77,8 +77,8 @@ export default function EditArticlePage() {
    }
 
   return (
-    <Container size="xl" py="md">
-      <Stack gap="xl">
+    <Container size="xl" py={0} px={{ base: 0, sm: 'md' }}>
+      <Stack gap={{ base: 'xs', sm: 'xl' }}>
         <Stack gap={4}>
           <Group>
             <Button

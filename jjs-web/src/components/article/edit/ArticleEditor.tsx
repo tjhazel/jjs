@@ -68,8 +68,8 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
 
   return (
     <Box component="form" onSubmit={form.onSubmit(handleSubmit)} noValidate>
-      <Stack gap="xl">
-        <Card withBorder padding="xl" radius="none">
+      <Stack gap={{ base: 'xs', sm: 'xl' }}>
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Content</Title>
             <TextInput withAsterisk label="Title" placeholder="Post title" radius="none" key={form.key('title')} {...form.getInputProps('title')} />
@@ -85,7 +85,7 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
           </Stack>
         </Card>
 
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Media &amp; Links</Title>
             <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
@@ -95,7 +95,7 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
           </Stack>
         </Card>
 
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Scheduling</Title>
             <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
@@ -121,7 +121,7 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
         </Card>
 
            {categories.length > 0 && (
-              <Card withBorder padding="xl" radius="none">
+              <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
                  <Stack gap="md">
                     {/* 
         FIX: Avoid spreading directly in an uncontrolled conditional block.
@@ -148,7 +148,7 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
               </Card>
            )}
 
-        <Card withBorder padding="xl" radius="none">
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Settings</Title>
             <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xl" my="xs">
@@ -161,7 +161,7 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
         </Card>
 
         {!isNew && (
-          <Card withBorder padding="xl" radius="none" bg="var(--mantine-color-gray-0)">
+          <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none" bg="var(--mantine-color-gray-0)">
             <Stack gap="md">
               <Title order={2} size="h4" fw={600} c="dark.9">Audit Overview</Title>
               <Grid>
