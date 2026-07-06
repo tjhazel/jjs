@@ -49,8 +49,15 @@ export const ApiContextProvider: React.FC<IApiContextProviderProps> = (props) =>
          });
    };
 
+   const httpPostFormData = async <T,>(url: string, formData: FormData): Promise<T> => {
+      return await httpClient.httpPostFormData<T>(getApiUrl(url), getToken, formData)
+         .catch((err: httpClient.HttpError) => {
+            throw err;
+         });
+   };
+
    return (
-      <ApiContext.Provider value={{ httpGet, httpPatch, httpPost, httpPut, httpDelete }}>
+      <ApiContext.Provider value={{ httpGet, httpPatch, httpPost, httpPut, httpDelete, httpPostFormData }}>
          {props.children}
       </ApiContext.Provider>
    );

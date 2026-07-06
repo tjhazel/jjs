@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import {
-  TextInput, Textarea, Card, Title, Text, Stack,
+  TextInput, Card, Title, Text, Stack,
   SimpleGrid, Grid, Switch, Group, Button, Box, NumberInput
 } from '@mantine/core';
 import { recipeSchema, DEFAULT_RECIPE } from '@api/recipe/recipeSchema';
 import type { RecipeDetail, Ingredient, Instruction } from '@api/recipe/recipe';
 import { formatDate } from '@lib/time.functions';
+import MarkdownEditor from '@components/ui/form/MarkdownEditor';
 import IngredientsEditor from './IngredientsEditor';
 import InstructionsEditor from './InstructionsEditor';
 
@@ -87,8 +88,14 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
             <Title order={2} size="h4" fw={600} c="dark.9">Core Content</Title>
             <TextInput withAsterisk label="Recipe Name" radius="none"
               key={form.key('name')} {...form.getInputProps('name')} />
-            <Textarea withAsterisk label="Description" rows={4} radius="none"
-              key={form.key('description')} {...form.getInputProps('description')} />
+            <MarkdownEditor
+              key={form.key('description')}
+              withAsterisk
+              label="Description"
+              placeholder="Describe the recipe…"
+              {...form.getInputProps('description')}
+              minRows={5}
+            />
             <TextInput label="Source / Reference" radius="none"
               key={form.key('recipeSource')} {...form.getInputProps('recipeSource')} />
           </Stack>

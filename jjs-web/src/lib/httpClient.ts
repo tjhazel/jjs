@@ -139,9 +139,28 @@ export const httpGetByteUrl = async (
    }
 };
 
+export const httpPostFormData = async <T>(
+   url: string,
+   getToken: () => Promise<string>,
+   formData: FormData
+): Promise<T> => {
+   try {
+      const token = await getToken();
+      const response = await axios.post<T>(url, formData, {
+         headers: { 'Authorization': `Bearer ${token}` },
+         timeout: 300000
+         // No Content-Type — browser sets multipart/form-data with boundary automatically
+      });
+      return response.data;
+   } catch (error) {
+      throw handleError(error as AxiosError);
+   }
+};
+
 // 7. Explicit Helper Types
 export type TGet = <T>(url: string, options?: object) => Promise<T>;
 export type TPatch = <T>(url: string, body?: object) => Promise<T>;
 export type TPost = <T>(url: string, body?: object) => Promise<T>;
 export type TPut = <T>(url: string, body?: object) => Promise<T>;
 export type TDelete = <T>(url: string) => Promise<T>;
+export type TPostFormData = <T>(url: string, formData: FormData) => Promise<T>;

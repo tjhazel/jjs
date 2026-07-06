@@ -7,6 +7,7 @@ import { articleSchema, DEFAULT_POST, type FormValues } from '@api/post/articleS
 import type { PostDetail } from '@api/post/post';
 import type { Category } from '@api/post/category';
 import { formatDate } from '@lib/time.functions';
+import MarkdownEditor from '@components/ui/form/MarkdownEditor';
 
 interface ArticleEditorProps {
   post?: PostDetail;
@@ -18,8 +19,6 @@ interface ArticleEditorProps {
 
 
 export default function ArticleEditor({ post, categories = [], isSaving = false, onSave, onCancel }: ArticleEditorProps) {
-   console.log('post to edit:', post)
-
    const form = useForm<FormValues>({
     mode: 'uncontrolled',
     initialValues: DEFAULT_POST,
@@ -75,7 +74,14 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
             <Title order={2} size="h4" fw={600} c="dark.9">Content</Title>
             <TextInput withAsterisk label="Title" placeholder="Post title" radius="none" key={form.key('title')} {...form.getInputProps('title')} />
             <Textarea withAsterisk label="Preview Text" description="Shown in listings" placeholder="Short description shown in post listings…" rows={3} radius="none" key={form.key('previewText')} {...form.getInputProps('previewText')} />
-            <Textarea withAsterisk label="Body (Markdown supported)" placeholder="Write your full post using markdown formatting..." rows={14} radius="none" styles={{ input: { fontFamily: 'var(--mantine-font-family-mono)' } }} key={form.key('body')} {...form.getInputProps('body')} />
+            <MarkdownEditor
+              key={form.key('body')}
+              label="Body (Markdown supported)"
+              withAsterisk
+              placeholder="Write your full post using markdown formatting…"
+              {...form.getInputProps('body')}
+              minRows={14}
+            />
           </Stack>
         </Card>
 

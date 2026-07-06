@@ -12,9 +12,25 @@ public class AttachmentService(IAttachmentRepository attachmentRepository) : IAt
    {
       return await _attachmentRepository.Get(attachmentId);
    }
+
+   public async Task<int> Save(IFormFile file)
+   {
+      using var ms = new MemoryStream();
+      await file.CopyToAsync(ms);
+      var attachment = new Attachment
+      {
+         Name = Path.GetFileNameWithoutExtension(file.FileName),
+         FileName = file.FileName,
+         FileSize = (int)file.Length,
+         ContentType = file.ContentType,
+         Content = ms.ToArray()
+      };
+      return await _attachmentRepository.Save(attachment);
+   }
 }
 
 public interface IAttachmentService
 {
    Task<Attachment> Get(int attachmentId);
+   Task<int> Save(IFormFile file);
 }

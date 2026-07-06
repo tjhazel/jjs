@@ -14,13 +14,19 @@ public partial class AttachmentRepository(AppConfig appConfig) : IAttachmentRepo
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
-      var result = await db.QueryFirstAsync<Attachment>(Get_Sql, new { attachmentId });
+      return await db.QueryFirstAsync<Attachment>(Get_Sql, new { attachmentId });
+   }
 
-      return result;
+   public async Task<int> Save(Attachment attachment)
+   {
+      await using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      return await db.QuerySingleAsync<int>(Save_Sql, attachment);
    }
 }
 
 public interface IAttachmentRepository
 {
    Task<Attachment> Get(int attachmentId);
+   Task<int> Save(Attachment attachment);
 }
