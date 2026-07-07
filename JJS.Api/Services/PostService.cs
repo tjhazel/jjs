@@ -55,21 +55,65 @@ public class PostService(
    {
       var rng = new Random();
       var usedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      var photos = (await _albumService.GetFlatList()).Values.ToList();
+      var rawPhotos = (await _albumService.GetFlatList()).Values.ToArray();
+
+      // Tokenize every image once up front — avoids repeating 4 regex ops per image per post.
+      var photos = rawPhotos
+         .Select(img => new TokenizedPhoto(
+            img,
+            Tokenize(img.Title),
+            Tokenize(Path.GetFileNameWithoutExtension(img.Name)),
+            Tokenize(img.Comment),
+            FolderTags(img.RelativePath).SelectMany(Tokenize)
+                                         .ToHashSet(StringComparer.OrdinalIgnoreCase)
+         ))
+         .ToArray();
+
+      // Reverse index: token → photo indices. Lets each post skip photos with zero token overlap.
+      var tokenIndex = new Dictionary<string, List<int>>(StringComparer.OrdinalIgnoreCase);
+      for (var i = 0; i < photos.Length; i++)
+         foreach (var token in photos[i].AllTokens)
+         {
+            if (!tokenIndex.TryGetValue(token, out var bucket))
+               tokenIndex[token] = bucket = [];
+            bucket.Add(i);
+         }
 
       foreach (var post in posts)
       {
-         var available = photos.Where(p => !usedPaths.Contains(p.HttpPath)).ToList();
+         var postTitle   = Tokenize(post.Title);
+         var postPreview = Tokenize(post.PreviewText);
+         var postDate    = post.ReleaseDate ?? post.CreatedDate;
 
-         var best = available
-            .Select(img => (img, score: ScoreImage(img, post)))
-            .Where(x => x.score >= 15)
-            .OrderByDescending(x => x.score)
-            .FirstOrDefault();
+         // Gather candidates: images sharing at least one token with this post.
+         var candidateIdx = new HashSet<int>();
+         foreach (var token in postTitle.Concat(postPreview))
+            if (tokenIndex.TryGetValue(token, out var bucket))
+               foreach (var idx in bucket) candidateIdx.Add(idx);
 
-         var winner = best.img
-                      ?? available.OrderBy(_ => rng.Next()).FirstOrDefault()
-                      ?? photos.OrderBy(_ => rng.Next()).FirstOrDefault();
+         // Also include photos within date-proximity range (cheap arithmetic, no tokenizing).
+         if (postDate.HasValue)
+            for (var i = 0; i < photos.Length; i++)
+               if (Math.Abs((photos[i].File.CreatedOn - postDate.Value).TotalDays) <= 60)
+                  candidateIdx.Add(i);
+
+         // Score only the candidate subset.
+         var bestIdx   = -1;
+         var bestScore = 14; // threshold is >= 15
+         foreach (var idx in candidateIdx)
+         {
+            if (usedPaths.Contains(photos[idx].File.HttpPath)) continue;
+            var score = ScoreImage(photos[idx], postTitle, postPreview, post.Title, postDate);
+            if (score <= bestScore) continue;
+            bestScore = score;
+            bestIdx   = idx;
+         }
+
+         var winner = bestIdx >= 0
+            ? photos[bestIdx].File
+            : photos.Where(p => !usedPaths.Contains(p.File.HttpPath))
+                    .OrderBy(_ => rng.Next()).FirstOrDefault()?.File
+              ?? photos.OrderBy(_ => rng.Next()).FirstOrDefault()?.File;
 
          if (winner is not null)
          {
@@ -79,48 +123,38 @@ public class PostService(
       }
    }
 
-   private static int ScoreImage(Models.Album.File img, PostViewModel post)
+   private static int ScoreImage(
+      TokenizedPhoto img,
+      HashSet<string> postTitle,
+      HashSet<string> postPreview,
+      string? rawPostTitle,
+      DateTime? postDate)
    {
       int score = 0;
 
-      var imgTitle   = Tokenize(img.Title);
-      var imgName    = Tokenize(Path.GetFileNameWithoutExtension(img.Name));
-      var imgComment = Tokenize(img.Comment);
-      var imgFolders = FolderTags(img.RelativePath)
-                          .SelectMany(Tokenize)
-                          .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-      var postTitle      = Tokenize(post.Title);
-      var postPreview    = Tokenize(post.PreviewText);
-      //var postBody       = Tokenize(post.Body);
-      //var postCategories = (post.Categories ?? [])
-      //                        .SelectMany(Tokenize)
-      //                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
       // Exact EXIF title ↔ post title
-      if (string.Equals(img.Title, post.Title, StringComparison.OrdinalIgnoreCase))
+      if (string.Equals(img.File.Title, rawPostTitle, StringComparison.OrdinalIgnoreCase))
          score += 1000;
 
       // EXIF title tokens
-      score += imgTitle.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
-      score += imgTitle.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
+      score += img.Title.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
+      score += img.Title.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
 
       // Folder path tokens (implicit category tags)
-      score += imgFolders.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
-      score += imgFolders.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
+      score += img.Folders.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
+      score += img.Folders.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
 
       // Filename tokens
-      score += imgName.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
-      score += imgName.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
+      score += img.Name.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
+      score += img.Name.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
 
       // EXIF comment tokens
-      score += imgComment.Sum(t => postTitle.Contains(t) ? t.Length * t.Length : 0);
+      score += img.Comment.Sum(t => postTitle.Contains(t) ? t.Length * t.Length : 0);
 
       // Date proximity bonus
-      var postDate = post.ReleaseDate ?? post.CreatedDate;
       if (postDate.HasValue)
       {
-         var days = Math.Abs((img.CreatedOn - postDate.Value).TotalDays);
+         var days = Math.Abs((img.File.CreatedOn - postDate.Value).TotalDays);
          if (days <= 30) score += 15;
          else if (days <= 60) score += 8;
       }
@@ -168,6 +202,16 @@ public class PostService(
 
       return await _postRepository.Save(model);
    }
+}
+
+record TokenizedPhoto(
+   Models.Album.File File,
+   HashSet<string> Title,
+   HashSet<string> Name,
+   HashSet<string> Comment,
+   HashSet<string> Folders)
+{
+   public IEnumerable<string> AllTokens => Title.Concat(Name).Concat(Comment).Concat(Folders);
 }
 
 public interface IPostService
