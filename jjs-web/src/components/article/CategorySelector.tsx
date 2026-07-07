@@ -1,3 +1,4 @@
+import { Select } from "@mantine/core";
 import { useCategories } from "@/api/post/category-fetcher";
 import { useApiContext } from "@api/ApiContext";
 
@@ -8,23 +9,21 @@ interface CategorySelectorProps {
 
 export default function CategorySelector({ selectedCategory, onCategoryChange }: CategorySelectorProps) {
   const { httpGet } = useApiContext();
-  const { data: categories, isLoading, error } = useCategories(httpGet);
+  const { data: categories, isLoading } = useCategories(httpGet);
 
-  if (isLoading) return <div>Loading categories...</div>;
-  if (error) return <div>Error loading categories</div>;
+  const options = [
+    { value: "", label: "All Categories" },
+    ...(categories?.map((c) => ({ value: String(c.categoryId), label: c.title })) ?? []),
+  ];
 
   return (
-    <select
-      value={selectedCategory || ""}
-      onChange={(e) => onCategoryChange(e.target.value ? Number(e.target.value) : null)}
-      className="border rounded p-2"
-    >
-      <option value="">All Categories</option>
-      {categories?.map((category) => (
-        <option key={category.categoryId} value={category.categoryId}>
-          {category.title}
-        </option>
-      ))}
-    </select>
+    <Select
+      size="sm"
+      data={options}
+      value={selectedCategory != null ? String(selectedCategory) : ""}
+      onChange={(v) => onCategoryChange(v ? Number(v) : null)}
+      disabled={isLoading}
+      comboboxProps={{ withinPortal: false }}
+    />
   );
 }

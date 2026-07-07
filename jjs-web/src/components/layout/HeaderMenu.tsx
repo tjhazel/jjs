@@ -10,7 +10,6 @@ import {
    Image,
    Menu,
    ScrollArea,
-   UnstyledButton,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Link } from 'react-router'; 
@@ -121,7 +120,7 @@ export function HeaderMenu() {
          </Container>
 
     {/* Mobile Drawer Layout */}
-    <Drawer opened={opened} onClose={close} size="100%" padding="md" title="Navigation" hiddenFrom="sm" zIndex={1000000}>
+    <Drawer opened={opened} onClose={close} size="100%" padding="md" title="John, Jeri, and Sidney" hiddenFrom="sm" zIndex={1000000}>
       <ScrollArea h="calc(100vh - 80px)" mx="-md">
         <Divider my="sm" />
         {links.map((link) => {
@@ -148,12 +147,12 @@ function DrawerLinksGroup({
    const [opened, { toggle }] = useDisclosure(false);
    return (
       <>
-         <UnstyledButton className={classes.link} onClick={toggle} style={{ width: '100%' }}>
+         <button className={classes.link} onClick={toggle} style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
             <Group justify="space-between" gap={0}>
                <span className={classes.linkLabel}>{link.label}</span>
                <IconChevronDown size={14} stroke={1.5} style={{ transform: opened ? 'rotate(180deg)' : 'none', transition: 'transform 200ms ease' }} />
             </Group>
-         </UnstyledButton>
+         </button>
          <Collapse expanded={opened}>
             {link.links?.map((subLink) => renderLinkHelper(subLink.link, subLink.label, classes.subLink, onLinkClick))}
          </Collapse>
