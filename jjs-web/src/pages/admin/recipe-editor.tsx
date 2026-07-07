@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
-import { Container, Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
+import { Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
 import { useSingleRecipe, saveRecipe } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
@@ -67,11 +67,10 @@ export default function EditRecipePage() {
    }
 
   return (
-    <Container size="xl" py={0} px={{ base: 0, sm: 'md' }}>
-      <Stack gap={{ base: 'xs', sm: 'xl' }}>
+    <Stack gap={{ base: 'xs', sm: 'xl' }}>
         <Stack gap={4}>
           <Group>
-            <Button variant="subtle" color="gray" leftSection={<IconArrowLeft size={16} />} onClick={() => navigate('/admin/recipe')} styles={{ root: { paddingLeft: 0 } }}>
+            <Button variant="subtle" color="gray" leftSection={<IconArrowLeft size={16} />} onClick={() => navigate('/admin/recipes')} styles={{ root: { paddingLeft: 0 } }}>
               Back to Recipes
             </Button>
           </Group>
@@ -92,9 +91,8 @@ export default function EditRecipePage() {
         )}
 
         {!recipeNotFound && (
-          <RecipeEditor recipe={recipe} isSaving={isSaving} onSave={handleSave} onCancel={() => navigate('/admin/recipe')} />
+          <RecipeEditor recipe={recipe} isSaving={isSaving} onSave={handleSave} onCancel={() => navigate('/admin/recipes')} />
         )}
-      </Stack>
-    </Container>
+    </Stack>
   );
 }

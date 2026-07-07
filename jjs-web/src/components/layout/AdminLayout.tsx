@@ -17,8 +17,7 @@ export function AdminLayout() {
          header={{ height: 44 }}
          navbar={{ width: 250, breakpoint: 'sm', collapsed: { mobile: !opened } }}
          footer={{ height: { base: 0, sm: 44 } }}
-         padding="xs"
-      >
+         padding="xs">
          <AppShell.Header style={{ backgroundColor: 'var(--mantine-color-dark-8)', borderBottom: '1px solid var(--mantine-color-dark-6)' }}>
             <AdminHeader navOpened={opened} onNavToggle={toggle} />
          </AppShell.Header>
@@ -45,7 +44,7 @@ export function AdminLayout() {
             <CategorySelector selectedCategory={null} onCategoryChange={() => { }} />
 
          </AppShell.Navbar>
-         <AppShell.Main className={classes.main}>
+         <AppShell.Main className={classes.main} >
             <Outlet />
          </AppShell.Main>
          <AppShell.Footer visibleFrom="sm">

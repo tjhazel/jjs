@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { Container, Stack, Group, Title, Button, Alert, Text } from '@mantine/core';
+import { Stack, Group, Title, Button, Alert, Text } from '@mantine/core';
 import { IconPlus, IconAlertCircle } from '@tabler/icons-react';
 import { useRecipe } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
@@ -11,8 +11,7 @@ export default function ManageRecipesPage() {
   const { data: recipes, error, isLoading } = useRecipe(httpGet);
 
   return (
-    <Container size="xl" py="xs">
-      <Stack gap="sm">
+    <Stack gap="sm" pt="xs">
         {/* Responsive Dashboard Control Banner Header */}
         <Group justify="space-between" align="center">
           <Stack gap={2}>
@@ -51,7 +50,6 @@ export default function ManageRecipesPage() {
         {/* Functional Tabular Element Core Frame */}
         <ManageRecipes recipes={recipes} isLoading={isLoading} />
 
-      </Stack>
-    </Container>
+    </Stack>
   );
 }

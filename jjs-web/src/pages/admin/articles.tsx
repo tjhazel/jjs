@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { Container, Stack, Group, Title, Button, Alert, Text } from '@mantine/core';
+import { Stack, Group, Title, Button, Alert, Text } from '@mantine/core';
 import { IconPlus, IconAlertCircle } from '@tabler/icons-react';
 import { useAllPosts } from '@api/post/post-fetcher';
 import { useApiContext } from '@api/ApiContext';
@@ -11,8 +11,7 @@ export default function ManageArticlesPage() {
    const { data: posts, error, isLoading } = useAllPosts(httpGet);
 
   return (
-     <Container size="xl" py="xs">
-      <Stack gap="sm">
+     <Stack gap="sm" pt="xs">
         
         {/* Dynamic Action Header Utility Block */}
         <Group justify="space-between" align="center">
@@ -52,7 +51,6 @@ export default function ManageArticlesPage() {
         {/* Core Component List Mount */}
         <ManageArticles posts={posts} isLoading={isLoading} />
 
-      </Stack>
-    </Container>
+    </Stack>
   );
 }

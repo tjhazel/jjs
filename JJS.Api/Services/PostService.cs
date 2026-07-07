@@ -3,23 +3,25 @@ using JJS.Api.Models;
 using JJS.Api.Models.People;
 using JJS.Api.Models.Post;
 using JJS.Api.Repositories;
+using JJS.Api.Services.Cache;
 
 namespace JJS.Api.Services;
 
 [ServiceImplementation(typeof(IPostService))]
 public class PostService(
-   IPostRepository postRepository, 
+   IPostRepository postRepository,
    IAlbumService albumService,
-   IUserService userService) :IPostService
+   IUserService userService,
+   ICacheService cacheService) : IPostService
 {
    private readonly IPostRepository _postRepository = postRepository;
    private readonly IAlbumService _albumService = albumService;
    private readonly IUserService _userService = userService;
+   private readonly ICacheService _cacheService = cacheService;
 
-   public async Task<IEnumerable<PostViewModel>> GetPublic()
+   public Task<IEnumerable<PostViewModel>> GetPublic()
    {
-      var allPosts = await _postRepository.GetAll(isPublic: true);
-      return await FixUpResults(allPosts);
+      return GetCachedImages("post/public", isPublic: true);
    }
 
    public async Task View(int postId)
@@ -27,10 +29,18 @@ public class PostService(
       await _postRepository.View(postId);
    }
 
-   public async Task<IEnumerable<PostViewModel>> GetAll()
+   public Task<IEnumerable<PostViewModel>> GetAll()
    {
-      var allPosts = await _postRepository.GetAll(isPublic: false);
-      return await FixUpResults(allPosts);
+      return GetCachedImages("post/all", isPublic: false);
+   }
+
+   private Task<IEnumerable<PostViewModel>> GetCachedImages(string cacheKey, bool isPublic)
+   {
+      return _cacheService.GetCachedValue(async () =>
+      {
+         var allPosts = await _postRepository.GetAll(isPublic: isPublic);
+         return await FixUpResults(allPosts);
+      }, cacheKey);
    }
 
    private async Task<IEnumerable<PostViewModel>> FixUpResults(IEnumerable<PostViewModel> posts)
@@ -82,35 +92,29 @@ public class PostService(
 
       var postTitle      = Tokenize(post.Title);
       var postPreview    = Tokenize(post.PreviewText);
-      var postBody       = Tokenize(post.Body);
-      var postCategories = (post.Categories ?? [])
-                              .SelectMany(Tokenize)
-                              .ToHashSet(StringComparer.OrdinalIgnoreCase);
+      //var postBody       = Tokenize(post.Body);
+      //var postCategories = (post.Categories ?? [])
+      //                        .SelectMany(Tokenize)
+      //                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
       // Exact EXIF title ↔ post title
       if (string.Equals(img.Title, post.Title, StringComparison.OrdinalIgnoreCase))
-         score += 100;
+         score += 1000;
 
       // EXIF title tokens
-      score += imgTitle.Count(t => postTitle.Contains(t))      * 20;
-      score += imgTitle.Count(t => postCategories.Contains(t)) * 15;
-      score += imgTitle.Count(t => postPreview.Contains(t))    * 8;
-      score += imgTitle.Count(t => postBody.Contains(t))       * 3;
+      score += imgTitle.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
+      score += imgTitle.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
 
       // Folder path tokens (implicit category tags)
-      score += imgFolders.Count(t => postTitle.Contains(t))      * 20;
-      score += imgFolders.Count(t => postCategories.Contains(t)) * 15;
-      score += imgFolders.Count(t => postPreview.Contains(t))    * 8;
-      score += imgFolders.Count(t => postBody.Contains(t))       * 3;
+      score += imgFolders.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
+      score += imgFolders.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
 
       // Filename tokens
-      score += imgName.Count(t => postTitle.Contains(t))      * 10;
-      score += imgName.Count(t => postCategories.Contains(t)) * 8;
-      score += imgName.Count(t => postPreview.Contains(t))    * 4;
+      score += imgName.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
+      score += imgName.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
 
       // EXIF comment tokens
-      score += imgComment.Count(t => postTitle.Contains(t))      * 8;
-      score += imgComment.Count(t => postCategories.Contains(t)) * 6;
+      score += imgComment.Sum(t => postTitle.Contains(t) ? t.Length * t.Length : 0);
 
       // Date proximity bonus
       var postDate = post.ReleaseDate ?? post.CreatedDate;
@@ -128,13 +132,19 @@ public class PostService(
    {
       "the","a","an","and","or","but","in","on","at","to","for","of",
       "with","by","from","as","is","was","are","were","been","this","that",
-      "it","its","we","you","my","our","i","he","she","they","be","have","has"
+      "it","its","we","you","my","our","i","he","she","they","be","have","has",
+      "test", "image", "trips"
    };
+
+   // Splits at non-alphanumeric chars, PascalCase boundaries, and letter↔digit transitions.
+   private static readonly Regex _camelSplit =
+      new(@"(?<=[a-z])(?=[A-Z])|(?<=[a-zA-Z])(?=\d)|(?<=\d)(?=[a-zA-Z])", RegexOptions.Compiled);
 
    private static HashSet<string> Tokenize(string? input)
    {
       if (string.IsNullOrWhiteSpace(input)) return [];
-      return [.. Regex.Split(input, @"[^a-zA-Z0-9]+")
+      var expanded = _camelSplit.Replace(input, " ");
+      return [.. Regex.Split(expanded, @"[^a-zA-Z0-9]+")
          .Where(t => t.Length >= 3 && !_stopWords.Contains(t))];
    }
 

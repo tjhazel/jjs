@@ -1,16 +1,14 @@
-/* Minimize the gap above content on all screen sizes.
-   AppShell.Main padding-top = header-offset + app-shell-padding by default.
-   We override it to header-offset + 4px so only a 4 px sliver sits below the header bar. */
 .main {
   padding-top: calc(var(--app-shell-header-offset, 44px) + 4px) !important;
+  padding-left: 10px !important;
+  padding-right: 16px !important;
 }
 
-/* Below Mantine's sm breakpoint (48em = 768px) */
 @media (max-width: 47.9375em) {
   .main {
     padding-top: calc(var(--app-shell-header-offset, 44px) + 4px) !important;
-    padding-right: 5px !important;
+    padding-right: 12px !important;
     padding-bottom: 10px !important;
-    padding-left: 5px !important;
+    padding-left: 12px !important;
   }
 }

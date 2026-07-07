@@ -78,7 +78,7 @@ export default function ImageCard(props: ImageCardProps) {
           <Text fw={500} size="sm" c="dark.9" mt="lg" className={classes.footerText}>
             {footerText}
           </Text>
-        )}
+           )}
       </Box>
     </Card>
   );

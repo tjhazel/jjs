@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Container, Stack, Title, Text, SimpleGrid, Divider, Group, Button } from '@mantine/core';
+import { Stack, Title, Text, SimpleGrid, Divider, Group, Button } from '@mantine/core';
 import { IconRefresh } from '@tabler/icons-react';
 import ImageCard from '@components/ui/ImageCard';
 import { useApiContext } from '@api/ApiContext';
@@ -28,8 +28,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <Container size="xl" py="md">
-      <Stack gap="xl">
+    <Stack gap="xl" pt="sm">
 
         <Stack gap={4}>
           <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">Administration</Title>
@@ -73,7 +72,6 @@ export default function AdminPage() {
           </Group>
         </Stack>
 
-      </Stack>
-    </Container>
+    </Stack>
   );
 }

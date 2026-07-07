@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
-import { Container, Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
+import { Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
 import { useAllPosts, savePost } from '@api/post/post-fetcher';
 import { useCategories } from '@api/post/category-fetcher';
@@ -77,8 +77,7 @@ export default function EditArticlePage() {
    }
 
   return (
-    <Container size="xl" py={0} px={{ base: 0, sm: 'md' }}>
-      <Stack gap={{ base: 'xs', sm: 'xl' }}>
+    <Stack gap={{ base: 'xs', sm: 'xl' }}>
         <Stack gap={4}>
           <Group>
             <Button
@@ -117,7 +116,6 @@ export default function EditArticlePage() {
             onCancel={() => navigate('/admin')}
           />
         )}
-      </Stack>
-    </Container>
+    </Stack>
   );
 }
