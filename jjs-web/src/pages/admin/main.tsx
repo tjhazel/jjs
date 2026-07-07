@@ -28,7 +28,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <Stack gap="xl" pt="sm">
+    <Stack gap="xl">
 
         <Stack gap={4}>
           <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">Administration</Title>

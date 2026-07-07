@@ -1,4 +1,4 @@
-import { Box, Center, Container, Image, Loader, Stack, Text } from '@mantine/core';
+import { Box, Center, Image, Loader, Stack, Text } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { useApiContext } from '@api/ApiContext';
 import { useCarouselImages } from '@api/album/image-fetcher';
@@ -42,7 +42,7 @@ function DashboardPage() {
   ));
 
   return (
-    <Container size="xl" py="md">
+    <>
       <Box bg="var(--mantine-color-indigo-light)" mb="xl">
         {/* 
           👉 FIXED: Added loop property assignment directly to layout configs
@@ -68,7 +68,7 @@ function DashboardPage() {
               <ArticleList posts={homePosts} />
            }
       </Box>
-    </Container>
+    </>
   );
 }
 

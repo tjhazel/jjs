@@ -1,4 +1,4 @@
-import { Title, Text, Stack, Image, Container } from '@mantine/core';
+import { Title, Text, Stack, Image } from '@mantine/core';
 import { useRecipe } from '@api/recipe/recipe-fetcher'; // Adjusted alias mapping for Vite src layouts
 import { useApiContext } from '@api/ApiContext';
 import RecipeTable from '@components/recipe/RecipeTable';
@@ -8,8 +8,7 @@ export default function RecipePage() {
   const { data: recipes, isLoading } = useRecipe(httpGet);
 
   return (
-    <Container size="xl" py="md">
-      <Stack gap="xl">
+    <Stack gap="xl">
         
         {/* Page Typography Header */}
         <Stack gap={4}>
@@ -36,7 +35,6 @@ export default function RecipePage() {
           fallbackSrc="https://placehold.co" // Graceful image error fallback loading track
         />
 
-      </Stack>
-    </Container>
+    </Stack>
   );
 }

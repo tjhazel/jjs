@@ -4,7 +4,9 @@ import { createBrowserRouter } from "react-router";
 // Layout & Route Guards
 import { ProtectedRoute } from "@lib/auth/protectedRoute";
 import { DashboardLayout } from "@components/layout/DashboardLayout";
+import { PublicPageLayout } from "@components/layout/PublicPageLayout";
 import { AdminLayout } from "@components/layout/AdminLayout";
+import { AdminPageLayout } from "@components/layout/AdminPageLayout";
 
 // Public Pages
 import LoginPage from "@pages/login";
@@ -40,46 +42,22 @@ export const router = createBrowserRouter([
     path: "/", 
     element: <DashboardLayout />,
     children: [
-      // ─── 1. PUBLIC INDEX ROUTE ───
+      // ─── 1 & 2. PUBLIC PAGES (consistent padding via PublicPageLayout) ───
       {
-        index: true, // This will cleanly capture both instances
-        element: <DashboardPage />,
+        element: <PublicPageLayout />,
+        children: [
+          { index: true, element: <DashboardPage /> },
+          { path: "unauthorized", element: <UnauthorizedPage /> },
+          { path: "album", element: <AlbumPage /> },
+          { path: "article/post/:id", loader: articleLoader, element: <ArticleView /> },
+          { path: "article", element: <ArticlePage /> },
+          { path: "recipe/:id", loader: recipeLoader, element: <RecipeView /> },
+          { path: "recipe", element: <RecipePage /> },
+        ],
       },
-      // ─── 2. PUBLIC UTILITY PAGES ───
-      {
-        path: "login",
-        element: <LoginPage />,
-      },
-      {
-        path: "unauthorized",
-        element: <UnauthorizedPage />,
-      },
-      {
-        path: "about",
-        element: <AboutPage />,
-      },
-      {
-        path: "album",
-        element: <AlbumPage />,
-      },
-      {
-        path: "article/post/:id",
-        loader: articleLoader,
-        element: <ArticleView />,
-      },
-      {
-        path: "article",
-        element: <ArticlePage />,
-      },
-      {
-        path: "recipe/:id",
-        loader: recipeLoader,
-        element: <RecipeView />,
-      },
-      {
-        path: "recipe",
-        element: <RecipePage />,
-      },
+      // These pages manage their own full-page layout
+      { path: "login", element: <LoginPage /> },
+      { path: "about", element: <AboutPage /> },
       // ─── 3. PROTECTED SUBSYSTEM ───
       {
         element: <ProtectedRoute requiredRoles={["Admin"]} />,
@@ -87,12 +65,17 @@ export const router = createBrowserRouter([
           {
             element: <AdminLayout />,
             children: [
-              { path: "admin", element: <AdminPage /> },
-              { path: "admin/recipe/:id", loader: editRecipeLoader, element: <EditRecipePage /> },
-              { path: "admin/recipes", element: <ManageRecipesPage /> },
-              { path: "admin/post/new", loader: () => ({ id: null, isNew: true }), element: <EditArticlePage /> },
-              { path: "admin/article/:id", loader: editArticleLoader, element: <EditArticlePage /> },
-              { path: "admin/articles", element: <ManageArticlesPage /> },
+              {
+                element: <AdminPageLayout />,
+                children: [
+                  { path: "admin", element: <AdminPage /> },
+                  { path: "admin/recipe/:id", loader: editRecipeLoader, element: <EditRecipePage /> },
+                  { path: "admin/recipes", element: <ManageRecipesPage /> },
+                  { path: "admin/post/new", loader: () => ({ id: null, isNew: true }), element: <EditArticlePage /> },
+                  { path: "admin/article/:id", loader: editArticleLoader, element: <EditArticlePage /> },
+                  { path: "admin/articles", element: <ManageArticlesPage /> },
+                ],
+              },
             ]
           }
         ],

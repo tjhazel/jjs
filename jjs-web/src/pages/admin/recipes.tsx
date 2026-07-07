@@ -11,7 +11,7 @@ export default function ManageRecipesPage() {
   const { data: recipes, error, isLoading } = useRecipe(httpGet);
 
   return (
-    <Stack gap="sm" pt="xs">
+    <Stack gap="sm">
         {/* Responsive Dashboard Control Banner Header */}
         <Group justify="space-between" align="center">
           <Stack gap={2}>

@@ -11,7 +11,7 @@ export default function ManageArticlesPage() {
    const { data: posts, error, isLoading } = useAllPosts(httpGet);
 
   return (
-     <Stack gap="sm" pt="xs">
+     <Stack gap="sm">
         
         {/* Dynamic Action Header Utility Block */}
         <Group justify="space-between" align="center">
