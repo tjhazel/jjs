@@ -11,13 +11,13 @@ export default function ManageArticlesPage() {
    const { data: posts, error, isLoading } = useAllPosts(httpGet);
 
   return (
-    <Container size="xl" py="md">
-      <Stack gap="xl">
+     <Container size="xl" py="xs">
+      <Stack gap="sm">
         
         {/* Dynamic Action Header Utility Block */}
         <Group justify="space-between" align="center">
           <Stack gap={2}>
-            <Title order={1} size="h2" fw={600} lh="sm" c="dark.9">
+            <Title order={1} size="h3" fw={600} lh="sm" c="dark.9">
               Articles
             </Title>
             <Text size="xs" c="dimmed">

@@ -6,18 +6,19 @@ import {AdminHeader} from './AdminHeader';
 import classes from './AdminLayout.module.css';
 
 export function AdminLayout() {
-   const [opened, { toggle }] = useDisclosure();
+   const [opened, { toggle, close }] = useDisclosure();
    const navigate = useNavigate();
    const location = useLocation();
+
+   const navTo = (path: string) => { navigate(path); close(); };
 
    return (
       <AppShell
          header={{ height: 44 }}
          navbar={{ width: 250, breakpoint: 'sm', collapsed: { mobile: !opened } }}
          footer={{ height: { base: 0, sm: 44 } }}
-         padding="md"
+         padding="xs"
       >
-
          <AppShell.Header style={{ backgroundColor: 'var(--mantine-color-dark-8)', borderBottom: '1px solid var(--mantine-color-dark-6)' }}>
             <AdminHeader navOpened={opened} onNavToggle={toggle} />
          </AppShell.Header>
@@ -28,17 +29,17 @@ export function AdminLayout() {
             <NavLink
                label="Admin Dashboard"
                active={location.pathname === "/admin"}
-               onClick={() => navigate("/admin")}
+               onClick={() => navTo("/admin")}
             />
             <NavLink
                label="Article Administration"
                active={location.pathname.includes("/admin/article")}
-               onClick={() => navigate("/admin/articles")}
+               onClick={() => navTo("/admin/articles")}
             />
             <NavLink
                label="Recipe Administration"
                active={location.pathname.includes("/admin/recipe")}
-               onClick={() => navigate("/admin/recipes")}
+               onClick={() => navTo("/admin/recipes")}
             />
             <hr />
             <CategorySelector selectedCategory={null} onCategoryChange={() => { }} />
