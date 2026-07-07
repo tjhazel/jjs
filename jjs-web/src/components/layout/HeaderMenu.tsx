@@ -112,7 +112,7 @@ export function HeaderMenu() {
        <header className={classes.header}>
          <Container size="xl" h="100%">
             <div className={classes.inner}>
-            <Image h={30} w="auto" fit="contain" alt="Logo" src="/images/logopig-sm.png" />
+            <Image h={30} w="auto" fit="contain" alt="Logo" src="/images/logojjs.png" />
             <Group gap={5} visibleFrom="sm">
                {items}
             </Group>

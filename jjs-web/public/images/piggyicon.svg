@@ -1,0 +1,60 @@
+<svg xmlns="http://w3.org" viewBox="0 0 1000 812" width="100%" height="100%">
+  <!-- Definitions for reused elements and styling -->
+  <defs>
+    <!-- Soft watercolor-like texture pattern for the pig's body -->
+    <filter id="pigTexture" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.07 0" in="noise" result="coloredNoise" />
+      <feComposite operator="in" in2="SourceGraphic" />
+      <feBlend mode="multiply" in="SourceGraphic" in2="coloredNoise" />
+    </filter>
+
+    <!-- Main styling for line weights and colors -->
+    <style>
+      .outline-heavy { stroke: #0f0d0e; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; }
+      .outline-medium { stroke: #0f0d0e; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+      .pig-skin { fill: #f9b6b6; }
+      .pig-inner-ear { fill: #e59194; }
+      .pig-snout { fill: #f3979b; }
+      .eye-color { fill: #2c292a; }
+    </style>
+  </defs>
+
+  <!-- Group containing the entire pig, trimmed of the original image's outer black backdrop -->
+  <g id="pig">
+    
+    <!-- Tail (Drawn first to layered naturally underneath the body outline) -->
+    <path class="pig-skin outline-heavy" d="M 122,274 C 95,250 63,220 46,180 C 25,130 40,95 72,110 C 95,120 85,160 62,155 C 50,152 48,135 58,130" fill="none" />
+
+    <!-- Back Legs (Layered behind the main body shape) -->
+    <!-- Back Left Leg -->
+    <path class="pig-skin outline-medium" d="M 175,540 C 185,630 195,720 220,740 C 235,750 250,740 255,710 C 260,740 275,750 288,735 C 295,710 290,640 290,550" />
+    
+    <!-- Front Left Leg -->
+    <path class="pig-skin outline-medium" d="M 540,590 C 555,650 575,730 600,755 C 615,765 632,755 640,730 C 648,755 665,765 680,745 C 695,720 690,660 682,560" />
+
+    <!-- Main Body and Head Base Shape -->
+    <path class="pig-skin outline-heavy" filter="url(#pigTexture)" d="M 280,730 C 220,725 180,680 155,540 C 115,480 75,370 120,240 C 170,100 370,40 590,40 C 760,40 850,100 890,160 C 930,220 860,340 890,380 C 905,400 890,455 860,480 C 800,530 760,560 675,565 C 600,570 410,550 370,555 C 360,610 365,685 360,735 C 355,750 340,755 330,740 C 320,755 305,750 298,735 Z" />
+
+    <!-- Inner ear detail and Ear outline -->
+    <g id="ear">
+      <path class="pig-inner-ear outline-medium" d="M 780,120 C 795,70 835,35 880,25 C 910,20 920,45 915,75 C 905,120 865,160 815,175 Z" />
+      <path class="outline-heavy" d="M 770,128 C 790,65 835,25 885,20 C 925,15 935,45 925,85 C 910,140 860,185 810,195" fill="none" />
+    </g>
+
+    <!-- Eye -->
+    <ellipse class="eye-color" cx="745" cy="255" rx="16" ry="24" transform="rotate(5, 745, 255)" />
+
+    <!-- Smile -->
+    <path class="outline-heavy" d="M 748,460 C 760,520 815,585 845,580" fill="none" />
+
+    <!-- Snout / Nose Structure -->
+    <g id="snout">
+      <!-- Snout Base Pink Oval -->
+      <ellipse class="pig-snout outline-heavy" cx="935" cy="405" rx="42" ry="68" transform="rotate(-5, 935, 405)" />
+      <!-- Inner Nostril Line -->
+      <ellipse class="pig-snout outline-medium" cx="936" cy="405" rx="14" ry="34" transform="rotate(-3, 936, 405)" />
+    </g>
+
+  </g>
+</svg>
