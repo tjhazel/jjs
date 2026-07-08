@@ -16,8 +16,9 @@ public class ImageMatchService(IAlbumService albumService) : IImageMatchService
       var rng = new Random();
       var usedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var rawPhotos = (await _albumService.GetFlatList()).Values.ToArray();
+      var postsList = posts.ToList();
 
-      // Tokenize every image once up front — avoids repeating 4 regex ops per image per post.
+      // Tokenize every image once up front — avoids repeating regex ops per image per post.
       var photos = rawPhotos
          .Select(img => new TokenizedPhoto(
             img,
@@ -27,6 +28,40 @@ public class ImageMatchService(IAlbumService albumService) : IImageMatchService
                                          .ToHashSet(StringComparer.OrdinalIgnoreCase)
          ))
          .ToArray();
+
+      // Phase 1: reserve title-match images before scoring or fallback can steal them.
+      // Only the inverse direction is used here: all image-name tokens must appear in the post title.
+      // The forward direction (all title tokens ⊆ image name) is too permissive — a post titled
+      // "Snorkeling" would steal "Mudslides snorkeling pinguinos.jpg" — so it lives in Phase 2 as
+      // a score bonus instead. Among qualifying images, the one with the most name tokens wins so
+      // "mudslides snorkeling pinguinos" beats a bare "pinguinos" image for the same title.
+      var needsScoring = new List<(PostViewModel post, HashSet<string> title, HashSet<string> preview)>();
+      foreach (var post in postsList)
+      {
+         var postTitle   = Tokenize(post.Title);
+         var postPreview = Tokenize(post.PreviewText);
+
+         if (postTitle.Count > 0)
+         {
+            var match = photos
+               .Where(p => !usedPaths.Contains(p.File.HttpPath)
+                        && p.Name.Count > 0
+                        && p.Name.IsSubsetOf(postTitle))
+               .OrderByDescending(p => p.Name.Count)
+               .FirstOrDefault();
+
+            if (match is not null)
+            {
+               post.ImageUrl = match.File.HttpPath;
+               usedPaths.Add(match.File.HttpPath);
+               continue;
+            }
+         }
+
+         needsScoring.Add((post, postTitle, postPreview));
+      }
+
+      if (needsScoring.Count == 0) return;
 
       // Reverse index: token → photo indices. Lets each post skip photos with zero token overlap.
       var tokenIndex = new Dictionary<string, List<int>>(StringComparer.OrdinalIgnoreCase);
@@ -38,11 +73,10 @@ public class ImageMatchService(IAlbumService albumService) : IImageMatchService
             bucket.Add(i);
          }
 
-      foreach (var post in posts)
+      // Phase 2: score remaining posts.
+      foreach (var (post, postTitle, postPreview) in needsScoring)
       {
-         var postTitle   = Tokenize(post.Title);
-         var postPreview = Tokenize(post.PreviewText);
-         var postDate    = post.ReleaseDate ?? post.CreatedDate;
+         var postDate = post.ReleaseDate ?? post.CreatedDate;
 
          // Gather candidates: images sharing at least one token with this post.
          var candidateIdx = new HashSet<int>();
@@ -56,30 +90,6 @@ public class ImageMatchService(IAlbumService albumService) : IImageMatchService
                if (Math.Abs((photos[i].File.CreatedOn - postDate.Value).TotalDays) <= 60)
                   candidateIdx.Add(i);
 
-         // Title-match shortcut: filename ⊇ title tokens OR filename ⊆ title tokens (non-empty).
-         File? titleMatch = null;
-         if (postTitle.Count > 0)
-         {
-            foreach (var idx in candidateIdx)
-            {
-               if (usedPaths.Contains(photos[idx].File.HttpPath)) continue;
-               var name = photos[idx].Name;
-               if (postTitle.IsSubsetOf(name) || (name.Count > 0 && name.IsSubsetOf(postTitle)))
-               {
-                  titleMatch = photos[idx].File;
-                  break;
-               }
-            }
-         }
-
-         if (titleMatch is not null)
-         {
-            post.ImageUrl = titleMatch.HttpPath;
-            usedPaths.Add(titleMatch.HttpPath);
-            continue;
-         }
-
-         // Score only the candidate subset.
          var bestIdx   = -1;
          var bestScore = 14; // threshold is >= 15
          foreach (var idx in candidateIdx)
@@ -130,6 +140,10 @@ public class ImageMatchService(IAlbumService albumService) : IImageMatchService
       score += img.Name.Sum(t => postTitle.Contains(t)   ? t.Length * t.Length * 2 : 0);
       score += img.Name.Sum(t => postPreview.Contains(t) ? t.Length * t.Length : 0);
 
+      // All post title tokens appear in the filename — forward title match bonus
+      if (postTitle.Count > 0 && postTitle.IsSubsetOf(img.Name))
+         score += 500;
+
       // Date proximity bonus
       if (postDate.HasValue)
       {
@@ -155,10 +169,12 @@ public class ImageMatchService(IAlbumService albumService) : IImageMatchService
 
    private static HashSet<string> Tokenize(string? input)
    {
-      if (string.IsNullOrWhiteSpace(input)) return [];
+      if (string.IsNullOrWhiteSpace(input)) return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var expanded = _camelSplit.Replace(input, " ");
-      return [.. Regex.Split(expanded, @"[^a-zA-Z0-9]+")
-         .Where(t => t.Length >= 3 && !_stopWords.Contains(t))];
+      return new HashSet<string>(
+         Regex.Split(expanded, @"[^a-zA-Z0-9]+")
+              .Where(t => t.Length >= 3 && !_stopWords.Contains(t)),
+         StringComparer.OrdinalIgnoreCase);
    }
 
    private static IEnumerable<string> FolderTags(string relativePath) =>
