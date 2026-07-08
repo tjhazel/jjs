@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs  } from 'react-router'; // 👉 Import useLoaderData hook
 import MarkdownViewer from '@components/ui/MarkdownViewer';
+import CommentList from '@components/comment/CommentList';
 import { Container, Button, Title, Text, Group, Divider, Center, Loader, Stack } from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { usePosts, viewPost } from '@api/post/post-fetcher';
@@ -115,6 +116,15 @@ export default function PostView() {
         <div className={classes.prose}>
           <MarkdownViewer>{post.body}</MarkdownViewer>
         </div>
+
+        {/* Comments */}
+        {post.commentsEnabled && post.postId && (
+          <Stack gap="md">
+            <Divider />
+            <Title order={3} fw={600}>Comments</Title>
+            <CommentList postId={post.postId} />
+          </Stack>
+        )}
 
       </Stack>
     </Container>
