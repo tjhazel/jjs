@@ -34,7 +34,7 @@ export function DashboardLayout() {
         mt="xl" 
         style={{ borderTop: '1px solid var(--mantine-color-gray-2)' }}
       >
-        {/* 👉 Wrapped in a matching container size="xl" to lock symmetrical alignment with your main articles */}
+        {/* 👉 Wrapped in a matching container size="xl" to lock symmetrical alignment with your main posts */}
         <Container size="xl" py="md">
           <Group justify="space-between">
             <Text size="sm" c="dimmed">

@@ -1,4 +1,4 @@
-import { useSearchParams, useNavigate } from "react-router"; 
+import { useSearchParams, useNavigate } from "react-router";
 import { useApiContext } from "@api/ApiContext";
 import { useAlbumByPath } from "@api/album/album-fetcher";
 import { IMAGE_PREFIX } from "@api/album/album-models";
@@ -16,7 +16,7 @@ import {
    Group
 } from "@mantine/core";
 
-export default function ArticlePage() {
+export default function PostPage() {
    const { httpGet } = useApiContext();
    const [searchParams] = useSearchParams();
    const navigate = useNavigate();
@@ -149,7 +149,7 @@ export default function ArticlePage() {
                               style={{
                                  transition: "transform 200ms ease",
                               }}
-                              // Utilize native mouse handling to cleanly drive micro-animations 
+                              // Utilize native mouse handling to cleanly drive micro-animations
                               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
                               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
                            />

@@ -5,14 +5,14 @@ import { IconChevronUp, IconChevronDown, IconSelector } from '@tabler/icons-reac
 import { formatDate } from '@lib/time.functions';
 import type { PostDetail } from '@api/post/post';
 
-interface ManageArticlesProps {
+interface ManagePostsProps {
   posts: PostDetail[] | undefined;
   isLoading: boolean;
 }
 
 type SortKey = 'title' | 'approved' | 'viewCount' | 'createdDate';
 
-export default function ManageArticles({ posts, isLoading }: ManageArticlesProps) {
+export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState<SortKey | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
@@ -96,14 +96,14 @@ export default function ManageArticles({ posts, isLoading }: ManageArticlesProps
           </Table.Thead>
           <Table.Tbody>
             {paginatedData.map((post) => (
-              <Table.Tr key={post.postId} style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/article/${post.postId}`)}>
+              <Table.Tr key={post.postId} style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/post/${post.postId}`)}>
                 <Table.Td><Text size="sm" truncate fw={500}>{post.title}</Text></Table.Td>
                 <Table.Td><Text size="sm" truncate c="gray.6">{post.categories?.join(', ') || '—'}</Text></Table.Td>
                 <Table.Td><Badge color={post.approved ? 'green' : 'gray'} radius="none" variant="light">{post.approved ? 'Approved' : 'Draft'}</Badge></Table.Td>
                 <Table.Td><Text size="sm">{post.viewCount.toLocaleString()}</Text></Table.Td>
                 <Table.Td><Text size="sm">{formatDate(post.createdDate)}</Text></Table.Td>
                 <Table.Td onClick={(e) => e.stopPropagation()}>
-                  <Button variant="default" size="xs" radius="none" onClick={() => navigate(`/admin/article/${post.postId}`)}>Edit</Button>
+                  <Button variant="default" size="xs" radius="none" onClick={() => navigate(`/admin/post/${post.postId}`)}>Edit</Button>
                 </Table.Td>
               </Table.Tr>
             ))}
@@ -114,7 +114,7 @@ export default function ManageArticles({ posts, isLoading }: ManageArticlesProps
       {/* Mobile Stack View Frame */}
       <Stack gap="sm" hiddenFrom="sm">
         {paginatedData.map((post) => (
-          <Card key={post.postId} withBorder padding="md" radius="none" style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/article/${post.postId}`)}>
+          <Card key={post.postId} withBorder padding="md" radius="none" style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/post/${post.postId}`)}>
             <Text fw={600} size="md" c="dark.9" mb="xs">{post.title}</Text>
             <Stack gap={4}>
               <Text size="sm" c="gray.7"><strong>Categories:</strong> {post.categories?.join(', ') || '—'}</Text>

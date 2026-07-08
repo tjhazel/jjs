@@ -2,11 +2,11 @@ import { SimpleGrid } from '@mantine/core';
 import ImageCard from '@components/ui/ImageCard';
 import type { PostDetail } from '../../api/post/post';
 
-interface ArticleListProps {
+interface PostListProps {
   posts: PostDetail[] | undefined;
 }
 
-export default function ArticleList({ posts }: ArticleListProps) {
+export default function PostList({ posts }: PostListProps) {
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="xl">
       {posts?.map((post) => (
@@ -17,7 +17,7 @@ export default function ArticleList({ posts }: ArticleListProps) {
           previewLines={3}
           timestamp={new Date(post.createdDate)}
           imageUrl={post.imageUrl}
-          link={`/article/post/${post.postId}`}
+          link={`/post/${post.postId}`}
           footerText="Read more →"
         />
       ))}

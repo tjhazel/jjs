@@ -5,14 +5,14 @@ import { Container, Button, Title, Text, Group, Divider, Center, Loader, Stack }
 import { IconArrowLeft } from '@tabler/icons-react';
 import { usePosts, viewPost } from '@api/post/post-fetcher';
 import { useApiContext } from '@api/ApiContext';
-import classes from './ArticleView.module.css';
+import classes from './PostView.module.css';
 
 // 🟢 1. EXPORT THE LOADER FROM HERE
-export const articleLoader = async ({ params }: LoaderFunctionArgs) => {
+export const postLoader = async ({ params }: LoaderFunctionArgs) => {
   const idStr = params.id; // Matches the ":id" segment in your route path
-  
+
   if (!idStr) {
-    throw new Response("Missing Article Identifier", { status: 400 });
+    throw new Response("Missing Post Identifier", { status: 400 });
   }
 
   const parsedId = parseInt(idStr, 10);
@@ -23,7 +23,7 @@ export const articleLoader = async ({ params }: LoaderFunctionArgs) => {
   return { id: parsedId };
 };
 
-export default function ArticleView() {
+export default function PostView() {
   const navigate = useNavigate();
   const { httpGet, httpPatch } = useApiContext();
   const { data: posts } = usePosts(httpGet);
@@ -31,15 +31,15 @@ export default function ArticleView() {
   // 👉 Pull parsed id state directly out of the route data layer
   const { id } = useLoaderData() as { id: number };
 
-  const article = posts?.find((y) => y.postId === id);
+  const post = posts?.find((y) => y.postId === id);
 
   const viewTracked = useRef(false);
   useEffect(() => {
-    if (article?.postId && !viewTracked.current) {
+    if (post?.postId && !viewTracked.current) {
       viewTracked.current = true;
-      viewPost(httpPatch, article.postId);
+      viewPost(httpPatch, post.postId);
     }
-  }, [article?.postId]);
+  }, [post?.postId]);
 
   // 1. Handle Initial Loading State
   if (!posts) {
@@ -47,22 +47,22 @@ export default function ArticleView() {
       <Center py={64}>
         <Group gap="sm">
           <Loader size="sm" type="dots" />
-          <Text c="dimmed">Loading article...</Text>
+          <Text c="dimmed">Loading post...</Text>
         </Group>
       </Center>
     );
   }
 
-  // 2. Handle Missing/Not Found Article State
-  if (!article) {
+  // 2. Handle Missing/Not Found Post State
+  if (!post) {
     return (
       <Center py={64}>
         <Stack align="center" gap="md">
-          <Text c="dimmed">Article not found.</Text>
-          <Button 
-            onClick={() => navigate(-1)} 
-            variant="filled" 
-            color="dark" 
+          <Text c="dimmed">Post not found.</Text>
+          <Button
+            onClick={() => navigate(-1)}
+            variant="filled"
+            color="dark"
             radius="none"
           >
             Go Back
@@ -76,7 +76,7 @@ export default function ArticleView() {
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
-        
+
         {/* Header Block */}
         <Stack gap="sm">
           <Group>
@@ -93,27 +93,27 @@ export default function ArticleView() {
           </Group>
 
           <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">
-            {article.title}
+            {post.title}
           </Title>
 
           <Group gap="lg" c="gray.6">
             <Text size="sm">
-              <strong>By</strong> {article.createdBy}
+              <strong>By</strong> {post.createdBy}
             </Text>
             <Text size="sm">
-              <strong>On</strong> {new Date(article.createdDate).toLocaleDateString()}
+              <strong>On</strong> {new Date(post.createdDate).toLocaleDateString()}
             </Text>
             <Text size="sm">
-              <strong>Views</strong> {article.viewCount || 0}
+              <strong>Views</strong> {post.viewCount || 0}
             </Text>
           </Group>
-          
+
           <Divider mt="xs" />
         </Stack>
 
         {/* Markdown Content Area */}
         <div className={classes.prose}>
-          <MarkdownViewer>{article.body}</MarkdownViewer>
+          <MarkdownViewer>{post.body}</MarkdownViewer>
         </div>
 
       </Stack>

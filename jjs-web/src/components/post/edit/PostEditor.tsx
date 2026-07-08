@@ -3,13 +3,13 @@ import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { DateInput } from '@mantine/dates';
 import { TextInput, Textarea, Card, Title, Text, Stack, SimpleGrid, Grid, Checkbox, Switch, Group, Button, Box, Divider } from '@mantine/core';
-import { articleSchema, DEFAULT_POST, type FormValues } from '@api/post/articleSchema';
+import { postSchema, DEFAULT_POST, type FormValues } from '@api/post/postSchema';
 import type { PostDetail } from '@api/post/post';
 import type { Category } from '@api/post/category';
 import { formatDate } from '@lib/time.functions';
 import MarkdownEditor from '@components/ui/form/MarkdownEditor';
 
-interface ArticleEditorProps {
+interface PostEditorProps {
   post?: PostDetail;
   categories: Category[];
   isSaving?: boolean;
@@ -18,11 +18,11 @@ interface ArticleEditorProps {
 }
 
 
-export default function ArticleEditor({ post, categories = [], isSaving = false, onSave, onCancel }: ArticleEditorProps) {
+export default function PostEditor({ post, categories = [], isSaving = false, onSave, onCancel }: PostEditorProps) {
    const form = useForm<FormValues>({
     mode: 'uncontrolled',
     initialValues: DEFAULT_POST,
-     validate: zod4Resolver(articleSchema),
+     validate: zod4Resolver(postSchema),
   });
 
   useEffect(() => {
@@ -123,7 +123,7 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
            {categories.length > 0 && (
               <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
                  <Stack gap="md">
-                    {/* 
+                    {/*
         FIX: Avoid spreading directly in an uncontrolled conditional block.
         Explicitly read values and bind change handlers via form.setFieldValue.
       */}
@@ -139,7 +139,7 @@ export default function ArticleEditor({ post, categories = [], isSaving = false,
                                 // FIX 2: Convert number ID to string so Mantine's group can track selection states
                                 value={String(cat.categoryId)}
                                 label={cat.title}
-                                radius="none" 
+                                radius="none"
                              />
                           ))}
                        </Group>

@@ -3,7 +3,7 @@ import { Carousel } from '@mantine/carousel';
 import { useApiContext } from '@api/ApiContext';
 import { useCarouselImages } from '@api/album/image-fetcher';
 import { usePosts } from '@api/post/post-fetcher';
-import ArticleList from '@components/article/ArticleList';
+import PostList from '@components/post/PostList';
 //import { Category_Home } from '@api/post/category';
 
 function DashboardPage() {
@@ -65,7 +65,7 @@ function DashboardPage() {
               </Center>
            }
            {!isLoading &&
-              <ArticleList posts={homePosts} />
+              <PostList posts={homePosts} />
            }
       </Box>
     </>

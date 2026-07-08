@@ -23,7 +23,7 @@ export default function AdminPage() {
   };
 
   const placeholderCards = [
-    { id: 1, title: "Posts",   description: "Edit all posts",   link: "/admin/articles" },
+    { id: 1, title: "Posts",   description: "Edit all posts",   link: "/admin/posts" },
     { id: 2, title: "Recipes", description: "Edit all recipes", link: "/admin/recipes"  },
   ];
 

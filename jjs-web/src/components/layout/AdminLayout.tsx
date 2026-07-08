@@ -1,7 +1,7 @@
 import { AppShell, Group, Text, NavLink } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, useNavigate, useLocation } from 'react-router';
-import CategorySelector from '../article/CategorySelector';
+import CategorySelector from '../post/CategorySelector';
 import {AdminHeader} from './AdminHeader';
 import classes from './AdminLayout.module.css';
 
@@ -31,9 +31,9 @@ export function AdminLayout() {
                onClick={() => navTo("/admin")}
             />
             <NavLink
-               label="Article Administration"
-               active={location.pathname.includes("/admin/article")}
-               onClick={() => navTo("/admin/articles")}
+               label="Post Administration"
+               active={location.pathname.includes("/admin/post")}
+               onClick={() => navTo("/admin/posts")}
             />
             <NavLink
                label="Recipe Administration"

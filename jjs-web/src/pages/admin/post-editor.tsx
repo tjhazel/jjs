@@ -5,11 +5,11 @@ import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
 import { useAllPosts, savePost } from '@api/post/post-fetcher';
 import { useCategories } from '@api/post/category-fetcher';
 import { useApiContext } from '@api/ApiContext';
-import ArticleEditor from '@components/article/edit/ArticleEditor';
+import PostEditor from '@components/post/edit/PostEditor';
 import type { PostDetail } from '@api/post/post';
 
 // 🟢 1. EXPORT THE LOADER INTERCEPTOR FROM HERE
-export const editArticleLoader = async ({ params }: LoaderFunctionArgs) => {
+export const editPostLoader = async ({ params }: LoaderFunctionArgs) => {
   const idParam = params.id;
   if (!idParam) {
     throw new Response("Missing Parameter Target Identifier", { status: 400 });
@@ -28,7 +28,7 @@ export const editArticleLoader = async ({ params }: LoaderFunctionArgs) => {
 };
 
 // 🟢 2. THE EDITING WRAPPER ROUTE COMPONENT
-export default function EditArticlePage() {
+export default function EditPostPage() {
   const navigate = useNavigate();
   const { httpGet, httpPost } = useApiContext();
    const { data: posts, isLoading, error } = useAllPosts(httpGet);
@@ -40,7 +40,7 @@ export default function EditArticlePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const article = isNew ? undefined : posts?.find((p) => p.postId === id);
+  const post = isNew ? undefined : posts?.find((p) => p.postId === id);
 
   const handleSave = async (formData: PostDetail) => {
     setIsSaving(true);
@@ -51,7 +51,7 @@ export default function EditArticlePage() {
       if (isNew) {
         console.log('Sending creation payload to database:', formData);
       } else {
-        console.log(`Sending updates for article ID ${id}:`, formData);
+        console.log(`Sending updates for post ID ${id}:`, formData);
        }
        await savePost(httpPost, formData);
       navigate('/admin');
@@ -63,14 +63,14 @@ export default function EditArticlePage() {
   };
 
    const showLoading = !isNew && (isLoading || isLoadingCategories);
-  const articleNotFound = !isNew && !isLoading && !article;
+  const postNotFound = !isNew && !isLoading && !post;
 
    if (showLoading) {
       return (
          <Center py="xl">
             <Group gap="sm">
                <Loader size="sm" type="dots" />
-               <Text c="dimmed">Loading articles...</Text>
+               <Text c="dimmed">Loading posts...</Text>
             </Group>
          </Center>
       );
@@ -87,29 +87,29 @@ export default function EditArticlePage() {
               onClick={() => navigate('/admin')}
               styles={{ root: { paddingLeft: 0 } }}
             >
-              Back to Articles
+              Back to Posts
             </Button>
           </Group>
-          
+
           <Title order={1} size="h2" fw={600} lh="sm" c="dark.9">
-            {isNew ? 'Create New Article' : 'Edit Article'}
+            {isNew ? 'Create New Post' : 'Edit Post'}
           </Title>
           <Text size="xs" c="dimmed">
-            {isNew ? 'Configure content parameters to publish a new page.' : `Modifying parameters for Article reference #${id}`}
+            {isNew ? 'Configure content parameters to publish a new page.' : `Modifying parameters for Post reference #${id}`}
           </Text>
         </Stack>
 
-        {(error || saveError || articleNotFound) && (
+        {(error || saveError || postNotFound) && (
           <Alert variant="light" color="red" title="Administrative Warning Alert" icon={<IconAlertCircle size={16} />} radius="none">
-            {articleNotFound && "The requested article reference details could not be found."}
+            {postNotFound && "The requested post reference details could not be found."}
             {saveError && saveError}
-            {error && "Failed to coordinate current article collection rows with the database server backend."}
+            {error && "Failed to coordinate current post collection rows with the database server backend."}
           </Alert>
         )}
 
-        {!articleNotFound && (
-          <ArticleEditor
-            post={article}
+        {!postNotFound && (
+          <PostEditor
+            post={post}
             categories={categories}
             isSaving={isSaving}
             onSave={handleSave}

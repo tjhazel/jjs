@@ -12,8 +12,8 @@ import { AdminPageLayout } from "@components/layout/AdminPageLayout";
 import LoginPage from "@pages/login";
 import AboutPage from "@pages/about";
 import AlbumPage from "@pages/album";
-import ArticleView, { articleLoader }  from "@pages/article/ArticleView";
-import ArticlePage from "@pages/article/article";
+import PostView, { postLoader }  from "@pages/post/PostView";
+import PostPage from "@pages/post/post";
 import RecipePage from "@pages/recipe/recipe";
 import RecipeView, { recipeLoader } from "@pages/recipe/RecipeView";
 import UnauthorizedPage from "@pages/unauthorized";
@@ -21,8 +21,8 @@ import UnauthorizedPage from "@pages/unauthorized";
 // Core Pages
 import DashboardPage from "@pages/dashboard"; // Public index page now
 import AdminPage from "@pages/admin/main";     // 👉 IMPORTED NEW ADMIN HUB PAGE
-import ManageArticlesPage from "@pages/admin/articles";
-import EditArticlePage, { editArticleLoader } from "@pages/admin/article-editor";
+import ManagePostsPage from "@pages/admin/posts";
+import EditPostPage, { editPostLoader } from "@pages/admin/post-editor";
 
 import ManageRecipesPage from '@pages/admin/recipes';
 import EditRecipePage, { editRecipeLoader } from '@pages/admin/recipe-editor';
@@ -49,8 +49,8 @@ export const router = createBrowserRouter([
           { index: true, element: <DashboardPage /> },
           { path: "unauthorized", element: <UnauthorizedPage /> },
           { path: "album", element: <AlbumPage /> },
-          { path: "article/post/:id", loader: articleLoader, element: <ArticleView /> },
-          { path: "article", element: <ArticlePage /> },
+          { path: "post/:id", loader: postLoader, element: <PostView /> },
+          { path: "post", element: <PostPage /> },
           { path: "recipe/:id", loader: recipeLoader, element: <RecipeView /> },
           { path: "recipe", element: <RecipePage /> },
         ],
@@ -71,9 +71,9 @@ export const router = createBrowserRouter([
                   { path: "admin", element: <AdminPage /> },
                   { path: "admin/recipe/:id", loader: editRecipeLoader, element: <EditRecipePage /> },
                   { path: "admin/recipes", element: <ManageRecipesPage /> },
-                  { path: "admin/post/new", loader: () => ({ id: null, isNew: true }), element: <EditArticlePage /> },
-                  { path: "admin/article/:id", loader: editArticleLoader, element: <EditArticlePage /> },
-                  { path: "admin/articles", element: <ManageArticlesPage /> },
+                  { path: "admin/post/new", loader: () => ({ id: null, isNew: true }), element: <EditPostPage /> },
+                  { path: "admin/post/:id", loader: editPostLoader, element: <EditPostPage /> },
+                  { path: "admin/posts", element: <ManagePostsPage /> },
                 ],
               },
             ]
