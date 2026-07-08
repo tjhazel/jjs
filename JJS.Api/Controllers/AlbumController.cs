@@ -1,4 +1,5 @@
-﻿using JJS.Api.Models.Album;
+﻿using JJS.Api.Models;
+using JJS.Api.Models.Album;
 using JJS.Api.Services;
 using JJS.Api.Services.Cache;
 using Microsoft.AspNetCore.Authorization;
@@ -27,8 +28,8 @@ public class AlbumController(IAlbumService albumService, ICacheService cacheServ
 
       // Post caches embed resolved image URLs, so they must be invalidated whenever the album changes.
       await Task.WhenAll(
-         _cacheService.Clear("post/public"),
-         _cacheService.Clear("post/all"));
+         _cacheService.Clear(CacheKey.PostAllCacheName),
+         _cacheService.Clear(CacheKey.PostAllCacheName));
 
       var fileCount = CountFiles(folder);
       return Ok(new { fileCount });

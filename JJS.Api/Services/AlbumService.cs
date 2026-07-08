@@ -26,7 +26,6 @@ public class AlbumService(IMetaDataService tagData,
    private readonly string _siteRoot = appConfig.RootPath;
    private readonly string[] _filters = ["*.jpg", "*.png", "*.gif"];
 
-   private const string AlbumCacheName = "album-cache";
    private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = false };
 
    // L1: memory cache → L2: Attachments table → L3: full filesystem scan
@@ -37,7 +36,7 @@ public class AlbumService(IMetaDataService tagData,
 
       try
       {
-         var row = await _attachmentRepository.GetByName(AlbumCacheName);
+         var row = await _attachmentRepository.GetByName(CacheKey.AlbumCacheName);
          if (row?.Content?.Length > 0)
          {
             var folder = JsonSerializer.Deserialize<Folder>(row.Content, _jsonOptions);
@@ -68,8 +67,8 @@ public class AlbumService(IMetaDataService tagData,
          var bytes = JsonSerializer.SerializeToUtf8Bytes(folder, _jsonOptions);
          await _attachmentRepository.Upsert(new Attachment
          {
-            Name     = AlbumCacheName,
-            FileName = "album-cache.json",
+            Name     = CacheKey.AlbumCacheName,
+            FileName = $"{CacheKey.AlbumCacheName}.json",
             FileSize = bytes.Length,
             ContentType = "application/json",
             Content  = bytes

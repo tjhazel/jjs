@@ -20,7 +20,7 @@ public class PostService(
 
    public Task<IEnumerable<PostViewModel>> GetPublic()
    {
-      return GetCachedImages("post/public", isPublic: true);
+      return GetCachedImages(CacheKey.PostPublicCacheName, isPublic: true);
    }
 
    public async Task View(int postId)
@@ -30,7 +30,7 @@ public class PostService(
 
    public Task<IEnumerable<PostViewModel>> GetAll()
    {
-      return GetCachedImages("post/all", isPublic: false);
+      return GetCachedImages(CacheKey.PostAllCacheName, isPublic: false);
    }
 
    private Task<IEnumerable<PostViewModel>> GetCachedImages(string cacheKey, bool isPublic)
