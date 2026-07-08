@@ -17,9 +17,17 @@ public partial class CommentRepository(AppConfig appConfig) : ICommentRepository
       await db.OpenAsync();
       return await db.QueryAsync<Comment>(GetByPost_Sql, new { postId });
    }
+
+   public async Task Add(CommentInput input)
+   {
+      await using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      await db.ExecuteAsync(Add_Sql, input);
+   }
 }
 
 public interface ICommentRepository
 {
    Task<IEnumerable<Comment>> GetByPost(int postId);
+   Task Add(CommentInput input);
 }

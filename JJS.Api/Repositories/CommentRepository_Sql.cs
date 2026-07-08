@@ -14,4 +14,10 @@ public partial class CommentRepository
       order by CreatedDate asc
       ;
       """;
+
+   const string Add_Sql = """
+      insert into Comments (PostFk, Title, EntryText, AuthorName, AuthorEmail, AuthorURL, AuthorIP, CreatedDate)
+      values (@PostFk, @Title, @EntryText, @AuthorName, @AuthorEmail, @AuthorUrl, @AuthorIp, getutcdate())
+      ;
+      """;
 }

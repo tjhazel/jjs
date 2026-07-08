@@ -6,3 +6,8 @@ export interface Comment {
    authorName: string;
    createdDate: string;
 }
+
+export interface NewCommentRequest {
+   title: string;
+   entryText: string;
+}

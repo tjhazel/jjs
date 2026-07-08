@@ -1,6 +1,7 @@
 import { Stack, Title, Text, Divider, Box, Group, Loader, Center } from '@mantine/core';
 import { useComments } from '@api/comment/comment-fetcher';
 import { useApiContext } from '@api/ApiContext';
+import AddCommentForm from './AddCommentForm';
 
 interface CommentListProps {
    postId: number;
@@ -25,26 +26,33 @@ export default function CommentList({ postId }: CommentListProps) {
       return <Text size="sm" c="dimmed">Unable to load comments.</Text>;
    }
 
-   if (!comments || comments.length === 0) {
-      return <Text size="sm" c="dimmed">No comments yet.</Text>;
-   }
-
    return (
-      <Stack gap="lg">
-         {comments.map((comment) => (
-            <Box key={comment.commentId}>
-               <Stack gap={4}>
-                  <Title order={5} fw={600}>{comment.title}</Title>
-                  <Group gap="xs" c="gray.6">
-                     <Text size="sm">{comment.authorName}</Text>
-                     <Text size="sm">·</Text>
-                     <Text size="sm">{new Date(comment.createdDate).toLocaleDateString()}</Text>
-                  </Group>
-                  <Text size="sm" mt={4}>{comment.entryText}</Text>
-               </Stack>
-               <Divider mt="md" />
-            </Box>
-         ))}
+      <Stack gap="xl">
+         {(!comments || comments.length === 0) ? (
+            <Text size="sm" c="dimmed">No comments yet. Be the first!</Text>
+         ) : (
+            <Stack gap="lg">
+               {comments.map((comment) => (
+                  <Box key={comment.commentId}>
+                     <Stack gap={4}>
+                        <Title order={5} fw={600}>{comment.title}</Title>
+                        <Group gap="xs" c="gray.6">
+                           <Text size="sm">{comment.authorName}</Text>
+                           <Text size="sm">·</Text>
+                           <Text size="sm">{new Date(comment.createdDate).toLocaleDateString()}</Text>
+                        </Group>
+                        <Text size="sm" mt={4}>{comment.entryText}</Text>
+                     </Stack>
+                     <Divider mt="md" />
+                  </Box>
+               ))}
+            </Stack>
+         )}
+
+         <Box>
+            <Title order={4} fw={600} mb="sm">Leave a Comment</Title>
+            <AddCommentForm postId={postId} />
+         </Box>
       </Stack>
    );
 }
