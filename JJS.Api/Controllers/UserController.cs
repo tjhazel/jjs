@@ -11,6 +11,22 @@ public class UserController(IUserService userService) : Controller
 {
    private readonly IUserService _userService = userService;
 
+   [HttpGet, Route("[action]")]
+   [Authorize(Roles = "Admin")]
+   public async Task<IActionResult> GetAll()
+   {
+      var users = await _userService.GetAll();
+      return Ok(users);
+   }
+
+   [HttpPatch, Route("[action]")]
+   [Authorize(Roles = "Admin")]
+   public async Task<IActionResult> UnblockUser([FromBody] UnblockUserRequest request)
+   {
+      await _userService.UnblockUser(request.Email);
+      return Ok();
+   }
+
    [HttpPatch, Route("[action]")]
    [Authorize(Roles = "Admin")]
    public async Task<IActionResult> BlockUser([FromBody] BlockUserRequest request)
@@ -29,3 +45,4 @@ public class UserController(IUserService userService) : Controller
 }
 
 public record BlockUserRequest(string Email, string Reason);
+public record UnblockUserRequest(string Email);

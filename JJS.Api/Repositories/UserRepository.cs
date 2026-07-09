@@ -40,6 +40,20 @@ public partial class UserRepository(AppConfig appConfig) : IUserRepository
       await db.OpenAsync();
       await db.ExecuteAsync(BLOCK_USER_SQL, new { email, blockedBy, reason });
    }
+
+   public async Task UnblockUser(string email)
+   {
+      using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      await db.ExecuteAsync(UNBLOCK_USER_SQL, new { email });
+   }
+
+   public async Task<IEnumerable<UserSummary>> GetAll()
+   {
+      using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      return await db.QueryAsync<UserSummary>(GET_ALL_WITH_STATS_SQL);
+   }
 }
 
 public interface IUserRepository
@@ -48,4 +62,6 @@ public interface IUserRepository
    Task<User> Get(string email);
    Task Merge(User user);
    Task BlockUser(string email, string blockedBy, string reason);
+   Task<IEnumerable<UserSummary>> GetAll();
+   Task UnblockUser(string email);
 }

@@ -31,14 +31,19 @@ export function AdminLayout() {
                onClick={() => navTo("/admin")}
             />
             <NavLink
-               label="Post Administration"
+               label="Posts"
                active={location.pathname.includes("/admin/post")}
                onClick={() => navTo("/admin/posts")}
             />
             <NavLink
-               label="Recipe Administration"
+               label="Recipes"
                active={location.pathname.includes("/admin/recipe")}
                onClick={() => navTo("/admin/recipes")}
+            />
+            <NavLink
+               label="Users"
+               active={location.pathname.includes("/admin/user")}
+               onClick={() => navTo("/admin/users")}
             />
             <hr />
             <CategorySelector selectedCategory={null} onCategoryChange={() => { }} />

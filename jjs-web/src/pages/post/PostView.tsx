@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate, useLoaderData, type LoaderFunctionArgs  } from 'react-router'; // 👉 Import useLoaderData hook
+import { useNavigate, useLoaderData, useLocation, type LoaderFunctionArgs  } from 'react-router';
 import MarkdownViewer from '@components/ui/MarkdownViewer';
 import CommentList from '@components/comment/CommentList';
 import { Container, Button, Title, Text, Group, Divider, Center, Loader, Stack } from '@mantine/core';
@@ -26,11 +26,15 @@ export const postLoader = async ({ params }: LoaderFunctionArgs) => {
 
 export default function PostView() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { httpGet, httpPatch } = useApiContext();
   const { data: posts } = usePosts(httpGet);
 
-  // 👉 Pull parsed id state directly out of the route data layer
   const { id } = useLoaderData() as { id: number };
+
+  const highlightCommentId = location.hash.startsWith('#comment-')
+    ? parseInt(location.hash.slice('#comment-'.length), 10) || undefined
+    : undefined;
 
   const post = posts?.find((y) => y.postId === id);
 
@@ -122,7 +126,7 @@ export default function PostView() {
           <Stack gap="md">
             <Divider />
             <Title order={3} fw={600}>Comments</Title>
-            <CommentList postId={post.postId} />
+            <CommentList postId={post.postId} highlightCommentId={highlightCommentId} />
           </Stack>
         )}
 

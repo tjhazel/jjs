@@ -51,6 +51,17 @@ public class UserService(
          await _cacheService.Clear(GetCacheKey(email));
       }
    }
+
+   public async Task<IEnumerable<UserSummary>> GetAll()
+   {
+      return await _userRepository.GetAll();
+   }
+
+   public async Task UnblockUser(string email)
+   {
+      await _userRepository.UnblockUser(email);
+      await _cacheService.Clear(GetCacheKey(email));
+   }
 }
 
 
@@ -60,4 +71,6 @@ public interface IUserService
    Task<User> Get(string email);
    Task Merge(User user);
    Task BlockUser(string email, string currentUserEmail, string blockedBy, string reason);
+   Task<IEnumerable<UserSummary>> GetAll();
+   Task UnblockUser(string email);
 }

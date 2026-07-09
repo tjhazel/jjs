@@ -24,3 +24,11 @@ export interface User {
    blockedDate?: string;
    blockedReason?: string;
 }
+
+export interface UserSummary extends User {
+   commentCount: number;
+   lastCommentDate?: string;
+   lastCommentId?: number;
+   lastCommentPostId?: number;
+   lastCommentPostTitle?: string;
+}

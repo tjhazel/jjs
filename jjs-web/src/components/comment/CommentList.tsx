@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Stack, Title, Text, Divider, Box, Group, Loader, Center, Button } from '@mantine/core';
 import { useComments, hideComment, unhideComment } from '@api/comment/comment-fetcher';
 import { blockUser } from '@api/user/user-fetcher';
@@ -11,14 +11,16 @@ import AddCommentForm from './AddCommentForm';
 
 interface CommentListProps {
    postId: number;
+   highlightCommentId?: number;
 }
 
-export default function CommentList({ postId }: CommentListProps) {
+export default function CommentList({ postId, highlightCommentId }: CommentListProps) {
    const { httpGet, httpPatch } = useApiContext();
    const { hasRole } = useAuth();
    const isAdmin = hasRole('Admin');
    const [page, setPage] = useState(1);
    const [allComments, setAllComments] = useState<Comment[]>([]);
+   const scrolledRef = useRef(false);
    const { data, isLoading, error } = useComments(httpGet, postId, page);
 
    useEffect(() => {
@@ -31,7 +33,17 @@ export default function CommentList({ postId }: CommentListProps) {
       setAllComments(prev => page === 1 ? data.items : [...prev, ...data.items]);
    }, [data]);
 
-   const reset = () => { setPage(1); setAllComments([]); };
+   // Scroll to and highlight a specific comment when navigating from admin users page
+   useEffect(() => {
+      if (!highlightCommentId || allComments.length === 0 || scrolledRef.current) return;
+      const el = document.getElementById(`comment-${highlightCommentId}`);
+      if (el) {
+         scrolledRef.current = true;
+         setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+      }
+   }, [highlightCommentId, allComments]);
+
+   const reset = () => { setPage(1); setAllComments([]); scrolledRef.current = false; };
 
    const handleHide = async (commentId: number) => {
       await hideComment(httpPatch, commentId);
@@ -79,6 +91,7 @@ export default function CommentList({ postId }: CommentListProps) {
                      <CommentItem
                         comment={comment}
                         isAdmin={isAdmin}
+                        isHighlighted={comment.commentId === highlightCommentId}
                         onHide={handleHide}
                         onUnhide={handleUnhide}
                         onBanUser={handleBanUser}

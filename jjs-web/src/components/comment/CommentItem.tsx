@@ -8,12 +8,13 @@ import InlineAlert from '@components/ui/InlineAlert';
 interface CommentItemProps {
    comment: Comment;
    isAdmin: boolean;
+   isHighlighted?: boolean;
    onHide: (commentId: number) => void;
    onUnhide: (commentId: number) => void;
    onBanUser: (comment: Comment) => Promise<void>;
 }
 
-export default function CommentItem({ comment, isAdmin, onHide, onUnhide, onBanUser }: CommentItemProps) {
+export default function CommentItem({ comment, isAdmin, isHighlighted, onHide, onUnhide, onBanUser }: CommentItemProps) {
    const [banError, setBanError] = useState<string | null>(null);
 
    const handleBanClick = async () => {
@@ -26,7 +27,17 @@ export default function CommentItem({ comment, isAdmin, onHide, onUnhide, onBanU
    };
 
    return (
-      <Box pos="relative">
+      <Box
+         id={`comment-${comment.commentId}`}
+         pos="relative"
+         style={isHighlighted ? {
+            backgroundColor: 'var(--mantine-color-yellow-0)',
+            borderLeft: '3px solid var(--mantine-color-yellow-5)',
+            paddingLeft: '12px',
+            marginLeft: '-15px',
+            transition: 'background-color 0.3s ease',
+         } : undefined}
+      >
          <Stack gap={4} pr={isAdmin ? 56 : 0}>
             <Title order={5} fw={600}>{comment.title}</Title>
             <Group gap="xs" c="gray.6">

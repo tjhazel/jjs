@@ -26,6 +26,7 @@ import EditPostPage, { editPostLoader } from "@pages/admin/post-editor";
 
 import ManageRecipesPage from '@pages/admin/recipes';
 import EditRecipePage, { editRecipeLoader } from '@pages/admin/recipe-editor';
+import ManageUsersPage from '@pages/admin/users';
 /*
 export const router = createBrowserRouter([
   {
@@ -74,6 +75,7 @@ export const router = createBrowserRouter([
                   { path: "admin/post/new", loader: () => ({ id: null, isNew: true }), element: <EditPostPage /> },
                   { path: "admin/post/:id", loader: editPostLoader, element: <EditPostPage /> },
                   { path: "admin/posts", element: <ManagePostsPage /> },
+                  { path: "admin/users", element: <ManageUsersPage /> },
                 ],
               },
             ]
