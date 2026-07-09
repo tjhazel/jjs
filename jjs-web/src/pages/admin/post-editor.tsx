@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
+import { useNavigate, useLoaderData, useSearchParams, type LoaderFunctionArgs } from 'react-router';
 import { Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
 import { useAllPosts, savePost } from '@api/post/post-fetcher';
@@ -30,12 +30,17 @@ export const editPostLoader = async ({ params }: LoaderFunctionArgs) => {
 // 🟢 2. THE EDITING WRAPPER ROUTE COMPONENT
 export default function EditPostPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { httpGet, httpPost } = useApiContext();
    const { data: posts, isLoading, error } = useAllPosts(httpGet);
   const { data: categories, isLoading: isLoadingCategories } = useCategories(httpGet);
 
   // Safely retrieve parameters prepared by the route loader above
   const { id, isNew } = useLoaderData() as { id: number | null; isNew: boolean };
+
+  const backHref = searchParams.get('category')
+    ? `/admin/posts?category=${searchParams.get('category')}`
+    : '/admin/posts';
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -54,7 +59,7 @@ export default function EditPostPage() {
         console.log(`Sending updates for post ID ${id}:`, formData);
        }
        await savePost(httpPost, formData);
-      navigate('/admin');
+      navigate(backHref);
     } catch (err: any) {
       setSaveError(err?.message || 'An error occurred while saving the document.');
     } finally {
@@ -84,7 +89,7 @@ export default function EditPostPage() {
               variant="subtle"
               color="gray"
               leftSection={<IconArrowLeft size={16} />}
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate(backHref)}
               styles={{ root: { paddingLeft: 0 } }}
             >
               Back to Posts

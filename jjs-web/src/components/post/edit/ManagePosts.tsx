@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge } from '@mantine/core';
 import { IconChevronUp, IconChevronDown, IconSelector } from '@tabler/icons-react';
 import { formatDate } from '@lib/time.functions';
 import type { PostDetail } from '@api/post/post';
+import CategorySelector from '@components/post/CategorySelector';
 
 interface ManagePostsProps {
   posts: PostDetail[] | undefined;
@@ -18,6 +19,18 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
   const [activePage, setActivePage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedCategory = searchParams.get('category') ? Number(searchParams.get('category')) : null;
+  const [approvedFilter, setApprovedFilter] = useState<string>('');
+
+  const handleCategoryChange = (id: number | null) => {
+    setActivePage(1);
+    setSearchParams(prev => {
+      if (id == null) prev.delete('category');
+      else prev.set('category', String(id));
+      return prev;
+    });
+  };
 
   if (isLoading) {
     return (
@@ -43,7 +56,14 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
     setActivePage(1);
   };
 
-  const sortedData = [...posts].sort((a, b) => {
+  const filteredPosts = posts.filter(p => {
+    if (selectedCategory != null && !p.categoryIds.includes(selectedCategory)) return false;
+    if (approvedFilter === 'approved' && !p.approved) return false;
+    if (approvedFilter === 'draft' && p.approved) return false;
+    return true;
+  });
+
+  const sortedData = [...filteredPosts].sort((a, b) => {
     if (!sortBy) return 0;
     const valA = a[sortBy];
     const valB = b[sortBy];
@@ -82,6 +102,27 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
 
   return (
     <Stack gap="xl" w="100%">
+      <Group gap="sm">
+        <CategorySelector
+          selectedCategory={selectedCategory}
+          onCategoryChange={handleCategoryChange}
+        />
+        <Select
+          size="sm"
+          w={140}
+          placeholder="All statuses"
+          data={[
+            { value: '', label: 'All statuses' },
+            { value: 'approved', label: 'Approved' },
+            { value: 'draft', label: 'Draft' },
+          ]}
+          value={approvedFilter}
+          onChange={(v) => { setApprovedFilter(v ?? ''); setActivePage(1); }}
+          allowDeselect={false}
+          comboboxProps={{ withinPortal: false }}
+        />
+      </Group>
+
       <Table.ScrollContainer minWidth={700} visibleFrom="sm">
         <Table variant="simple" layout="fixed" highlightOnHover withTableBorder>
           <Table.Thead>
@@ -96,14 +137,14 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
           </Table.Thead>
           <Table.Tbody>
             {paginatedData.map((post) => (
-              <Table.Tr key={post.postId} style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/post/${post.postId}`)}>
+              <Table.Tr key={post.postId} style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/post/${post.postId}${selectedCategory != null ? `?category=${selectedCategory}` : ''}`)}>
                 <Table.Td><Text size="sm" truncate fw={500}>{post.title}</Text></Table.Td>
                 <Table.Td><Text size="sm" truncate c="gray.6">{post.categories?.join(', ') || '—'}</Text></Table.Td>
                 <Table.Td><Badge color={post.approved ? 'green' : 'gray'} radius="none" variant="light">{post.approved ? 'Approved' : 'Draft'}</Badge></Table.Td>
                 <Table.Td><Text size="sm">{post.viewCount.toLocaleString()}</Text></Table.Td>
                 <Table.Td><Text size="sm">{formatDate(post.createdDate)}</Text></Table.Td>
                 <Table.Td onClick={(e) => e.stopPropagation()}>
-                  <Button variant="default" size="xs" radius="none" onClick={() => navigate(`/admin/post/${post.postId}`)}>Edit</Button>
+                  <Button variant="default" size="xs" radius="none" onClick={() => navigate(`/admin/post/${post.postId}${selectedCategory != null ? `?category=${selectedCategory}` : ''}`)}>Edit</Button>
                 </Table.Td>
               </Table.Tr>
             ))}
@@ -114,7 +155,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
       {/* Mobile Stack View Frame */}
       <Stack gap="sm" hiddenFrom="sm">
         {paginatedData.map((post) => (
-          <Card key={post.postId} withBorder padding="md" radius="none" style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/post/${post.postId}`)}>
+          <Card key={post.postId} withBorder padding="md" radius="none" style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/post/${post.postId}${selectedCategory != null ? `?category=${selectedCategory}` : ''}`)}>
             <Text fw={600} size="md" c="dark.9" mb="xs">{post.title}</Text>
             <Stack gap={4}>
               <Text size="sm" c="gray.7"><strong>Categories:</strong> {post.categories?.join(', ') || '—'}</Text>
