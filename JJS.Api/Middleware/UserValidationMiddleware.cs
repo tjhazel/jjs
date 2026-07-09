@@ -51,7 +51,7 @@ public class UserValidationMiddleware(RequestDelegate next)
             };
             await userService.Merge(user);
          }
-         else if (user.IsDisabled)
+         else if (user.IsDisabled || user.Blocked)
          {
             invalidUser = true;
          }

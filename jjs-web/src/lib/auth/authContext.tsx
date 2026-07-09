@@ -41,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
          },
       });
 
+      if (apiRes.status === 403) throw new Error("ACCOUNT_BLOCKED");
       if (!apiRes.ok) throw new Error("API auth failed");
 
       const apiData = await apiRes.json() as User;

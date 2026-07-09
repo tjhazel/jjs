@@ -34,8 +34,12 @@ export default function LoginPage() {
                   </Text>
                </Box>
 
-               {/* OnSuccess navigation pointer maps to React Router programmatic navigation push stack */}
-               <GoogleSignInButton onSuccess={() => navigate("/admin")} />
+               <GoogleSignInButton
+                  onSuccess={() => navigate("/admin")}
+                  onError={(err) => {
+                     if (err.message === 'ACCOUNT_BLOCKED') navigate('/unauthorized', { replace: true });
+                  }}
+               />
 
                <Text size="xs" c="dimmed" style={{ textAlign: "center" }} mt="md">
                   By signing in, you agree to our Terms of Service
