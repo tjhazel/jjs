@@ -11,3 +11,8 @@ export interface NewCommentRequest {
    title: string;
    entryText: string;
 }
+
+export interface PagedComments {
+   items: Comment[];
+   hasMore: boolean;
+}

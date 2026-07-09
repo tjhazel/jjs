@@ -19,11 +19,11 @@ public partial class UserRepository(AppConfig appConfig) : IUserRepository
       return result;
    }
 
-   public async Task<User> Get(string email)
+   public async Task<User?> Get(string email)
    {
       using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
-      var result = await db.QueryFirstAsync<User>(GET_BY_EMAIL_SQL, new { email });
+      var result = await db.QueryFirstOrDefaultAsync<User?>(GET_BY_EMAIL_SQL, new { email });
       return result;
    }
 
@@ -31,7 +31,7 @@ public partial class UserRepository(AppConfig appConfig) : IUserRepository
    {
       using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
-      var result = await db.QueryFirstAsync<User>(MERGE_USER_SQL, user);
+      await db.ExecuteAsync(MERGE_USER_SQL, user);
    }
 }
 

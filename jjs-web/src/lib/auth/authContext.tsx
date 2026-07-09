@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const user: JJSUser = {
          email: payload.email,
-         name: payload.name,
+         displayName: apiData.displayName,
          picture: payload.picture,
          role,
          googleId: payload.sub,

@@ -81,4 +81,12 @@ public class MemoryCacheService : ICacheService
 
       return Task.CompletedTask;
    }
+
+   public Task ClearByPrefix(string prefix)
+   {
+      var keys = _cache.Value.Where(kvp => kvp.Key.StartsWith(prefix)).Select(kvp => kvp.Key).ToList();
+      foreach (var key in keys)
+         _cache.Value.Remove(key);
+      return Task.CompletedTask;
+   }
 }

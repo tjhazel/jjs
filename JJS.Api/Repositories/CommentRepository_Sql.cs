@@ -11,13 +11,14 @@ public partial class CommentRepository
          ,CreatedDate
       from Comments
       where PostFk = @postId
-      order by CreatedDate asc
+      order by CreatedDate desc
+      offset @offset rows fetch next @pageSize rows only
       ;
       """;
 
    const string Add_Sql = """
-      insert into Comments (PostFk, Title, EntryText, AuthorName, AuthorEmail, AuthorURL, AuthorIP, CreatedDate)
-      values (@PostFk, @Title, @EntryText, @AuthorName, @AuthorEmail, @AuthorUrl, @AuthorIp, getutcdate())
+      insert into Comments (PostFk, Title, EntryText, AuthorName, AuthorEmail, AuthorIP, CreatedDate)
+      values (@PostFk, @Title, @EntryText, @AuthorName, @AuthorEmail, @AuthorIp, getutcdate())
       ;
       """;
 }

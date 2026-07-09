@@ -53,7 +53,7 @@ export function HeaderMenu() {
 
       return (
          <Link key={to} to={to} className={className} onClick={onClickCb}>
-            {user?.googleId && to.startsWith('/login') ? user.name : label}
+            {user?.googleId && to.startsWith('/login') ? user.displayName : label}
          </Link>
       );
    };

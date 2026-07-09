@@ -4,7 +4,7 @@ export type UserRole = "Admin" | "Guest";
 
 export interface JJSUser {
    email: string;
-   name: string;
+   displayName: string;
    picture?: string;
    role: UserRole;
    googleId: string;
@@ -18,4 +18,5 @@ export interface User {
    role: string;
    lastActivityDate: string;
    isDisabled: boolean;
+   createdDate?: string;
 }

@@ -9,4 +9,5 @@
      Task Set(string key, DateTime absoluteExpiration, object value);
      Task Clear();
      Task Clear(string key);
+     Task ClearByPrefix(string prefix);
  }

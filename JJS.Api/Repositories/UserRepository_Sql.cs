@@ -13,7 +13,7 @@ public partial class UserRepository
       MERGE INTO Users AS Target
       USING(Values
          (@id, @email, @displayName, @role, @lastActivityDate, @isDisabled)
-      ) AS Source(Id, [Email], [DisplayName], [Role], [IsDisabled], [LastActivityDate] )
+      ) AS Source(Id, [Email], [DisplayName], [Role], [LastActivityDate], [IsDisabled])
       ON(Target.Id = Source.Id)
       WHEN MATCHED THEN
          UPDATE
@@ -23,8 +23,8 @@ public partial class UserRepository
             , Target.[IsDisabled] = Source.[IsDisabled]
             , Target.[LastActivityDate] = Source.[LastActivityDate]
       WHEN NOT MATCHED THEN
-         INSERT (Id, [Email], [DisplayName], [Role], [IsDisabled], [LastActivityDate])
-         VALUES (Source.Id, Source.[Email], Source.[DisplayName], Source.[Role], Source.[IsDisabled], Source.[LastActivityDate])
+         INSERT ([Email], [DisplayName], [Role], [IsDisabled], [LastActivityDate])
+         VALUES (Source.[Email], Source.[DisplayName], Source.[Role], Source.[IsDisabled], Source.[LastActivityDate])
       ;
       """;
 }

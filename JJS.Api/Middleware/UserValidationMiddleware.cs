@@ -44,7 +44,7 @@ public class UserValidationMiddleware(RequestDelegate next)
             {
                Id = Guid.NewGuid(),
                Email = claimsUser.Email,
-               DisplayName = claimsUser.DisplayName ?? claimsUser.Email,
+               DisplayName =  claimsUser.DisplayName ?? claimsUser.Email,
                IsDisabled = false,
                LastActivityDate = DateTime.UtcNow,
                Role = claimsUser.Role ?? "Guest"
@@ -65,9 +65,12 @@ public class UserValidationMiddleware(RequestDelegate next)
             return;
          }
 
-         //update user role so we can access User in the stack and use Authorize(Role
-         var appClaims = httpContext.User.Claims.ToList();
+         //update user role and display name from DB so downstream claims reflect stored values, not raw Google JWT
+         var appClaims = httpContext.User.Claims
+            .Where(c => c.Type != ClaimTypes.Role && c.Type != ClaimTypes.Name)
+            .ToList();
          appClaims.Add(new Claim(ClaimTypes.Role, user.Role));
+         appClaims.Add(new Claim(ClaimTypes.Name, user.DisplayName));
          string authType = httpContext.User.Identity?.AuthenticationType ?? "CustomTokenAuth";
          var appIdentity = new ClaimsIdentity(appClaims, authType);
          httpContext.User = new ClaimsPrincipal(appIdentity);

@@ -11,9 +11,10 @@ import { commentSchema, DEFAULT_COMMENT, type CommentFormValues } from '@api/com
 
 interface AddCommentFormProps {
    postId: number;
+   onCommentAdded?: () => void;
 }
 
-export default function AddCommentForm({ postId }: AddCommentFormProps) {
+export default function AddCommentForm({ postId, onCommentAdded }: AddCommentFormProps) {
    const { isAuthenticated, user } = useAuth();
    const { httpPost } = useApiContext();
    const [isSaving, setIsSaving] = useState(false);
@@ -42,23 +43,23 @@ export default function AddCommentForm({ postId }: AddCommentFormProps) {
          await addComment(httpPost, postId, values);
          form.reset();
          setSubmitted(true);
+         onCommentAdded?.();
       } catch {
          setSubmitError('Failed to post comment. Please try again.');
       } finally {
          setIsSaving(false);
       }
    };
-   console.log('user: ', user)
    return (
       <Stack gap="sm">
          {submitted && (
             <Alert color="green" radius="none">
-               Your comment has been posted. Thanks, {user?.name}!
+               Your comment has been posted. Thanks, {user?.displayName}!
             </Alert>
          )}
          <Box component="form" onSubmit={form.onSubmit(handleSubmit)} noValidate>
             <Stack gap="sm">
-               <Text size="sm" c="dimmed">Commenting as <strong>{user?.name}</strong></Text>
+               <Text size="sm" c="dimmed">Commenting as <strong>{user?.displayName}</strong></Text>
                <TextInput
                   withAsterisk
                   label="Title"

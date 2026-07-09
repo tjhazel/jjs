@@ -7,6 +7,5 @@ public class CommentInput
    public required string EntryText { get; set; }
    public required string AuthorName { get; set; }
    public required string AuthorEmail { get; set; }
-   public string? AuthorUrl { get; set; }
    public string? AuthorIp { get; set; }
 }

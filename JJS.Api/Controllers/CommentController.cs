@@ -1,4 +1,5 @@
 using JJS.Api.Extensions;
+using JJS.Api.Models;
 using JJS.Api.Models.Comment;
 using JJS.Api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -14,9 +15,9 @@ public class CommentController(ICommentService commentService, IHttpContextAcces
    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
    [HttpGet, Route("[action]/{postId}")]
-   public async Task<IEnumerable<Comment>> GetByPost(int postId)
+   public async Task<PagedResult<Comment>> GetByPost(int postId, [FromQuery] int page = 1)
    {
-      return await _commentService.GetByPost(postId);
+      return await _commentService.GetByPost(postId, page);
    }
 
    [HttpPost, Route("[action]/{postId}")]

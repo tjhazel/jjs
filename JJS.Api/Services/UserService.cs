@@ -32,6 +32,7 @@ public class UserService(
    public async Task Merge(User user)
    {
       await _cacheService.Clear(GetCacheKey(user.Email));
+      if (user.Id is null) user.Id = Guid.NewGuid();
       await _userRepository.Merge(user);
    }
 }
