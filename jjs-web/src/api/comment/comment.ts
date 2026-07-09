@@ -5,6 +5,9 @@ export interface Comment {
    entryText: string;
    authorName: string;
    createdDate: string;
+   adminHidden: boolean;
+   hiddenBy?: string;
+   hiddenDate?: string;
 }
 
 export interface NewCommentRequest {

@@ -1,4 +1,4 @@
-import type { HttpError, TGet, TPost } from "@/lib/httpClient";
+import type { HttpError, TGet, TPost, TPatch } from "@/lib/httpClient";
 import type { PagedComments, NewCommentRequest } from "./comment";
 import useSWR from "swr";
 import { swrOptions, mutateKeysLike } from "@/lib/swr.functions";
@@ -25,4 +25,14 @@ export function useComments(httpGet: TGet, postId: number | undefined, page: num
 export const addComment = async (httpPost: TPost, postId: number, request: NewCommentRequest) => {
    await httpPost(addCommentUrl(postId), request);
    mutateKeysLike(commentsByPostBaseUrl(postId));
+};
+
+export const hideComment = async (httpPatch: TPatch, commentId: number) => {
+   await httpPatch(`api/comment/hidecomment/${commentId}`);
+   mutateKeysLike('api/comment/getbypost');
+};
+
+export const unhideComment = async (httpPatch: TPatch, commentId: number) => {
+   await httpPatch(`api/comment/unhidecomment/${commentId}`);
+   mutateKeysLike('api/comment/getbypost');
 };

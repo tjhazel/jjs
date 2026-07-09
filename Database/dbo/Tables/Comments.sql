@@ -9,6 +9,9 @@
     [AuthorEmail]       NVARCHAR (500) NOT NULL,
     [SubscribeComments] BIT            CONSTRAINT [DF_Comments_SubscribeComments] DEFAULT ((0)) NOT NULL,
     [CreatedDate]       SMALLDATETIME  CONSTRAINT [DF_Comments_CreatedDate] DEFAULT (getdate()) NOT NULL,
+    [AdminHidden]       BIT            CONSTRAINT [DF_Comments_AdminHidden] DEFAULT ((0)) NOT NULL,
+    [HiddenBy]          NVARCHAR (256) NULL,
+    [HiddenDate]        DATETIME       NULL,
     CONSTRAINT [PK_sb_comments] PRIMARY KEY CLUSTERED ([CommentId] ASC),
     CONSTRAINT [FK_Comments_Posts] FOREIGN KEY ([PostFk]) REFERENCES [dbo].[Posts] ([PostId])
 );

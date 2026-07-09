@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Stack, Title, Text, Divider, Box, Group, Loader, Center, Button } from '@mantine/core';
-import { useComments } from '@api/comment/comment-fetcher';
+import { useComments, hideComment, unhideComment } from '@api/comment/comment-fetcher';
 import { useApiContext } from '@api/ApiContext';
+import { useAuth } from '@lib/auth/authContext';
 import type { Comment } from '@api/comment/comment';
+import CommentItem from './CommentItem';
 import AddCommentForm from './AddCommentForm';
 
 interface CommentListProps {
@@ -10,7 +12,9 @@ interface CommentListProps {
 }
 
 export default function CommentList({ postId }: CommentListProps) {
-   const { httpGet } = useApiContext();
+   const { httpGet, httpPatch } = useApiContext();
+   const { hasRole } = useAuth();
+   const isAdmin = hasRole('Admin');
    const [page, setPage] = useState(1);
    const [allComments, setAllComments] = useState<Comment[]>([]);
    const { data, isLoading, error } = useComments(httpGet, postId, page);
@@ -25,9 +29,20 @@ export default function CommentList({ postId }: CommentListProps) {
       setAllComments(prev => page === 1 ? data.items : [...prev, ...data.items]);
    }, [data]);
 
-   const handleCommentAdded = () => {
-      setPage(1);
-      setAllComments([]);
+   const reset = () => { setPage(1); setAllComments([]); };
+
+   const handleHide = async (commentId: number) => {
+      await hideComment(httpPatch, commentId);
+      reset();
+   };
+
+   const handleUnhide = async (commentId: number) => {
+      await unhideComment(httpPatch, commentId);
+      reset();
+   };
+
+   const handleBanUser = (comment: Comment) => {
+      console.log('Ban user:', { author: comment.authorName, commentId: comment.commentId });
    };
 
    if (isLoading && page === 1) {
@@ -53,15 +68,13 @@ export default function CommentList({ postId }: CommentListProps) {
             <Stack gap="lg">
                {allComments.map((comment) => (
                   <Box key={comment.commentId}>
-                     <Stack gap={4}>
-                        <Title order={5} fw={600}>{comment.title}</Title>
-                        <Group gap="xs" c="gray.6">
-                           <Text size="sm">{comment.authorName}</Text>
-                           <Text size="sm">·</Text>
-                           <Text size="sm">{new Date(comment.createdDate).toLocaleDateString()}</Text>
-                        </Group>
-                        <Text size="sm" mt={4}>{comment.entryText}</Text>
-                     </Stack>
+                     <CommentItem
+                        comment={comment}
+                        isAdmin={isAdmin}
+                        onHide={handleHide}
+                        onUnhide={handleUnhide}
+                        onBanUser={handleBanUser}
+                     />
                      <Divider mt="md" />
                   </Box>
                ))}
@@ -84,7 +97,7 @@ export default function CommentList({ postId }: CommentListProps) {
 
          <Box>
             <Title order={4} fw={600} mb="sm">Leave a Comment</Title>
-            <AddCommentForm postId={postId} onCommentAdded={handleCommentAdded} />
+            <AddCommentForm postId={postId} onCommentAdded={reset} />
          </Box>
       </Stack>
    );

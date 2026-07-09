@@ -17,7 +17,7 @@ public class CommentController(ICommentService commentService, IHttpContextAcces
    [HttpGet, Route("[action]/{postId}")]
    public async Task<PagedResult<Comment>> GetByPost(int postId, [FromQuery] int page = 1)
    {
-      return await _commentService.GetByPost(postId, page);
+      return await _commentService.GetByPost(postId, page, User.IsInRole("Admin"));
    }
 
    [HttpPost, Route("[action]/{postId}")]
@@ -27,5 +27,20 @@ public class CommentController(ICommentService commentService, IHttpContextAcces
       var user = User.GetUserFromClaims();
       var ip = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
       await _commentService.Add(postId, request, user, ip);
+   }
+
+   [HttpPatch, Route("[action]/{commentId}")]
+   [Authorize(Roles = "Admin")]
+   public async Task HideComment(int commentId)
+   {
+      var user = User.GetUserFromClaims();
+      await _commentService.Hide(commentId, user.DisplayName);
+   }
+
+   [HttpPatch, Route("[action]/{commentId}")]
+   [Authorize(Roles = "Admin")]
+   public async Task UnhideComment(int commentId)
+   {
+      await _commentService.Unhide(commentId);
    }
 }

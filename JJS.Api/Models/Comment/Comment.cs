@@ -8,4 +8,7 @@ public class Comment
    public required string EntryText { get; set; }
    public required string AuthorName { get; set; }
    public DateTime CreatedDate { get; set; }
+   public bool AdminHidden { get; set; }
+   public string? HiddenBy { get; set; }
+   public DateTime? HiddenDate { get; set; }
 }
