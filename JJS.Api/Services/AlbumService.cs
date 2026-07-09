@@ -137,7 +137,7 @@ public class AlbumService(IMetaDataService tagData,
 
       foreach (var filter in _filters)
       {
-         foreach (var fileInfo in dirInfo.GetFiles(filter, SearchOption.TopDirectoryOnly))
+         foreach (var fileInfo in dirInfo.GetFiles(filter, SearchOption.TopDirectoryOnly).Where(f => f.Length > 0))
          {
             //TODO: consider busting this up to allow parallel processing
             photoList.Add(await GetPhotoInfo(fileInfo));
