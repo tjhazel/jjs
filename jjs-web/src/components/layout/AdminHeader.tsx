@@ -34,7 +34,7 @@ export function AdminHeader({ navOpened, onNavToggle }: AdminHeaderProps) {
           onClick={() => navigate("/")}
           style={{ flexShrink: 0 }}
         >
-          Back
+          Exit
         </Button>
       </Group>
     </Container>

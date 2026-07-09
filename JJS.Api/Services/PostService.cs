@@ -20,34 +20,28 @@ public class PostService(
 
    public Task<IEnumerable<PostViewModel>> GetPublic()
    {
-      return GetCachedImages(CacheKey.PostPublicCacheName, isPublic: true);
+      return _cacheService.GetCachedValue(async () =>
+      {
+         var posts = await _postRepository.GetAll(isPublic: true);
+         await _imageMatchService.MatchImages(posts);
+         return posts.OrderByDescending(p => p.ReleaseDate ?? p.CreatedDate).ToArray()
+            as IEnumerable<PostViewModel>;
+      }, CacheKey.PostPublicCacheName);
+   }
+
+   public Task<IEnumerable<PostViewModel>> GetAll()
+   {
+      return _cacheService.GetCachedValue(async () =>
+      {
+         var posts = await _postRepository.GetAll(isPublic: false);
+         return posts.OrderByDescending(p => p.ReleaseDate ?? p.CreatedDate).ToArray()
+            as IEnumerable<PostViewModel>;
+      }, CacheKey.PostAllCacheName);
    }
 
    public async Task View(int postId)
    {
       await _postRepository.View(postId);
-   }
-
-   public Task<IEnumerable<PostViewModel>> GetAll()
-   {
-      return GetCachedImages(CacheKey.PostAllCacheName, isPublic: false);
-   }
-
-   private Task<IEnumerable<PostViewModel>> GetCachedImages(string cacheKey, bool isPublic)
-   {
-      return _cacheService.GetCachedValue(async () =>
-      {
-         var allPosts = await _postRepository.GetAll(isPublic: isPublic);
-         return await FixUpResults(allPosts);
-      }, cacheKey);
-   }
-
-   private async Task<IEnumerable<PostViewModel>> FixUpResults(IEnumerable<PostViewModel> posts)
-   {
-      await _imageMatchService.MatchImages(posts);
-      return posts
-         .OrderByDescending(p => p.ReleaseDate ?? p.CreatedDate)
-         .ToArray();
    }
 
    public async Task<int> Save(Post model, ClaimsUser user)
@@ -62,7 +56,12 @@ public class PostService(
       model.ModifiedDate = DateTime.UtcNow;
       model.ModifiedByFk = existingUser?.Id;
 
-      return await _postRepository.Save(model);
+      var postId = await _postRepository.Save(model);
+
+      await _cacheService.Clear(CacheKey.PostAllCacheName);
+      await _cacheService.Clear(CacheKey.PostPublicCacheName);
+
+      return postId;
    }
 }
 

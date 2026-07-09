@@ -19,15 +19,11 @@ public partial class PostRepository
          ,p.ModifiedDate
          ,p.ModifiedByFk
          ,mu.DisplayName 'ModifiedBy'
-         ,string_agg(cat.CategoryFk, ',') 'CategoryIds'
-         ,string_agg(cat.Title, ',') 'Categories'
-      from Posts p 
-         left join (
-           select top 100 x.PostFk, x.CategoryFk, _cat.Title
-            from PostCategories x
-               left join Categories _cat on _cat.CategoryId = x.CategoryFk
-            order by _cat.Title
-         ) cat on cat.PostFk = p.PostId
+         ,string_agg(cast(x.CategoryFk as varchar(10)), ',') 'CategoryIds'
+         ,string_agg(_cat.Title, ',') 'Categories'
+      from Posts p
+         left join PostCategories x on x.PostFk = p.PostId
+         left join Categories _cat on _cat.CategoryId = x.CategoryFk
         join Users cu on cu.Id = p.CreatedByFk
         join Users mu on mu.Id = p.ModifiedByFk
       where @isPublic <> 1

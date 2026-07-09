@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
+import { useBlocker } from 'react-router';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { DateInput } from '@mantine/dates';
-import { TextInput, Textarea, Card, Title, Text, Stack, SimpleGrid, Grid, Checkbox, Switch, Group, Button, Box, Divider } from '@mantine/core';
+import { TextInput, Textarea, Card, Title, Text, Stack, SimpleGrid, Grid, Checkbox, Switch, Group, Button, Box, Divider, Modal } from '@mantine/core';
 import { postSchema, DEFAULT_POST, type FormValues } from '@api/post/postSchema';
 import type { PostDetail } from '@api/post/post';
 import type { Category } from '@api/post/category';
@@ -45,6 +46,21 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post]);
 
+  // Block in-app navigation when the form is dirty and not mid-save.
+  // !isSaving lets the post-save navigate() call through without triggering the prompt.
+  const blocker = useBlocker(() => form.isDirty() && !isSaving);
+
+  // Block browser-level navigation (tab close, refresh, external link).
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (form.isDirty()) e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  // form object reference is stable from useForm — empty deps is correct here
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const isNew = !post?.postId;
 
   // Combine validated form values with base post properties to satisfy PostDetail
@@ -67,6 +83,22 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
   };
 
   return (
+    <>
+    <Modal
+      opened={blocker.state === 'blocked'}
+      onClose={() => blocker.reset?.()}
+      title="Unsaved Changes"
+      centered
+      radius="none"
+      size="sm"
+    >
+      <Text size="sm">You have unsaved changes that will be lost. Are you sure you want to leave?</Text>
+      <Group justify="flex-end" mt="xl" gap="sm">
+        <Button variant="default" radius="none" onClick={() => blocker.reset?.()}>Stay</Button>
+        <Button color="red" radius="none" onClick={() => blocker.proceed?.()}>Leave without saving</Button>
+      </Group>
+    </Modal>
+
     <Box component="form" onSubmit={form.onSubmit(handleSubmit)} noValidate>
       <Stack gap={{ base: 'xs', sm: 'xl' }}>
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
@@ -189,5 +221,6 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
         </Group>
       </Stack>
     </Box>
+    </>
   );
 }
