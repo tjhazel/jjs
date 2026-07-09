@@ -8,6 +8,8 @@ export interface Comment {
    adminHidden: boolean;
    hiddenBy?: string;
    hiddenDate?: string;
+   authorEmail?: string;
+   authorBlocked?: boolean;
 }
 
 export interface NewCommentRequest {

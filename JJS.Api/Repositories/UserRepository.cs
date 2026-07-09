@@ -33,6 +33,13 @@ public partial class UserRepository(AppConfig appConfig) : IUserRepository
       await db.OpenAsync();
       await db.ExecuteAsync(MERGE_USER_SQL, user);
    }
+
+   public async Task BlockUser(string email, string blockedBy, string reason)
+   {
+      using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      await db.ExecuteAsync(BLOCK_USER_SQL, new { email, blockedBy, reason });
+   }
 }
 
 public interface IUserRepository
@@ -40,4 +47,5 @@ public interface IUserRepository
    Task<User> Get(Guid id);
    Task<User> Get(string email);
    Task Merge(User user);
+   Task BlockUser(string email, string blockedBy, string reason);
 }

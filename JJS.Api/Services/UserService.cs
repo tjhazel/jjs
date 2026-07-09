@@ -35,6 +35,22 @@ public class UserService(
       if (user.Id is null) user.Id = Guid.NewGuid();
       await _userRepository.Merge(user);
    }
+
+   public async Task BlockUser(string email, string currentUserEmail, string blockedBy, string reason)
+   {
+      if (email.Equals(currentUserEmail, StringComparison.OrdinalIgnoreCase))
+         throw new InvalidOperationException("Unable to block self.");
+
+      var target = await _userRepository.Get(email);
+      if (target?.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true)
+         throw new InvalidOperationException("Admin users must be manually blocked.");
+
+      if (target?.Blocked != true)
+      {
+         await _userRepository.BlockUser(email, blockedBy, reason);
+         await _cacheService.Clear(GetCacheKey(email));
+      }
+   }
 }
 
 
@@ -43,4 +59,5 @@ public interface IUserService
    Task<User> Get(Guid id);
    Task<User> Get(string email);
    Task Merge(User user);
+   Task BlockUser(string email, string currentUserEmail, string blockedBy, string reason);
 }

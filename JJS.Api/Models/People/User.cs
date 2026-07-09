@@ -9,4 +9,8 @@ public class User
    public DateTime LastActivityDate { get; set; }
    public bool IsDisabled { get; set; }
    public DateTime? CreatedDate { get; set; }
+   public bool Blocked { get; set; }
+   public string? BlockedBy { get; set; }
+   public DateTime? BlockedDate { get; set; }
+   public string? BlockedReason { get; set; }
 }

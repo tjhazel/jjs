@@ -19,4 +19,8 @@ export interface User {
    lastActivityDate: string;
    isDisabled: boolean;
    createdDate?: string;
+   blocked: boolean;
+   blockedBy?: string;
+   blockedDate?: string;
+   blockedReason?: string;
 }

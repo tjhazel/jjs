@@ -9,6 +9,16 @@ public partial class UserRepository
    //declare @id uniqueidentifier = newid(), @email nvarchar(256) = 'joker@email.com', @displayName nvarchar(256) = 'Joker', 
    //@role nvarchar(50) = 'joker', @lastActivityDate datetime = getutcdate(), @isDisabled bit = 0;
 
+   const string BLOCK_USER_SQL = """
+      update Users
+      set Blocked = 1
+         ,BlockedBy = @blockedBy
+         ,BlockedDate = getutcdate()
+         ,BlockedReason = @reason
+      where Email = @email
+      ;
+      """;
+
    const string MERGE_USER_SQL = """
       MERGE INTO Users AS Target
       USING(Values

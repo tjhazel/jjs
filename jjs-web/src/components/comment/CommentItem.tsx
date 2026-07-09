@@ -1,17 +1,30 @@
+import { useState } from 'react';
 import { Stack, Title, Text, Box, Group, ActionIcon, Tooltip } from '@mantine/core';
-import { IconEye, IconEyeOff, IconUserX } from '@tabler/icons-react';
+import { IconEye, IconEyeOff, IconUserX, IconBan } from '@tabler/icons-react';
 import type { Comment } from '@api/comment/comment';
-import HiddenOverlay from './HiddenOverlay';
+import HiddenOverlay from '@components/ui/HiddenOverlay';
+import InlineAlert from '@components/ui/InlineAlert';
 
 interface CommentItemProps {
    comment: Comment;
    isAdmin: boolean;
    onHide: (commentId: number) => void;
    onUnhide: (commentId: number) => void;
-   onBanUser: (comment: Comment) => void;
+   onBanUser: (comment: Comment) => Promise<void>;
 }
 
 export default function CommentItem({ comment, isAdmin, onHide, onUnhide, onBanUser }: CommentItemProps) {
+   const [banError, setBanError] = useState<string | null>(null);
+
+   const handleBanClick = async () => {
+      setBanError(null);
+      try {
+         await onBanUser(comment);
+      } catch (e) {
+         setBanError((e as Error).message);
+      }
+   };
+
    return (
       <Box pos="relative">
          <Stack gap={4} pr={isAdmin ? 56 : 0}>
@@ -22,6 +35,7 @@ export default function CommentItem({ comment, isAdmin, onHide, onUnhide, onBanU
                <Text size="sm">{new Date(comment.createdDate).toLocaleDateString()}</Text>
             </Group>
             <Text size="sm" mt={4}>{comment.entryText}</Text>
+            {banError && <InlineAlert message={banError} onClose={() => setBanError(null)} />}
          </Stack>
 
          {isAdmin && comment.adminHidden && <HiddenOverlay />}
@@ -43,14 +57,15 @@ export default function CommentItem({ comment, isAdmin, onHide, onUnhide, onBanU
                      </ActionIcon>
                   </Tooltip>
 
-                  <Tooltip label="Ban user" withArrow>
+                  <Tooltip label={comment.authorBlocked ? 'User is blocked' : 'Ban user'} withArrow>
                      <ActionIcon
                         variant="subtle"
-                        color="red"
+                        color={comment.authorBlocked ? 'gray' : 'red'}
                         size="sm"
-                        onClick={() => onBanUser(comment)}
+                        disabled={comment.authorBlocked}
+                        onClick={handleBanClick}
                      >
-                        <IconUserX size={15} />
+                        {comment.authorBlocked ? <IconBan size={15} /> : <IconUserX size={15} />}
                      </ActionIcon>
                   </Tooltip>
                </Group>

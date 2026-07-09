@@ -90,6 +90,7 @@
     <Build Include="dbo\Tables\Users.sql" />
     <Build Include="dbo\Functions\ConvertHtmlToMarkdown.sql" />
     <None Include="Scripts\001-AddUserCreatedDate.sql" />
+    <Build Include="Scripts\002-HideComments.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\Migrate.sql" />

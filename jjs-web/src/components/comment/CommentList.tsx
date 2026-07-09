@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Stack, Title, Text, Divider, Box, Group, Loader, Center, Button } from '@mantine/core';
 import { useComments, hideComment, unhideComment } from '@api/comment/comment-fetcher';
+import { blockUser } from '@api/user/user-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import { useAuth } from '@lib/auth/authContext';
+import type { HttpError } from '@lib/httpClient';
 import type { Comment } from '@api/comment/comment';
 import CommentItem from './CommentItem';
 import AddCommentForm from './AddCommentForm';
@@ -41,8 +43,14 @@ export default function CommentList({ postId }: CommentListProps) {
       reset();
    };
 
-   const handleBanUser = (comment: Comment) => {
-      console.log('Ban user:', { author: comment.authorName, commentId: comment.commentId });
+   const handleBanUser = async (comment: Comment) => {
+      try {
+         await blockUser(httpPatch, comment.authorEmail!, `comment on post ${comment.postFk}`);
+      } catch (e) {
+         const err = e as HttpError;
+         const data = err.responseData as { message?: string } | undefined;
+         throw new Error(data?.message ?? err.message);
+      }
    };
 
    if (isLoading && page === 1) {

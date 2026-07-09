@@ -3,19 +3,22 @@ namespace JJS.Api.Repositories;
 public partial class CommentRepository
 {
    const string GetByPost_Sql = """
-      select CommentId
-         ,PostFk
-         ,Title
-         ,cast(EntryText as nvarchar(max)) 'EntryText'
-         ,AuthorName
-         ,CreatedDate
-         ,AdminHidden
-         ,HiddenBy
-         ,HiddenDate
-      from Comments
-      where PostFk = @postId
-        and (@isAdmin = 1 or AdminHidden = 0)
-      order by CreatedDate desc
+      select c.CommentId
+         ,c.PostFk
+         ,c.Title
+         ,cast(c.EntryText as nvarchar(max)) 'EntryText'
+         ,c.AuthorName
+         ,c.CreatedDate
+         ,c.AdminHidden
+         ,c.HiddenBy
+         ,c.HiddenDate
+         ,case when @isAdmin = 1 then c.AuthorEmail else null end 'AuthorEmail'
+         ,case when @isAdmin = 1 then isnull(u.Blocked, 0) else null end 'AuthorBlocked'
+      from Comments c
+      left join Users u on u.Email = c.AuthorEmail
+      where c.PostFk = @postId
+        and (@isAdmin = 1 or c.AdminHidden = 0)
+      order by c.CreatedDate desc
       offset @offset rows fetch next @pageSize rows only
       ;
       """;
