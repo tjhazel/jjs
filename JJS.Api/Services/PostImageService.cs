@@ -17,7 +17,7 @@ public class PostImageService(IAlbumService albumService) : IPostImageService
       await using var stream = File.Create(fullPath);
       await file.CopyToAsync(stream);
 
-      return ($"/api/post-image/{uniqueName}", file.FileName);
+      return ($"/api/post-image/{Uri.EscapeDataString(uniqueName)}", file.FileName);
    }
 
    public (Stream Content, string ContentType)? GetImage(string fileName)
