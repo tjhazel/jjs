@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge } from '@mantine/core';
-import { IconChevronUp, IconChevronDown, IconSelector } from '@tabler/icons-react';
+import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge, TextInput } from '@mantine/core';
+import { IconChevronUp, IconChevronDown, IconSelector, IconSearch } from '@tabler/icons-react';
 import { formatDate } from '@lib/time.functions';
 import type { PostDetail } from '@api/post/post';
 import CategorySelector from '@components/post/CategorySelector';
@@ -22,11 +22,13 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedCategory = searchParams.get('category') ? Number(searchParams.get('category')) : null;
   const approvedFilter = searchParams.get('status') ?? '';
+  const titleSearch = searchParams.get('search') ?? '';
 
   const editorHref = (postId: number) => {
     const params = new URLSearchParams();
     if (selectedCategory != null) params.set('category', String(selectedCategory));
     if (approvedFilter) params.set('status', approvedFilter);
+    if (titleSearch) params.set('search', titleSearch);
     const qs = params.toString();
     return `/admin/post/${postId}${qs ? `?${qs}` : ''}`;
   };
@@ -45,6 +47,15 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
     setSearchParams(prev => {
       if (!value) prev.delete('status');
       else prev.set('status', value);
+      return prev;
+    });
+  };
+
+  const handleTitleSearchChange = (value: string) => {
+    setActivePage(1);
+    setSearchParams(prev => {
+      if (!value) prev.delete('search');
+      else prev.set('search', value);
       return prev;
     });
   };
@@ -77,6 +88,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
     if (selectedCategory != null && !p.categoryIds.includes(selectedCategory)) return false;
     if (approvedFilter === 'approved' && !p.approved) return false;
     if (approvedFilter === 'draft' && p.approved) return false;
+    if (titleSearch && !p.title.toLowerCase().includes(titleSearch.toLowerCase())) return false;
     return true;
   });
 
@@ -119,7 +131,15 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
 
   return (
     <Stack gap="xl" w="100%">
-      <Group gap="sm">
+      <Group gap="sm" wrap="wrap">
+        <TextInput
+          size="sm"
+          w={220}
+          placeholder="Search by title…"
+          leftSection={<IconSearch size={14} />}
+          value={titleSearch}
+          onChange={e => handleTitleSearchChange(e.currentTarget.value)}
+        />
         <CategorySelector
           selectedCategory={selectedCategory}
           onCategoryChange={handleCategoryChange}
