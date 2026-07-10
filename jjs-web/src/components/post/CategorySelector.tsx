@@ -13,9 +13,10 @@ interface CategorySelectorProps {
 export default function CategorySelector({ selectedCategory, onCategoryChange }: CategorySelectorProps) {
   const { httpGet } = useApiContext();
   const { data: categories, isLoading } = useCategories(httpGet);
-  const { isAuthenticated } = useAuth();
+  const { hasRole } = useAuth();
+  const canSeeFacetube = hasRole(['Admin', 'KnownUser']);
 
-  const visibleCategories = isAuthenticated
+  const visibleCategories = canSeeFacetube
     ? categories
     : categories?.filter(c => c.categoryId !== FACETUBE_CATEGORY_ID);
 

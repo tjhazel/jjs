@@ -1,3 +1,4 @@
+using JJS.Api.Extensions;
 using JJS.Api.Models;
 using JJS.Api.Models.People;
 using JJS.Api.Models.Post;
@@ -20,8 +21,6 @@ public class PostService(
    private readonly ICacheService _cacheService = cacheService;
    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-   private const int FacetubeCategory = 8;
-
    public async Task<IEnumerable<PostViewModel>> GetPublic()
    {
       var allPosts = await _cacheService.GetCachedValue(async () =>
@@ -32,10 +31,9 @@ public class PostService(
             as IEnumerable<PostViewModel>;
       }, CacheKey.PostPublicCacheName);
 
-      var isAuthenticated = _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-      return isAuthenticated
+      return (_httpContextAccessor.HttpContext?.User.UserCanSeeProtectedData() ?? false)
          ? allPosts
-         : allPosts.Where(p => !p.CategoryIds.Contains(FacetubeCategory));
+         : allPosts.Where(p => !p.CategoryIds.Contains(CategoryConstants.Facetube));
    }
 
    public Task<IEnumerable<PostViewModel>> GetAll()

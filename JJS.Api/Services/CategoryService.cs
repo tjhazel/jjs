@@ -1,20 +1,28 @@
-﻿using JJS.Api.Models;
+﻿using JJS.Api.Extensions;
+using JJS.Api.Models;
 using JJS.Api.Models.Post;
 using JJS.Api.Repositories;
 
 namespace JJS.Api.Services;
 
 [ServiceImplementation(typeof(ICategoryService))]
-public class CategoryService(ICategoryRepository categoryRepository, IAlbumService albumService) : ICategoryService
+public class CategoryService(
+   ICategoryRepository categoryRepository,
+   IAlbumService albumService,
+   IHttpContextAccessor httpContextAccessor) : ICategoryService
 {
    private readonly ICategoryRepository _categoryRepository = categoryRepository;
    private readonly IAlbumService _albumService = albumService;
+   private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
    public async Task<IEnumerable<Category>> Get(int categoryTypeId)
    {
       var allCategories = await _categoryRepository.Get(categoryTypeId);
       await MatchImages(allCategories);
-      return allCategories;
+
+      return (_httpContextAccessor.HttpContext?.User.UserCanSeeProtectedData() ?? false)
+         ? allCategories
+         : allCategories.Where(c => c.CategoryId != CategoryConstants.Facetube);
    }
 
    private async Task MatchImages(IEnumerable<Category> categories)

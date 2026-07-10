@@ -12,7 +12,8 @@ const FACETUBE_CATEGORY_ID = 8;
 
 function DashboardPage() {
   const { httpGet } = useApiContext();
-  const { isAuthenticated } = useAuth();
+  const { hasRole } = useAuth();
+  const canSeeFacetube = hasRole(['Admin', 'KnownUser']);
   const { data: carouselImages } = useCarouselImages(httpGet);
   const { data: posts, isLoading } = usePosts(httpGet);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +27,7 @@ function DashboardPage() {
     });
   };
 
-  const visiblePosts = isAuthenticated
+  const visiblePosts = canSeeFacetube
     ? posts
     : posts?.filter(p => !p.categoryIds.includes(FACETUBE_CATEGORY_ID));
 

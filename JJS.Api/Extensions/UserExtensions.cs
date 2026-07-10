@@ -75,6 +75,11 @@ public static class UserExtensions
       return appUser;
    }
 
+   public static bool UserCanSeeProtectedData(this IPrincipal user)
+   {
+      return user.IsInRole(UserRoles.Admin) || user.IsInRole(UserRoles.KnownUser);
+   }
+
    private static string? GetClaimValue(this ClaimsPrincipal claimUser, string typeName)
    {
       return claimUser?

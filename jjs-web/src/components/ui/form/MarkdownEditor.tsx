@@ -99,8 +99,9 @@ export default function MarkdownEditor({
   const resolveUploadFile = (file: File): File => {
     const hint = fileNameHint?.().trim() ?? '';
     if (!hint) return file;
+    // Strip filesystem-invalid chars plus markdown-special chars that would break ![alt](url) syntax
     const safeName = hint
-      .replace(/[<>:"/\\|?*\x00-\x1f]/g, '')
+      .replace(/[<>:"/\\|?*\x00-\x1f\[\]()!]/g, '')
       .slice(0, 30)
       .trimEnd()
       .replace(/\.+$/, '');
@@ -108,6 +109,9 @@ export default function MarkdownEditor({
     const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')) : '';
     return new File([file], `${safeName}${ext}`, { type: file.type });
   };
+
+  // Strip characters that break markdown image syntax from the alt text
+  const safeAlt = (name: string) => name.replace(/[\[\]()!\\]/g, '');
 
   const handleImageFile = async (file: File) => {
     if (!uploadEndpoint || !file.type.startsWith('image/')) return;
@@ -123,7 +127,7 @@ export default function MarkdownEditor({
       const fd = new FormData();
       fd.append('file', uploadFile);
       const result = await httpPostFormData<{ url: string; fileName: string }>(uploadEndpoint, fd);
-      handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${uploadFile.name}](${result.url})`));
+      handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${safeAlt(uploadFile.name)}](${result.url})`));
     } catch (e) {
       console.error('[MarkdownEditor] Image upload failed:', e);
       handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, ''));
