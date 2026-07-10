@@ -7,6 +7,7 @@ export interface Post {
   expireDate?: Date;
   commentsEnabled : boolean;
   approved  : boolean;
+  archived?: boolean | null;
   viewCount: number;
   createdDate?: Date; 
   createdByFk?: string;

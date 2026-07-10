@@ -15,6 +15,7 @@ const basePostSchema = z.object({
    expireDate: optionalFormDate,
    commentsEnabled: z.boolean(),
    approved: z.boolean(),
+   archived: z.boolean().nullable().optional(),
    viewCount: z.number().nonnegative()
 });
 
@@ -39,6 +40,7 @@ export const DEFAULT_POST: FormValues = {
    expireDate: null,
    commentsEnabled: false,
    approved: false,
+   archived: null,
    viewCount: 0,
    imageUrl: "",
    categoryIds: [], // Empty string array to prevent Mantine rendering errors

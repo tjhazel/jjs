@@ -37,6 +37,7 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
          categoryIds: post.categoryIds ? post.categoryIds.map(String) : [],
         commentsEnabled: !!post.commentsEnabled,
         approved: !!post.approved,
+        archived: post.archived ?? null,
         viewCount: post.viewCount ?? 0,
         releaseDate: post.releaseDate ?? undefined,
         expireDate: post.expireDate ?? undefined,
@@ -188,9 +189,10 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600} c="dark.9">Settings</Title>
-            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="xl" my="xs">
+            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="xl" my="xs">
               <Switch labelPosition="left" label={<Box><Text size="sm" fw={500}>Approved</Text><Text size="xs" c="dimmed">Visible to the public</Text></Box>} key={form.key('approved')} {...form.getInputProps('approved', { type: 'checkbox' })} />
               <Switch labelPosition="left" label={<Box><Text size="sm" fw={500}>Comments Enabled</Text><Text size="xs" c="dimmed">Allow readers to comment</Text></Box>} key={form.key('commentsEnabled')} {...form.getInputProps('commentsEnabled', { type: 'checkbox' })} />
+              <Switch labelPosition="left" color="red" label={<Box><Text size="sm" fw={500}>Archived</Text><Text size="xs" c="dimmed">Hidden from all public pages</Text></Box>} key={form.key('archived')} {...form.getInputProps('archived', { type: 'checkbox' })} />
             </SimpleGrid>
             <Divider my="sm" />
             <TextInput label="View Count" description="Read-only diagnostic counter" type="number" w={{ base: '100%', sm: 200 }} disabled radius="none" key={form.key('viewCount')} {...form.getInputProps('viewCount')} />

@@ -12,6 +12,7 @@ public partial class PostRepository
          ,p.ExpireDate
          ,p.CommentsEnabled
          ,p.Approved
+         ,p.Archived
          ,p.ViewCount
          ,p.ImageUrl
          ,p.CreatedDate
@@ -28,11 +29,12 @@ public partial class PostRepository
         join Users cu on cu.Id = p.CreatedByFk
         join Users mu on mu.Id = p.ModifiedByFk
       where @isPublic <> 1
-        or (@isPublic = 1 
+        or (@isPublic = 1
            and p.approved = 1
+           and (p.Archived is null or p.Archived = 0)
            and (p.releaseDate is null or p.releaseDate <= getutcdate())
            and (p.[ExpireDate] is null or p.[ExpireDate] is null or p.[ExpireDate] <= getutcdate())
-           )  
+           )
       group by p.PostId
          ,p.Title
          ,p.PreviewText
@@ -41,6 +43,7 @@ public partial class PostRepository
          ,p.ExpireDate
          ,p.CommentsEnabled
          ,p.Approved
+         ,p.Archived
          ,p.ViewCount
          ,p.ImageUrl
          ,p.CreatedDate
@@ -67,6 +70,7 @@ public partial class PostRepository
                ,@expireDate
                ,@commentsEnabled
                ,@approved
+               ,@archived
                ,@viewCount
                ,@imageUrl
                ,@createdDate
@@ -81,6 +85,7 @@ public partial class PostRepository
                ,[ExpireDate]
                ,CommentsEnabled
                ,Approved
+               ,Archived
                ,ViewCount
                ,ImageUrl
                ,CreatedDate
@@ -97,6 +102,7 @@ public partial class PostRepository
                ,[ExpireDate] = SOURCE.[ExpireDate]
                ,CommentsEnabled = SOURCE.CommentsEnabled
                ,Approved = SOURCE.Approved
+               ,Archived = SOURCE.Archived
                ,ViewCount = SOURCE.ViewCount
                ,ImageUrl = SOURCE.ImageUrl
                ,CreatedDate = SOURCE.CreatedDate
@@ -112,6 +118,7 @@ public partial class PostRepository
                ,[ExpireDate]
                ,CommentsEnabled
                ,Approved
+               ,Archived
                ,ViewCount
                ,ImageUrl
                ,CreatedDate
@@ -125,6 +132,7 @@ public partial class PostRepository
                ,SOURCE.[ExpireDate]
                ,SOURCE.CommentsEnabled
                ,SOURCE.Approved
+               ,SOURCE.Archived
                ,SOURCE.ViewCount
                ,SOURCE.ImageUrl
                ,SOURCE.CreatedDate

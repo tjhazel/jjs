@@ -86,8 +86,9 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
 
   const filteredPosts = posts.filter(p => {
     if (selectedCategory != null && !p.categoryIds.includes(selectedCategory)) return false;
-    if (approvedFilter === 'approved' && !p.approved) return false;
-    if (approvedFilter === 'draft' && p.approved) return false;
+    if (approvedFilter === 'approved' && (!p.approved || p.archived)) return false;
+    if (approvedFilter === 'draft' && (p.approved || p.archived)) return false;
+    if (approvedFilter === 'archived' && !p.archived) return false;
     if (titleSearch && !p.title.toLowerCase().includes(titleSearch.toLowerCase())) return false;
     return true;
   });
@@ -152,6 +153,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
             { value: '', label: 'All statuses' },
             { value: 'approved', label: 'Approved' },
             { value: 'draft', label: 'Draft' },
+            { value: 'archived', label: 'Archived' },
           ]}
           value={approvedFilter}
           onChange={handleStatusChange}

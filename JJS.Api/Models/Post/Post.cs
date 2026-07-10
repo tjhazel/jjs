@@ -10,6 +10,7 @@ public class Post
    public DateTime? ExpireDate { get; set; }
    public required bool CommentsEnabled { get; set; }
    public required bool Approved { get; set; }
+   public bool? Archived { get; set; }
    public long ViewCount { get; set; }
    public string? ImageUrl { get; set; }
    public DateTime? CreatedDate { get; set; }
