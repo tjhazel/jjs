@@ -42,6 +42,13 @@ update Attachments set Content = Data where Content is null
 ;
 
 
+if col_length('dbo.Posts', 'ImageUrl') is null
+begin
+    alter table Posts add ImageUrl nvarchar(500) null
+    ;
+end
+;
+
 if exists(select * from information_schema.columns where table_name = 'Posts' and column_name = 'Body'and data_type = 'ntext') begin
    alter table [Posts] alter column [Body] nvarchar(max) not null   
    ;

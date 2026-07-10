@@ -13,6 +13,7 @@ public partial class PostRepository
          ,p.CommentsEnabled
          ,p.Approved
          ,p.ViewCount
+         ,p.ImageUrl
          ,p.CreatedDate
          ,p.CreatedByFk
          ,cu.DisplayName 'CreatedBy'
@@ -41,6 +42,7 @@ public partial class PostRepository
          ,p.CommentsEnabled
          ,p.Approved
          ,p.ViewCount
+         ,p.ImageUrl
          ,p.CreatedDate
          ,p.CreatedByFk
          ,cu.DisplayName
@@ -55,8 +57,8 @@ public partial class PostRepository
       """;
 
    const string MERGE_SQL = """
-         MERGE [Posts] AS TARGET 
-         USING ( 
+         MERGE [Posts] AS TARGET
+         USING (
             VALUES (@postId
                ,@title
                ,@previewText
@@ -66,6 +68,7 @@ public partial class PostRepository
                ,@commentsEnabled
                ,@approved
                ,@viewCount
+               ,@imageUrl
                ,@createdDate
                ,@createdByFk
                ,@modifiedDate
@@ -79,13 +82,14 @@ public partial class PostRepository
                ,CommentsEnabled
                ,Approved
                ,ViewCount
+               ,ImageUrl
                ,CreatedDate
                ,CreatedByFk
                ,ModifiedDate
                ,ModifiedByFk)
          ON SOURCE.PostId = TARGET.PostId
          WHEN MATCHED THEN
-            UPDATE SET 
+            UPDATE SET
                 Title = SOURCE.Title
                ,PreviewText = SOURCE.PreviewText
                ,Body = SOURCE.Body
@@ -94,6 +98,7 @@ public partial class PostRepository
                ,CommentsEnabled = SOURCE.CommentsEnabled
                ,Approved = SOURCE.Approved
                ,ViewCount = SOURCE.ViewCount
+               ,ImageUrl = SOURCE.ImageUrl
                ,CreatedDate = SOURCE.CreatedDate
                ,CreatedByFk = SOURCE.CreatedByFk
                ,ModifiedDate = SOURCE.ModifiedDate
@@ -108,6 +113,7 @@ public partial class PostRepository
                ,CommentsEnabled
                ,Approved
                ,ViewCount
+               ,ImageUrl
                ,CreatedDate
                ,CreatedByFk
                ,ModifiedDate
@@ -120,6 +126,7 @@ public partial class PostRepository
                ,SOURCE.CommentsEnabled
                ,SOURCE.Approved
                ,SOURCE.ViewCount
+               ,SOURCE.ImageUrl
                ,SOURCE.CreatedDate
                ,SOURCE.CreatedByFk
                ,SOURCE.ModifiedDate

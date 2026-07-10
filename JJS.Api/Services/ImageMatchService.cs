@@ -7,9 +7,16 @@ using File = JJS.Api.Models.Album.File;
 namespace JJS.Api.Services;
 
 [ServiceImplementation(typeof(IImageMatchService))]
-public class ImageMatchService(IAlbumService albumService) : IImageMatchService
+public class ImageMatchService(IAlbumService albumService, IHttpContextAccessor httpContextAccessor) : IImageMatchService
 {
    private readonly IAlbumService _albumService = albumService;
+   private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
+   private string GetBaseUrl()
+   {
+      var req = _httpContextAccessor.HttpContext!.Request;
+      return $"{req.Scheme}://{req.Host}";
+   }
 
    public async Task MatchImages(IEnumerable<PostViewModel> posts)
    {
@@ -17,6 +24,31 @@ public class ImageMatchService(IAlbumService albumService) : IImageMatchService
       var usedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
       var rawPhotos = (await _albumService.GetFlatList()).Values.ToArray();
       var postsList = posts.ToList();
+
+      // Posts with an explicit ImageUrl (fully-qualified or root-relative) keep it;
+      // root-relative paths get the base URL prepended so public clients receive an absolute URL.
+      var baseUrl = GetBaseUrl();
+      var needsMatching = new List<PostViewModel>();
+      foreach (var post in postsList)
+      {
+         if (!string.IsNullOrEmpty(post.ImageUrl) &&
+             (post.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) ||
+              post.ImageUrl.StartsWith('/')))
+         {
+            if (post.ImageUrl.StartsWith('/'))
+            {
+               var localPath = post.ImageUrl;
+               if (!localPath.StartsWith("/Image", StringComparison.OrdinalIgnoreCase) &&
+                   !localPath.StartsWith("/api",   StringComparison.OrdinalIgnoreCase))
+                  localPath = "/Image" + localPath;
+               post.ImageUrl = baseUrl + localPath;
+            }
+            continue;
+         }
+         needsMatching.Add(post);
+      }
+
+      if (needsMatching.Count == 0) return;
 
       // Tokenize every image once up front — avoids repeating regex ops per image per post.
       var photos = rawPhotos
@@ -36,7 +68,7 @@ public class ImageMatchService(IAlbumService albumService) : IImageMatchService
       // a score bonus instead. Among qualifying images, the one with the most name tokens wins so
       // "mudslides snorkeling pinguinos" beats a bare "pinguinos" image for the same title.
       var needsScoring = new List<(PostViewModel post, HashSet<string> title, HashSet<string> preview)>();
-      foreach (var post in postsList)
+      foreach (var post in needsMatching)
       {
          var postTitle   = Tokenize(post.Title);
          var postPreview = Tokenize(post.PreviewText);

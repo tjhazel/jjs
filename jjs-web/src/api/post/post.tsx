@@ -19,7 +19,6 @@ export interface PostDetail extends Post {
    modifiedBy?: string;
 
    imageUrl?: string;
-   href?: string;
    categoryIds: number[];
    categories?: string[];
 }

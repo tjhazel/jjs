@@ -20,8 +20,12 @@ const basePostSchema = z.object({
 
 // use .extend() to add or override properties for your UI form state
 export const postSchema = basePostSchema.extend({
-   imageUrl: z.string().url({ message: 'Must be a valid URL' }).or(z.literal('')).optional(),
-   href: z.string().url({ message: 'Must be a valid URL' }).or(z.literal('')).optional(),
+   imageUrl: z.string()
+      .refine(
+         val => val === '' || val.startsWith('/') || z.string().url().safeParse(val).success,
+         { message: 'Must be a valid URL or a local image path starting with /' }
+      )
+      .optional(),
 
    // UI layer tracks categories as strings for Mantine's Checkbox.Group compatibility
    categoryIds: z.array(z.string()),
@@ -37,7 +41,6 @@ export const DEFAULT_POST: FormValues = {
    approved: false,
    viewCount: 0,
    imageUrl: "",
-   href: "",
    categoryIds: [], // Empty string array to prevent Mantine rendering errors
 };
 

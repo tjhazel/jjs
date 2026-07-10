@@ -3,7 +3,7 @@ import { useBlocker } from 'react-router';
 import { useForm } from '@mantine/form';
 import { zod4Resolver } from 'mantine-form-zod-resolver';
 import { DateInput } from '@mantine/dates';
-import { TextInput, Textarea, Card, Title, Text, Stack, SimpleGrid, Grid, Checkbox, Switch, Group, Button, Box, Divider, Modal } from '@mantine/core';
+import { TextInput, Textarea, Card, Title, Text, Stack, SimpleGrid, Grid, Checkbox, Switch, Group, Button, Box, Divider, Modal, List, Code } from '@mantine/core';
 import { postSchema, DEFAULT_POST, type FormValues } from '@api/post/postSchema';
 import type { PostDetail } from '@api/post/post';
 import type { Category } from '@api/post/category';
@@ -33,7 +33,6 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
         previewText: post.previewText ?? '',
         body: post.body ?? '',
         imageUrl: post.imageUrl ?? '',
-        href: post.href ?? '',
          // Map numeric IDs to strings so they match Mantine Checkbox UI state
          categoryIds: post.categoryIds ? post.categoryIds.map(String) : [],
         commentsEnabled: !!post.commentsEnabled,
@@ -120,11 +119,16 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
 
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Media &amp; Links</Title>
-            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-              <TextInput label="Image URL" placeholder="https://…" radius="none" key={form.key('imageUrl')} {...form.getInputProps('imageUrl')} />
-              <TextInput label="External Link (href)" placeholder="https://…" radius="none" key={form.key('href')} {...form.getInputProps('href')} />
-            </SimpleGrid>
+            <Title order={2} size="h4" fw={600} c="dark.9">Media</Title>
+            <TextInput label="Image URL" placeholder="https://…" radius="none" key={form.key('imageUrl')} {...form.getInputProps('imageUrl')} />
+            <Box>
+              <Text size="xs" c="dimmed" mb={4}>Accepted formats:</Text>
+              <List size="xs" c="dimmed" spacing={2}>
+                <List.Item><Code fz="xs">https://example.com/image.jpg</Code> — external URL</List.Item>
+                <List.Item><Code fz="xs">/Image/PostImages/filename.jpg</Code> — local album path</List.Item>
+                <List.Item><Code fz="xs">/api/post-image/filename.jpg</Code> — uploaded post image</List.Item>
+              </List>
+            </Box>
           </Stack>
         </Card>
 

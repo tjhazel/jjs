@@ -11,6 +11,7 @@ public class Post
    public required bool CommentsEnabled { get; set; }
    public required bool Approved { get; set; }
    public long ViewCount { get; set; }
+   public string? ImageUrl { get; set; }
    public DateTime? CreatedDate { get; set; }
    public Guid? CreatedByFk { get; set; }
    public DateTime? ModifiedDate { get; set; }
