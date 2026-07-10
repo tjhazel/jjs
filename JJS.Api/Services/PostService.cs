@@ -11,22 +11,31 @@ public class PostService(
    IPostRepository postRepository,
    IImageMatchService imageMatchService,
    IUserService userService,
-   ICacheService cacheService) : IPostService
+   ICacheService cacheService,
+   IHttpContextAccessor httpContextAccessor) : IPostService
 {
    private readonly IPostRepository _postRepository = postRepository;
    private readonly IImageMatchService _imageMatchService = imageMatchService;
    private readonly IUserService _userService = userService;
    private readonly ICacheService _cacheService = cacheService;
+   private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-   public Task<IEnumerable<PostViewModel>> GetPublic()
+   private const int FacetubeCategory = 8;
+
+   public async Task<IEnumerable<PostViewModel>> GetPublic()
    {
-      return _cacheService.GetCachedValue(async () =>
+      var allPosts = await _cacheService.GetCachedValue(async () =>
       {
          var posts = await _postRepository.GetAll(isPublic: true);
          await _imageMatchService.MatchImages(posts);
          return posts.OrderByDescending(p => p.ReleaseDate ?? p.CreatedDate).ToArray()
             as IEnumerable<PostViewModel>;
       }, CacheKey.PostPublicCacheName);
+
+      var isAuthenticated = _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
+      return isAuthenticated
+         ? allPosts
+         : allPosts.Where(p => !p.CategoryIds.Contains(FacetubeCategory));
    }
 
    public Task<IEnumerable<PostViewModel>> GetAll()
