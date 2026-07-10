@@ -21,13 +21,30 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
   const [pageSize, setPageSize] = useState(10);
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedCategory = searchParams.get('category') ? Number(searchParams.get('category')) : null;
-  const [approvedFilter, setApprovedFilter] = useState<string>('');
+  const approvedFilter = searchParams.get('status') ?? '';
+
+  const editorHref = (postId: number) => {
+    const params = new URLSearchParams();
+    if (selectedCategory != null) params.set('category', String(selectedCategory));
+    if (approvedFilter) params.set('status', approvedFilter);
+    const qs = params.toString();
+    return `/admin/post/${postId}${qs ? `?${qs}` : ''}`;
+  };
 
   const handleCategoryChange = (id: number | null) => {
     setActivePage(1);
     setSearchParams(prev => {
       if (id == null) prev.delete('category');
       else prev.set('category', String(id));
+      return prev;
+    });
+  };
+
+  const handleStatusChange = (value: string | null) => {
+    setActivePage(1);
+    setSearchParams(prev => {
+      if (!value) prev.delete('status');
+      else prev.set('status', value);
       return prev;
     });
   };
@@ -117,7 +134,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
             { value: 'draft', label: 'Draft' },
           ]}
           value={approvedFilter}
-          onChange={(v) => { setApprovedFilter(v ?? ''); setActivePage(1); }}
+          onChange={handleStatusChange}
           allowDeselect={false}
           comboboxProps={{ withinPortal: false }}
         />
@@ -137,14 +154,14 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
           </Table.Thead>
           <Table.Tbody>
             {paginatedData.map((post) => (
-              <Table.Tr key={post.postId} style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/post/${post.postId}${selectedCategory != null ? `?category=${selectedCategory}` : ''}`)}>
+              <Table.Tr key={post.postId} style={{ cursor: 'pointer' }} onClick={() => navigate(editorHref(post.postId!))}>
                 <Table.Td><Text size="sm" truncate fw={500}>{post.title}</Text></Table.Td>
                 <Table.Td><Text size="sm" truncate c="gray.6">{post.categories?.join(', ') || '—'}</Text></Table.Td>
                 <Table.Td><Badge color={post.approved ? 'green' : 'gray'} radius="none" variant="light">{post.approved ? 'Approved' : 'Draft'}</Badge></Table.Td>
                 <Table.Td><Text size="sm">{post.viewCount.toLocaleString()}</Text></Table.Td>
                 <Table.Td><Text size="sm">{formatDate(post.createdDate)}</Text></Table.Td>
                 <Table.Td onClick={(e) => e.stopPropagation()}>
-                  <Button variant="default" size="xs" radius="none" onClick={() => navigate(`/admin/post/${post.postId}${selectedCategory != null ? `?category=${selectedCategory}` : ''}`)}>Edit</Button>
+                  <Button variant="default" size="xs" radius="none" onClick={() => navigate(editorHref(post.postId!))}>Edit</Button>
                 </Table.Td>
               </Table.Tr>
             ))}
@@ -155,7 +172,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
       {/* Mobile Stack View Frame */}
       <Stack gap="sm" hiddenFrom="sm">
         {paginatedData.map((post) => (
-          <Card key={post.postId} withBorder padding="md" radius="none" style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/post/${post.postId}${selectedCategory != null ? `?category=${selectedCategory}` : ''}`)}>
+          <Card key={post.postId} withBorder padding="md" radius="none" style={{ cursor: 'pointer' }} onClick={() => navigate(editorHref(post.postId!))}>
             <Text fw={600} size="md" c="dark.9" mb="xs">{post.title}</Text>
             <Stack gap={4}>
               <Text size="sm" c="gray.7"><strong>Categories:</strong> {post.categories?.join(', ') || '—'}</Text>

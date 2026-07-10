@@ -38,9 +38,15 @@ export default function EditPostPage() {
   // Safely retrieve parameters prepared by the route loader above
   const { id, isNew } = useLoaderData() as { id: number | null; isNew: boolean };
 
-  const backHref = searchParams.get('category')
-    ? `/admin/posts?category=${searchParams.get('category')}`
-    : '/admin/posts';
+  const backHref = (() => {
+    const params = new URLSearchParams();
+    const category = searchParams.get('category');
+    const status = searchParams.get('status');
+    if (category) params.set('category', category);
+    if (status) params.set('status', status);
+    const qs = params.toString();
+    return qs ? `/admin/posts?${qs}` : '/admin/posts';
+  })();
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
