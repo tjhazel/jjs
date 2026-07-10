@@ -113,6 +113,7 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
               placeholder="Write your full post using markdown formatting…"
               {...form.getInputProps('body')}
               minRows={14}
+              fileNameHint={() => form.getValues().title}
             />
           </Stack>
         </Card>

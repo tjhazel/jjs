@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using JJS.Api.Models;
 using JJS.Api.Models.Album;
 using JJS.Api.Models.Configuration;
@@ -22,16 +21,16 @@ public class AlbumService(IMetaDataService tagData,
    private readonly ICacheService _cacheService = cacheService;
    private readonly IAttachmentRepository _attachmentRepository = attachmentRepository;
 
-   private readonly string _albumRoot = Path.Combine(appConfig.RootPath, "Albums");
-   private readonly string _siteRoot = appConfig.RootPath;
    private readonly string[] _filters = ["*.jpg", "*.png", "*.gif"];
 
    private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = false };
 
+   public string AlbumRoot => Path.Combine(_appConfig.RootPath, "Albums");
+
    // L1: memory cache → L2: Attachments table → L3: full filesystem scan
    public async Task<Folder> Get()
    {
-      if (_cacheService.TryGetValue(_albumRoot, out Folder cached).Result)
+      if (_cacheService.TryGetValue(AlbumRoot, out Folder cached).Result)
          return cached;
 
       try
@@ -42,7 +41,7 @@ public class AlbumService(IMetaDataService tagData,
             var folder = JsonSerializer.Deserialize<Folder>(row.Content, _jsonOptions);
             if (folder != null)
             {
-               await _cacheService.Set(_albumRoot, DateTime.UtcNow.AddDays(365), folder);
+               await _cacheService.Set(AlbumRoot, DateTime.UtcNow.AddDays(365), folder);
                return folder;
             }
          }
@@ -54,13 +53,13 @@ public class AlbumService(IMetaDataService tagData,
 
    public async Task<Folder> Refresh()
    {
-      await _cacheService.Clear(_albumRoot);
+      await _cacheService.Clear(AlbumRoot);
       return await BuildAndSaveCacheAsync();
    }
 
    private async Task<Folder> BuildAndSaveCacheAsync()
    {
-      var folder = await GetFolderFromPath(_albumRoot);
+      var folder = await GetFolderFromPath(AlbumRoot);
 
       try
       {
@@ -79,7 +78,7 @@ public class AlbumService(IMetaDataService tagData,
          Console.WriteLine($"[AlbumService] Failed to persist album cache to DB: {ex.Message}");
       }
 
-      await _cacheService.Set(_albumRoot, DateTime.UtcNow.AddDays(365), folder);
+      await _cacheService.Set(AlbumRoot, DateTime.UtcNow.AddDays(365), folder);
       return folder;
    }
 
@@ -188,7 +187,7 @@ public class AlbumService(IMetaDataService tagData,
 
    public string GetRelativePath(string path)
    {
-      var relativePath = $"/Image/{path.Replace(_albumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/')}";
+      var relativePath = $"/Image/{path.Replace(AlbumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/')}";
       return relativePath;
    }
 
@@ -196,14 +195,14 @@ public class AlbumService(IMetaDataService tagData,
    {
       var request = _httpContextAccessor.HttpContext.Request;
       var baseURL = $"{request.Scheme}://{request.Host}";
-      var relativePath = $"{path.Replace(_albumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/')}";
+      var relativePath = $"{path.Replace(AlbumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/')}";
       var fullUrl = $"{baseURL}/{relativePath}";
       return fullUrl;
    }
 
    public string GetFullFilePath(string relativePath)
    {
-      string newPath = Path.Combine(_albumRoot, relativePath);
+      string newPath = Path.Combine(AlbumRoot, relativePath);
       return newPath;
    }
 
@@ -244,7 +243,8 @@ public class AlbumService(IMetaDataService tagData,
 
 public interface IAlbumService
 {
-   Task<Folder> Get();
+   string AlbumRoot { get; }
+   Task <Folder> Get();
    Task<Folder> Refresh();
    Task<Dictionary<string, File>> GetFlatList();
    string GetFullFilePath(string relativePath);

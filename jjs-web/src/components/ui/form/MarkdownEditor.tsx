@@ -22,8 +22,10 @@ export interface MarkdownEditorProps extends Omit<InputWrapperProps, 'children'>
   placeholder?: string;
   minRows?: number;
   disabled?: boolean;
-  /** Pass the upload route (e.g. `'api/attachment'`) to enable image paste / drop / pick. */
+  /** Pass the upload route (e.g. `'api/post-image'`) to enable image paste / drop / pick. */
   uploadEndpoint?: string;
+  /** Called at upload time to get a preferred base filename (e.g. the post title). */
+  fileNameHint?: () => string;
 }
 
 const UPLOAD_PLACEHOLDER = '![Uploading…]()';
@@ -35,7 +37,8 @@ export default function MarkdownEditor({
   placeholder = 'Write using Markdown…',
   minRows = 8,
   disabled = false,
-  uploadEndpoint = 'api/attachment',
+  uploadEndpoint = 'api/post-image',
+  fileNameHint,
   ...wrapperProps
 }: MarkdownEditorProps) {
   const [tab, setTab] = useState<'write' | 'preview'>('write');
@@ -93,9 +96,23 @@ export default function MarkdownEditor({
 
   // ── Image upload ─────────────────────────────────────────────────────────
 
+  const resolveUploadFile = (file: File): File => {
+    const hint = fileNameHint?.().trim() ?? '';
+    if (!hint) return file;
+    const safeName = hint
+      .replace(/[<>:"/\\|?*\x00-\x1f]/g, '')
+      .slice(0, 30)
+      .trimEnd()
+      .replace(/\.+$/, '');
+    if (!safeName) return file;
+    const ext = file.name.includes('.') ? file.name.slice(file.name.lastIndexOf('.')) : '';
+    return new File([file], `${safeName}${ext}`, { type: file.type });
+  };
+
   const handleImageFile = async (file: File) => {
     if (!uploadEndpoint || !file.type.startsWith('image/')) return;
 
+    const uploadFile = resolveUploadFile(file);
     const el = textareaRef.current;
     const insertPos = el ? el.selectionStart : text.length;
     const withPlaceholder = text.slice(0, insertPos) + UPLOAD_PLACEHOLDER + text.slice(insertPos);
@@ -104,10 +121,11 @@ export default function MarkdownEditor({
 
     try {
       const fd = new FormData();
-      fd.append('file', file);
-      const result = await httpPostFormData<{ attachmentId: number; fileName: string }>(uploadEndpoint, fd);
-      handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${file.name}](/api/attachment/${result.attachmentId}/content)`));
-    } catch {
+      fd.append('file', uploadFile);
+      const result = await httpPostFormData<{ url: string; fileName: string }>(uploadEndpoint, fd);
+      handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${uploadFile.name}](${result.url})`));
+    } catch (e) {
+      console.error('[MarkdownEditor] Image upload failed:', e);
       handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, ''));
     } finally {
       setUploading(false);
