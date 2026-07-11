@@ -59,6 +59,20 @@ public partial class PostRepository
       ;
       """;
 
+   const string MergeCategories_Sql = """
+      merge PostCategories as target
+      using (
+         select cast(Value as int) as CategoryFk
+         from dbo.SplitList(@categoryIds, ',')
+         where Value <> ''
+      ) as source (CategoryFk)
+      on target.PostFk = @postId and target.CategoryFk = source.CategoryFk
+      when not matched by target then
+         insert (PostFk, CategoryFk) values (@postId, source.CategoryFk)
+      when not matched by source and target.PostFk = @postId then
+         delete;
+      """;
+
    const string View_Sql = """
       update Posts set ViewCount = ViewCount + 1 where PostId = @postId;
       """;

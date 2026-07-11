@@ -21,6 +21,7 @@ export interface MarkdownEditorProps extends Omit<InputWrapperProps, 'children'>
   onChange?: (value: string) => void;
   placeholder?: string;
   minRows?: number;
+  maxHeight?: string | number;
   disabled?: boolean;
   /** Pass the upload route (e.g. `'api/post-image'`) to enable image paste / drop / pick. */
   uploadEndpoint?: string;
@@ -36,6 +37,7 @@ export default function MarkdownEditor({
   onChange,
   placeholder = 'Write using Markdown…',
   minRows = 8,
+  maxHeight,
   disabled = false,
   uploadEndpoint = 'api/post-image',
   fileNameHint,
@@ -251,6 +253,7 @@ export default function MarkdownEditor({
               autosize
               disabled={disabled || uploading}
               classNames={{ input: classes.textareaInput }}
+              styles={maxHeight ? { input: { maxHeight, overflowY: 'auto' } } : undefined}
               onPaste={uploadEndpoint ? e => {
                 const imageItem = Array.from(e.clipboardData.items)
                   .find(item => item.kind === 'file' && item.type.startsWith('image/'));

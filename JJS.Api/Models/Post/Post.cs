@@ -12,6 +12,7 @@ public class Post
    public required bool Approved { get; set; }
    public bool? Archived { get; set; }
    public bool? CircleOfTrust { get; set; }
+   public int[] CategoryIds { get; set; } = [];
    public long ViewCount { get; set; }
    public string? ImageUrl { get; set; }
    public DateTime? CreatedDate { get; set; }

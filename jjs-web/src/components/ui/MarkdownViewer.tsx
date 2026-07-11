@@ -21,7 +21,11 @@ export default function MarkdownViewer({ children, components }: MarkdownViewerP
       components={{
         ...components,
         img({ src, alt, ...rest }) {
-          return <img src={resolveImageSrc(src)} alt={alt ?? ''} {...rest} style={{ maxWidth: '100%' }} />;
+          const pipeIndex = (alt ?? '').lastIndexOf('|');
+          const sizeHint = pipeIndex !== -1 ? Number((alt ?? '').slice(pipeIndex + 1)) : NaN;
+          const width = !isNaN(sizeHint) && sizeHint > 0 ? sizeHint : undefined;
+          const cleanAlt = width !== undefined ? (alt ?? '').slice(0, pipeIndex) : (alt ?? '');
+          return <img src={resolveImageSrc(src)} alt={cleanAlt} {...rest} style={{ maxWidth: '100%', width }} />;
         },
       }}
     >

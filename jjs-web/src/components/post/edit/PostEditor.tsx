@@ -114,8 +114,16 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
               placeholder="Write your full post using markdown formatting…"
               {...form.getInputProps('body')}
               minRows={14}
+              maxHeight="80vh"
               fileNameHint={() => form.getValues().title}
             />
+            <Box>
+              <Text size="xs" c="dimmed" mb={4}>To set image width, append <Code fz="xs">|pixels</Code> to the alt text:</Text>
+              <List size="xs" c="dimmed" spacing={2}>
+                <List.Item><Code fz="xs">![my photo|300](url)</Code> — renders at 300px wide</List.Item>
+                <List.Item><Code fz="xs">![my photo](url)</Code> — renders at full width</List.Item>
+              </List>
+            </Box>
           </Stack>
         </Card>
 

@@ -47,7 +47,17 @@ public partial class PostRepository(AppConfig appConfig) : IPostRepository
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
-      model.PostId = await db.ExecuteScalarAsync<int>(MERGE_SQL, model);
+      await using var tx = await db.BeginTransactionAsync();
+
+      model.PostId = await db.ExecuteScalarAsync<int>(MERGE_SQL, model, tx);
+
+      await db.ExecuteAsync(MergeCategories_Sql, new
+      {
+         postId = model.PostId,
+         categoryIds = string.Join(',', model.CategoryIds)
+      }, tx);
+
+      await tx.CommitAsync();
       return model.PostId.Value;
    }
 }
