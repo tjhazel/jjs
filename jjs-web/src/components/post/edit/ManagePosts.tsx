@@ -11,7 +11,7 @@ interface ManagePostsProps {
   isLoading: boolean;
 }
 
-type SortKey = 'title' | 'approved' | 'viewCount' | 'createdDate';
+type SortKey = 'title' | 'approved' | 'viewCount' | 'commentCount' | 'createdDate';
 
 export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
   const navigate = useNavigate();
@@ -103,7 +103,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
         ? new Date(valB as string).getTime() - new Date(valA as string).getTime()
         : new Date(valA as string).getTime() - new Date(valB as string).getTime();
     }
-    if (sortBy === 'viewCount') {
+    if (sortBy === 'viewCount' || sortBy === 'commentCount') {
       return reverseSortDirection ? (valB as number) - (valA as number) : (valA as number) - (valB as number);
     }
     if (sortBy === 'approved') {
@@ -170,6 +170,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
               <Table.Th><Text size="sm" fw={600} c="dark.9">Categories</Text></Table.Th>
               {renderTh('approved', 'Status')}
               {renderTh('viewCount', 'Views')}
+              {renderTh('commentCount', 'Comments')}
               {renderTh('createdDate', 'Created')}
               <Table.Th style={{ width: 80 }} />
             </Table.Tr>
@@ -181,6 +182,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
                 <Table.Td><Text size="sm" truncate c="gray.6">{post.categories?.join(', ') || '—'}</Text></Table.Td>
                 <Table.Td><Badge color={post.approved ? 'green' : 'gray'} radius="none" variant="light">{post.approved ? 'Approved' : 'Draft'}</Badge></Table.Td>
                 <Table.Td><Text size="sm">{post.viewCount.toLocaleString()}</Text></Table.Td>
+                <Table.Td><Text size="sm">{post.commentCount.toLocaleString()}</Text></Table.Td>
                 <Table.Td><Text size="sm">{formatDate(post.createdDate)}</Text></Table.Td>
                 <Table.Td onClick={(e) => e.stopPropagation()}>
                   <Button variant="default" size="xs" radius="none" onClick={() => navigate(editorHref(post.postId!))}>Edit</Button>
@@ -203,6 +205,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
                 <Badge color={post.approved ? 'green' : 'gray'} radius="none" size="xs" variant="light">{post.approved ? 'Approved' : 'Draft'}</Badge>
               </Group>
               <Text size="sm" c="gray.7"><strong>Views:</strong> {post.viewCount.toLocaleString()}</Text>
+              <Text size="sm" c="gray.7"><strong>Comments:</strong> {post.commentCount.toLocaleString()}</Text>
               <Text size="sm" c="gray.7"><strong>Created:</strong> {formatDate(post.createdDate)}</Text>
             </Stack>
           </Card>

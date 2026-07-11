@@ -21,11 +21,13 @@ public partial class PostRepository
          ,p.ModifiedDate
          ,p.ModifiedByFk
          ,mu.DisplayName 'ModifiedBy'
+         ,isnull(max(cc.CommentCount), 0) 'CommentCount'
          ,string_agg(cast(x.CategoryFk as varchar(10)), ',') 'CategoryIds'
          ,string_agg(_cat.Title, ',') 'Categories'
       from Posts p
          left join PostCategories x on x.PostFk = p.PostId
          left join Categories _cat on _cat.CategoryId = x.CategoryFk
+         left join (select PostFk, count(*) CommentCount from Comments group by PostFk) cc on cc.PostFk = p.PostId
         join Users cu on cu.Id = p.CreatedByFk
         join Users mu on mu.Id = p.ModifiedByFk
       where @isPublic <> 1

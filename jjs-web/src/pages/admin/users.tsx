@@ -1,7 +1,7 @@
 import { mutate } from 'swr';
 import { Stack, Group, Title, Text, Alert } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { useUsers, blockUser, unblockUser } from '@api/user/user-fetcher';
+import { useUsers, blockUser, unblockUser, setUserRole } from '@api/user/user-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import type { UserSummary } from '@api/user/user';
 import ManageUsers from '@components/user/ManageUsers';
@@ -16,6 +16,11 @@ export default function ManageUsersPage() {
       } else {
          await blockUser(httpPatch, user.email, 'Admin blocked user');
       }
+      await mutate('api/user/getall');
+   };
+
+   const handleSetRole = async (user: UserSummary, role: string) => {
+      await setUserRole(httpPatch, user.email, role);
       await mutate('api/user/getall');
    };
 
@@ -45,7 +50,7 @@ export default function ManageUsersPage() {
             </Alert>
          )}
 
-         <ManageUsers users={users} isLoading={isLoading} onToggleBlock={handleToggleBlock} />
+         <ManageUsers users={users} isLoading={isLoading} onToggleBlock={handleToggleBlock} onSetRole={handleSetRole} />
 
       </Stack>
    );

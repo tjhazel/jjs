@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge, Anchor, ActionIcon, Tooltip } from '@mantine/core';
-import { IconChevronUp, IconChevronDown, IconSelector, IconExternalLink, IconUserX, IconBan } from '@tabler/icons-react';
+import { IconChevronUp, IconChevronDown, IconSelector, IconExternalLink, IconUserX, IconBan, IconUserMinus, IconUserPlus } from '@tabler/icons-react';
 import { formatDate } from '@lib/time.functions';
 import type { UserSummary } from '@api/user/user';
 import InlineAlert from '@components/ui/InlineAlert';
@@ -10,6 +10,7 @@ interface ManageUsersProps {
    users: UserSummary[] | undefined;
    isLoading: boolean;
    onToggleBlock: (user: UserSummary) => Promise<void>;
+   onSetRole: (user: UserSummary, role: string) => Promise<void>;
 }
 
 type SortKey = 'displayName' | 'email' | 'role' | 'commentCount' | 'lastCommentDate' | 'lastActivityDate' | 'blocked';
@@ -20,12 +21,13 @@ function getUserStatus(user: UserSummary) {
    return { label: 'Active', color: 'green' };
 }
 
-export default function ManageUsers({ users, isLoading, onToggleBlock }: ManageUsersProps) {
+export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole }: ManageUsersProps) {
    const [sortBy, setSortBy] = useState<SortKey | null>(null);
    const [reverseSortDirection, setReverseSortDirection] = useState(false);
    const [activePage, setActivePage] = useState(1);
    const [pageSize, setPageSize] = useState(10);
    const [loadingEmails, setLoadingEmails] = useState<Set<string>>(new Set());
+   const [loadingRoleEmails, setLoadingRoleEmails] = useState<Set<string>>(new Set());
    const [rowErrors, setRowErrors] = useState<Record<string, string | null>>({});
 
    if (isLoading) {
@@ -49,6 +51,18 @@ export default function ManageUsers({ users, isLoading, onToggleBlock }: ManageU
          setRowErrors((prev) => ({ ...prev, [user.email]: (e as Error).message || 'Action failed.' }));
       } finally {
          setLoadingEmails((prev) => { const next = new Set(prev); next.delete(user.email); return next; });
+      }
+   };
+
+   const handleSetRole = async (user: UserSummary, role: string) => {
+      setLoadingRoleEmails((prev) => new Set(prev).add(user.email));
+      setRowErrors((prev) => ({ ...prev, [user.email]: null }));
+      try {
+         await onSetRole(user, role);
+      } catch (e) {
+         setRowErrors((prev) => ({ ...prev, [user.email]: (e as Error).message || 'Role change failed.' }));
+      } finally {
+         setLoadingRoleEmails((prev) => { const next = new Set(prev); next.delete(user.email); return next; });
       }
    };
 
@@ -123,6 +137,45 @@ export default function ManageUsers({ users, isLoading, onToggleBlock }: ManageU
       );
    };
 
+   const renderRoleToggle = (user: UserSummary) => {
+      if (user.role === 'Admin') return null;
+      const isRoleLoading = loadingRoleEmails.has(user.email);
+
+      if (user.role === 'KnownUser') {
+         return (
+            <Tooltip label="Demote to Guest" withArrow>
+               <ActionIcon
+                  variant="subtle"
+                  color="orange"
+                  size="sm"
+                  loading={isRoleLoading}
+                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, 'Guest'); }}
+               >
+                  <IconUserMinus size={15} />
+               </ActionIcon>
+            </Tooltip>
+         );
+      }
+
+      if (user.role === 'Guest') {
+         return (
+            <Tooltip label="Promote to KnownUser" withArrow>
+               <ActionIcon
+                  variant="subtle"
+                  color="green"
+                  size="sm"
+                  loading={isRoleLoading}
+                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, 'KnownUser'); }}
+               >
+                  <IconUserPlus size={15} />
+               </ActionIcon>
+            </Tooltip>
+         );
+      }
+
+      return null;
+   };
+
    const renderBlockToggle = (user: UserSummary) => {
       const isAdmin = user.role === 'Admin';
       const isLoading = loadingEmails.has(user.email);
@@ -183,9 +236,12 @@ export default function ManageUsers({ users, isLoading, onToggleBlock }: ManageU
                            </Table.Td>
                            <Table.Td><Text size="sm" truncate c="gray.6">{user.email}</Text></Table.Td>
                            <Table.Td>
-                              <Badge color={user.role === 'Admin' ? 'blue' : 'gray'} radius="none" variant="light" size="sm">
-                                 {user.role}
-                              </Badge>
+                              <Group gap={4} wrap="nowrap" align="center">
+                                 <Badge color={user.role === 'Admin' ? 'blue' : 'gray'} radius="none" variant="light" size="sm">
+                                    {user.role}
+                                 </Badge>
+                                 {renderRoleToggle(user)}
+                              </Group>
                            </Table.Td>
                            <Table.Td>
                               <Badge color={status.color} radius="none" variant="light" size="sm">
@@ -223,6 +279,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock }: ManageU
                         <Group gap="xs">
                            <Text size="sm" c="gray.7"><strong>Role:</strong></Text>
                            <Badge color={user.role === 'Admin' ? 'blue' : 'gray'} radius="none" size="xs" variant="light">{user.role}</Badge>
+                           {renderRoleToggle(user)}
                         </Group>
                         <Group gap="xs">
                            <Text size="sm" c="gray.7"><strong>Status:</strong></Text>

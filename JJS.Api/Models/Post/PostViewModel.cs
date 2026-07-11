@@ -8,5 +8,6 @@ public class PostViewModel : Post
    public required string ModifiedBy { get; set; }
    public int[] CategoryIds { get; set; } = [];
    public string[] Categories { get; set; } = [];
+   public int CommentCount { get; set; }
 
 }

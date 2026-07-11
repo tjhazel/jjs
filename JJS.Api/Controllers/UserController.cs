@@ -42,7 +42,19 @@ public class UserController(IUserService userService) : Controller
          return BadRequest(new { message = e.Message });
       }
    }
+
+   [HttpPatch, Route("[action]")]
+   [Authorize(Roles = "Admin")]
+   public async Task<IActionResult> SetRole([FromBody] SetRoleRequest request)
+   {
+      if (request.Role is not "KnownUser" and not "Guest")
+         return BadRequest(new { message = "Invalid role. Must be KnownUser or Guest." });
+
+      await _userService.SetRole(request.Email, request.Role);
+      return Ok();
+   }
 }
 
 public record BlockUserRequest(string Email, string Reason);
 public record UnblockUserRequest(string Email);
+public record SetRoleRequest(string Email, string Role);

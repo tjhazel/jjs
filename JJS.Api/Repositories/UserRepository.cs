@@ -54,6 +54,13 @@ public partial class UserRepository(AppConfig appConfig) : IUserRepository
       await db.OpenAsync();
       return await db.QueryAsync<UserSummary>(GET_ALL_WITH_STATS_SQL);
    }
+
+   public async Task SetRole(string email, string role)
+   {
+      using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      await db.ExecuteAsync(SET_ROLE_SQL, new { email, role });
+   }
 }
 
 public interface IUserRepository
@@ -64,4 +71,5 @@ public interface IUserRepository
    Task BlockUser(string email, string blockedBy, string reason);
    Task<IEnumerable<UserSummary>> GetAll();
    Task UnblockUser(string email);
+   Task SetRole(string email, string role);
 }

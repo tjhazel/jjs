@@ -1,7 +1,6 @@
-import { AppShell, Group, Text, NavLink } from '@mantine/core';
+import { AppShell, Group, Image, Text, NavLink } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, useNavigate, useLocation } from 'react-router';
-import CategorySelector from '../post/CategorySelector';
 import {AdminHeader} from './AdminHeader';
 import classes from './AdminLayout.module.css';
 
@@ -45,8 +44,7 @@ export function AdminLayout() {
                active={location.pathname.includes("/admin/user")}
                onClick={() => navTo("/admin/users")}
             />
-            <hr />
-            <CategorySelector selectedCategory={null} onCategoryChange={() => { }} />
+            <Image mt="xl" h={30} w="auto" fit="contain" alt="Logo" src="/images/logojjs.png" />
 
          </AppShell.Navbar>
          <AppShell.Main className={classes.main} >

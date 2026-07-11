@@ -63,6 +63,8 @@ public partial class UserRepository
       ;
       """;
 
+   const string SET_ROLE_SQL = "UPDATE Users SET Role = @role WHERE Email = @email";
+
    const string MERGE_USER_SQL = """
       MERGE INTO Users AS Target
       USING(Values

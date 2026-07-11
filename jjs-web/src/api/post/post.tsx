@@ -9,7 +9,8 @@ export interface Post {
   approved  : boolean;
   archived?: boolean | null;
   viewCount: number;
-  createdDate?: Date; 
+  commentCount: number;
+  createdDate?: Date;
   createdByFk?: string;
   modifiedDate? : Date; 
   modifiedByFk? : string;

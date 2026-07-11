@@ -11,6 +11,10 @@ export const unblockUser = async (httpPatch: TPatch, email: string): Promise<voi
    await httpPatch(`api/user/unblockuser`, { email });
 };
 
+export const setUserRole = async (httpPatch: TPatch, email: string, role: string): Promise<void> => {
+   await httpPatch(`api/user/setrole`, { email, role });
+};
+
 export function useUsers(httpGet: TGet) {
    const { data, isValidating, error } = useSWR<UserSummary[], HttpError>(
       'api/user/getall',
