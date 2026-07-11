@@ -16,6 +16,7 @@ const basePostSchema = z.object({
    commentsEnabled: z.boolean(),
    approved: z.boolean(),
    archived: z.boolean().nullable().optional(),
+   circleOfTrust: z.boolean().nullable().optional(),
    viewCount: z.number().nonnegative()
 });
 
@@ -41,6 +42,7 @@ export const DEFAULT_POST: FormValues = {
    commentsEnabled: false,
    approved: false,
    archived: null,
+   circleOfTrust: null,
    viewCount: 0,
    imageUrl: "",
    categoryIds: [], // Empty string array to prevent Mantine rendering errors

@@ -75,7 +75,7 @@ public static class UserExtensions
       return appUser;
    }
 
-   public static bool UserCanSeeProtectedData(this IPrincipal user)
+   public static bool UserIsInCircleOfTrust(this IPrincipal user)
    {
       return user.IsInRole(UserRoles.Admin) || user.IsInRole(UserRoles.KnownUser);
    }

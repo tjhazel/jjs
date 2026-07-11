@@ -31,9 +31,9 @@ public class PostService(
             as IEnumerable<PostViewModel>;
       }, CacheKey.PostPublicCacheName);
 
-      return (_httpContextAccessor.HttpContext?.User.UserCanSeeProtectedData() ?? false)
+      return (_httpContextAccessor.HttpContext?.User.UserIsInCircleOfTrust() ?? false)
          ? allPosts
-         : allPosts.Where(p => !p.CategoryIds.Contains(CategoryConstants.Facetube));
+         : allPosts.Where(p => p.CircleOfTrust != true);
    }
 
    public Task<IEnumerable<PostViewModel>> GetAll()

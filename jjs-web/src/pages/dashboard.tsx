@@ -6,14 +6,9 @@ import { useCarouselImages } from '@api/album/image-fetcher';
 import { usePosts } from '@api/post/post-fetcher';
 import PostList from '@components/post/PostList';
 import CategorySelector from '@components/post/CategorySelector';
-import { useAuth } from '@lib/auth/authContext';
-
-const FACETUBE_CATEGORY_ID = 8;
 
 function DashboardPage() {
   const { httpGet } = useApiContext();
-  const { hasRole } = useAuth();
-  const canSeeFacetube = hasRole(['Admin', 'KnownUser']);
   const { data: carouselImages } = useCarouselImages(httpGet);
   const { data: posts, isLoading } = usePosts(httpGet);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,13 +22,9 @@ function DashboardPage() {
     });
   };
 
-  const visiblePosts = canSeeFacetube
-    ? posts
-    : posts?.filter(p => !p.categoryIds.includes(FACETUBE_CATEGORY_ID));
-
   const homePosts = selectedCategory != null
-    ? visiblePosts?.filter(p => p.categoryIds.includes(selectedCategory))
-    : visiblePosts;
+    ? posts?.filter(p => p.categoryIds.includes(selectedCategory))
+    : posts;
 
   if (isLoading) {
     return (

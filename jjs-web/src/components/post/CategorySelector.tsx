@@ -1,9 +1,6 @@
 import { Select } from "@mantine/core";
 import { useCategories } from "@/api/post/category-fetcher";
 import { useApiContext } from "@api/ApiContext";
-import { useAuth } from "@lib/auth/authContext";
-
-const FACETUBE_CATEGORY_ID = 8;
 
 interface CategorySelectorProps {
   selectedCategory: number | null;
@@ -13,16 +10,10 @@ interface CategorySelectorProps {
 export default function CategorySelector({ selectedCategory, onCategoryChange }: CategorySelectorProps) {
   const { httpGet } = useApiContext();
   const { data: categories, isLoading } = useCategories(httpGet);
-  const { hasRole } = useAuth();
-  const canSeeFacetube = hasRole(['Admin', 'KnownUser']);
-
-  const visibleCategories = canSeeFacetube
-    ? categories
-    : categories?.filter(c => c.categoryId !== FACETUBE_CATEGORY_ID);
 
   const options = [
     { value: "", label: "All Categories" },
-    ...(visibleCategories?.map((c) => ({ value: String(c.categoryId), label: c.title })) ?? []),
+    ...(categories?.map((c) => ({ value: String(c.categoryId), label: c.title })) ?? []),
   ];
 
   return (

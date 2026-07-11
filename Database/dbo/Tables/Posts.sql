@@ -14,6 +14,7 @@
     [ModifiedByFk]    UNIQUEIDENTIFIER NOT NULL,
     [ImageUrl]        NVARCHAR (500)   NULL,
     [Archived]        BIT              NULL,
+    [CircleOfTrust]   BIT              NULL,
     CONSTRAINT [PK_sb_posts] PRIMARY KEY CLUSTERED ([PostId] ASC),
     CONSTRAINT [FK_Posts_Users_CreatedBy] FOREIGN KEY ([CreatedByFk]) REFERENCES [dbo].[Users] ([Id]),
     CONSTRAINT [FK_Posts_Users_ModifiedBy] FOREIGN KEY ([ModifiedByFk]) REFERENCES [dbo].[Users] ([Id])

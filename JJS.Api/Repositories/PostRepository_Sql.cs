@@ -13,6 +13,7 @@ public partial class PostRepository
          ,p.CommentsEnabled
          ,p.Approved
          ,p.Archived
+         ,p.CircleOfTrust
          ,p.ViewCount
          ,p.ImageUrl
          ,p.CreatedDate
@@ -46,6 +47,7 @@ public partial class PostRepository
          ,p.CommentsEnabled
          ,p.Approved
          ,p.Archived
+         ,p.CircleOfTrust
          ,p.ViewCount
          ,p.ImageUrl
          ,p.CreatedDate
@@ -73,6 +75,7 @@ public partial class PostRepository
                ,@commentsEnabled
                ,@approved
                ,@archived
+               ,@circleOfTrust
                ,@viewCount
                ,@imageUrl
                ,@createdDate
@@ -88,6 +91,7 @@ public partial class PostRepository
                ,CommentsEnabled
                ,Approved
                ,Archived
+               ,CircleOfTrust
                ,ViewCount
                ,ImageUrl
                ,CreatedDate
@@ -105,6 +109,7 @@ public partial class PostRepository
                ,CommentsEnabled = SOURCE.CommentsEnabled
                ,Approved = SOURCE.Approved
                ,Archived = SOURCE.Archived
+               ,CircleOfTrust = SOURCE.CircleOfTrust
                ,ViewCount = SOURCE.ViewCount
                ,ImageUrl = SOURCE.ImageUrl
                ,CreatedDate = SOURCE.CreatedDate
@@ -121,6 +126,7 @@ public partial class PostRepository
                ,CommentsEnabled
                ,Approved
                ,Archived
+               ,CircleOfTrust
                ,ViewCount
                ,ImageUrl
                ,CreatedDate
@@ -135,6 +141,7 @@ public partial class PostRepository
                ,SOURCE.CommentsEnabled
                ,SOURCE.Approved
                ,SOURCE.Archived
+               ,SOURCE.CircleOfTrust
                ,SOURCE.ViewCount
                ,SOURCE.ImageUrl
                ,SOURCE.CreatedDate

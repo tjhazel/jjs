@@ -8,6 +8,7 @@ export interface Post {
   commentsEnabled : boolean;
   approved  : boolean;
   archived?: boolean | null;
+  circleOfTrust?: boolean | null;
   viewCount: number;
   commentCount: number;
   createdDate?: Date;
