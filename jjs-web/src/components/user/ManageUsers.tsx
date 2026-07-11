@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge, Anchor, ActionIcon, Tooltip } from '@mantine/core';
-import { IconChevronUp, IconChevronDown, IconSelector, IconExternalLink, IconUserX, IconBan, IconUserMinus, IconUserPlus } from '@tabler/icons-react';
+import { IconChevronUp, IconChevronDown, IconSelector, IconExternalLink, IconUserX, IconBan, IconUserMinus, IconUserPlus, IconMessageCircle } from '@tabler/icons-react';
 import { formatDate } from '@lib/time.functions';
 import type { UserSummary } from '@api/user/user';
 import InlineAlert from '@components/ui/InlineAlert';
+import CommentsModal from '@components/comment/CommentsModal';
 
 interface ManageUsersProps {
    users: UserSummary[] | undefined;
@@ -28,6 +29,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
    const [pageSize, setPageSize] = useState(10);
    const [loadingEmails, setLoadingEmails] = useState<Set<string>>(new Set());
    const [loadingRoleEmails, setLoadingRoleEmails] = useState<Set<string>>(new Set());
+   const [commentsUser, setCommentsUser] = useState<UserSummary | null>(null);
    const [rowErrors, setRowErrors] = useState<Record<string, string | null>>({});
 
    if (isLoading) {
@@ -218,7 +220,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                      {renderTh('commentCount', 'Comments')}
                      {renderTh('lastCommentDate', 'Last Comment')}
                      {renderTh('lastActivityDate', 'Last Active')}
-                     <Table.Th style={{ width: 48 }} />
+                     <Table.Th style={{ width: 64 }} />
                   </Table.Tr>
                </Table.Thead>
                <Table.Tbody>
@@ -252,7 +254,16 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                            <Table.Td>{renderLastCommentLink(user)}</Table.Td>
                            <Table.Td><Text size="sm">{formatDate(user.lastActivityDate)}</Text></Table.Td>
                            <Table.Td onClick={(e) => e.stopPropagation()}>
-                              {renderBlockToggle(user)}
+                              <Group gap={4} wrap="nowrap">
+                                 {renderBlockToggle(user)}
+                                 {user.commentCount > 0 && (
+                                    <Tooltip label={`${user.commentCount} comment${user.commentCount !== 1 ? 's' : ''}`} withArrow>
+                                       <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setCommentsUser(user)}>
+                                          <IconMessageCircle size={15} />
+                                       </ActionIcon>
+                                    </Tooltip>
+                                 )}
+                              </Group>
                            </Table.Td>
                         </Table.Tr>
                      );
@@ -269,7 +280,16 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                   <Card key={user.email} withBorder padding="md" radius="none">
                      <Group justify="space-between" align="flex-start" mb="xs">
                         <Text fw={600} size="md" c="dark.9">{user.displayName}</Text>
-                        {renderBlockToggle(user)}
+                        <Group gap={4} wrap="nowrap">
+                           {renderBlockToggle(user)}
+                           {user.commentCount > 0 && (
+                              <Tooltip label={`${user.commentCount} comment${user.commentCount !== 1 ? 's' : ''}`} withArrow>
+                                 <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setCommentsUser(user)}>
+                                    <IconMessageCircle size={15} />
+                                 </ActionIcon>
+                              </Tooltip>
+                           )}
+                        </Group>
                      </Group>
                      {rowErrors[user.email] && (
                         <InlineAlert message={rowErrors[user.email]} onClose={() => setRowErrors((prev) => ({ ...prev, [user.email]: null }))} />
@@ -319,6 +339,13 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                <Select size="xs" w={80} radius="none" value={String(pageSize)} onChange={(val) => { setPageSize(Number(val)); setActivePage(1); }} data={['5', '10', '20', '30', '40', '50']} allowDeselect={false} />
             </Group>
          </Group>
+
+         <CommentsModal
+            opened={commentsUser != null}
+            onClose={() => setCommentsUser(null)}
+            title={commentsUser ? `${commentsUser.displayName}'s Comments` : 'Comments'}
+            email={commentsUser?.email}
+         />
       </Stack>
    );
 }

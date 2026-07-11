@@ -43,4 +43,12 @@ public class CommentController(ICommentService commentService, IHttpContextAcces
    {
       await _commentService.Unhide(commentId);
    }
+
+   [HttpGet, Route("[action]")]
+   [Authorize(Roles = "Admin")]
+   public async Task<IActionResult> GetAll([FromQuery] string? email, [FromQuery] int? postId)
+   {
+      var comments = await _commentService.GetAll(email, postId);
+      return Ok(comments);
+   }
 }

@@ -1,5 +1,5 @@
 import type { HttpError, TGet, TPost, TPatch } from "@/lib/httpClient";
-import type { PagedComments, NewCommentRequest } from "./comment";
+import type { CommentSummary, PagedComments, NewCommentRequest } from "./comment";
 import useSWR from "swr";
 import { swrOptions, mutateKeysLike } from "@/lib/swr.functions";
 
@@ -30,9 +30,24 @@ export const addComment = async (httpPost: TPost, postId: number, request: NewCo
 export const hideComment = async (httpPatch: TPatch, commentId: number) => {
    await httpPatch(`api/comment/hidecomment/${commentId}`);
    mutateKeysLike('api/comment/getbypost');
+   mutateKeysLike('api/comment/getall');
 };
 
 export const unhideComment = async (httpPatch: TPatch, commentId: number) => {
    await httpPatch(`api/comment/unhidecomment/${commentId}`);
    mutateKeysLike('api/comment/getbypost');
+   mutateKeysLike('api/comment/getall');
 };
+
+export function useAllComments(httpGet: TGet, params?: { email?: string; postId?: number }) {
+   const qs = new URLSearchParams();
+   if (params?.email) qs.set('email', params.email);
+   if (params?.postId != null) qs.set('postId', String(params.postId));
+   const key = `api/comment/getall?${qs.toString()}`;
+   const { data, isValidating, error } = useSWR<CommentSummary[], HttpError>(key, httpGet, { ...swrOptions });
+   return {
+      data,
+      isLoading: !error && !data && isValidating,
+      error: error?.message,
+   };
+}

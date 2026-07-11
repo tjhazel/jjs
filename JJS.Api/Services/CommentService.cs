@@ -62,6 +62,11 @@ public class CommentService(
       await _commentRepository.Unhide(commentId);
       await _cacheService.Clear();
    }
+
+   public Task<IEnumerable<CommentSummary>> GetAll(string? email, int? postId)
+   {
+      return _commentRepository.GetAll(email, postId);
+   }
 }
 
 public interface ICommentService
@@ -70,4 +75,5 @@ public interface ICommentService
    Task Add(int postId, NewCommentRequest request, ClaimsUser user, string? authorIp);
    Task Hide(int commentId, string hiddenBy);
    Task Unhide(int commentId);
+   Task<IEnumerable<CommentSummary>> GetAll(string? email, int? postId);
 }

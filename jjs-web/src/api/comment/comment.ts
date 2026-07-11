@@ -12,6 +12,10 @@ export interface Comment {
    authorBlocked?: boolean;
 }
 
+export interface CommentSummary extends Comment {
+   postTitle: string;
+}
+
 export interface NewCommentRequest {
    title: string;
    entryText: string;

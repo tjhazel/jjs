@@ -41,6 +41,27 @@ public partial class CommentRepository
       ;
       """;
 
+   const string GetAll_Sql = """
+      SELECT c.CommentId
+         ,c.PostFk
+         ,p.Title AS PostTitle
+         ,c.Title
+         ,cast(c.EntryText as nvarchar(max)) EntryText
+         ,c.AuthorName
+         ,c.AuthorEmail
+         ,c.CreatedDate
+         ,c.AdminHidden
+         ,c.HiddenBy
+         ,c.HiddenDate
+         ,isnull(u.Blocked, 0) AS AuthorBlocked
+      FROM Comments c
+      JOIN Posts p ON p.PostId = c.PostFk
+      LEFT JOIN Users u ON u.Email = c.AuthorEmail
+      WHERE (@email IS NULL OR c.AuthorEmail = @email)
+        AND (@postId IS NULL OR c.PostFk = @postId)
+      ORDER BY c.CreatedDate DESC
+      """;
+
    const string Add_Sql = """
       insert into Comments (PostFk, Title, EntryText, AuthorName, AuthorEmail, AuthorIP, CreatedDate)
       values (@PostFk, @Title, @EntryText, @AuthorName, @AuthorEmail, @AuthorIp, getutcdate())

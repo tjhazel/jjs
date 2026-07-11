@@ -23,7 +23,7 @@ export function AdminHeader({ navOpened, onNavToggle }: AdminHeaderProps) {
             aria-label="Toggle navigation"
           />
           <Title order={3} size="h3" fw={600} c="white" visibleFrom="sm">
-            Control Panel
+            John, Jeri, and Sidney
           </Title>
         </Group>
 

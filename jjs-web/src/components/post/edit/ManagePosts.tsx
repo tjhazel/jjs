@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge, TextInput } from '@mantine/core';
-import { IconChevronUp, IconChevronDown, IconSelector, IconSearch } from '@tabler/icons-react';
+import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge, TextInput, ActionIcon, Tooltip } from '@mantine/core';
+import { IconChevronUp, IconChevronDown, IconSelector, IconSearch, IconMessageCircle } from '@tabler/icons-react';
 import { formatDate } from '@lib/time.functions';
 import type { PostDetail } from '@api/post/post';
 import CategorySelector from '@components/post/CategorySelector';
+import CommentsModal from '@components/comment/CommentsModal';
 
 interface ManagePostsProps {
   posts: PostDetail[] | undefined;
@@ -15,6 +16,7 @@ type SortKey = 'title' | 'approved' | 'viewCount' | 'commentCount' | 'createdDat
 
 export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
   const navigate = useNavigate();
+  const [commentsPost, setCommentsPost] = useState<PostDetail | null>(null);
   const [sortBy, setSortBy] = useState<SortKey | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
   const [activePage, setActivePage] = useState(1);
@@ -172,7 +174,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
               {renderTh('viewCount', 'Views')}
               {renderTh('commentCount', 'Comments')}
               {renderTh('createdDate', 'Created')}
-              <Table.Th style={{ width: 80 }} />
+              <Table.Th style={{ width: 110 }} />
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -185,7 +187,16 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
                 <Table.Td><Text size="sm">{post.commentCount.toLocaleString()}</Text></Table.Td>
                 <Table.Td><Text size="sm">{formatDate(post.createdDate)}</Text></Table.Td>
                 <Table.Td onClick={(e) => e.stopPropagation()}>
-                  <Button variant="default" size="xs" radius="none" onClick={() => navigate(editorHref(post.postId!))}>Edit</Button>
+                  <Group gap={4} wrap="nowrap">
+                    <Button variant="default" size="xs" radius="none" onClick={() => navigate(editorHref(post.postId!))}>Edit</Button>
+                    {post.commentCount > 0 && (
+                      <Tooltip label={`${post.commentCount} comment${post.commentCount !== 1 ? 's' : ''}`} withArrow>
+                        <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setCommentsPost(post)}>
+                          <IconMessageCircle size={15} />
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </Group>
                 </Table.Td>
               </Table.Tr>
             ))}
@@ -197,7 +208,16 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
       <Stack gap="sm" hiddenFrom="sm">
         {paginatedData.map((post) => (
           <Card key={post.postId} withBorder padding="md" radius="none" style={{ cursor: 'pointer' }} onClick={() => navigate(editorHref(post.postId!))}>
-            <Text fw={600} size="md" c="dark.9" mb="xs">{post.title}</Text>
+            <Group justify="space-between" align="flex-start" mb="xs">
+              <Text fw={600} size="md" c="dark.9">{post.title}</Text>
+              {post.commentCount > 0 && (
+                <Tooltip label={`${post.commentCount} comment${post.commentCount !== 1 ? 's' : ''}`} withArrow>
+                  <ActionIcon variant="subtle" color="gray" size="sm" onClick={(e) => { e.stopPropagation(); setCommentsPost(post); }}>
+                    <IconMessageCircle size={15} />
+                  </ActionIcon>
+                </Tooltip>
+              )}
+            </Group>
             <Stack gap={4}>
               <Text size="sm" c="gray.7"><strong>Categories:</strong> {post.categories?.join(', ') || '—'}</Text>
               <Group gap="xs">
@@ -224,6 +244,13 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
           <Select size="xs" w={80} radius="none" value={String(pageSize)} onChange={(val) => { setPageSize(Number(val)); setActivePage(1); }} data={['5', '10', '20', '30', '40', '50']} allowDeselect={false} />
         </Group>
       </Group>
+
+      <CommentsModal
+        opened={commentsPost != null}
+        onClose={() => setCommentsPost(null)}
+        title={commentsPost?.title ?? 'Comments'}
+        postId={commentsPost?.postId ?? undefined}
+      />
     </Stack>
   );
 }
