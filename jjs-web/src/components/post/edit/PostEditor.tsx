@@ -116,6 +116,11 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
               minRows={14}
               maxHeight="80vh"
               fileNameHint={() => form.getValues().title}
+              onImageUploaded={({ fileName }) => {
+                if (!form.getValues().imageUrl) {
+                  form.setFieldValue('imageUrl', `/Image/PostImages/${fileName}`);
+                }
+              }}
             />
             <Box>
               <Text size="xs" c="dimmed" mb={4}>To set image width, append <Code fz="xs">|pixels</Code> to the alt text:</Text>

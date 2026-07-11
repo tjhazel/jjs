@@ -27,6 +27,8 @@ export interface MarkdownEditorProps extends Omit<InputWrapperProps, 'children'>
   uploadEndpoint?: string;
   /** Called at upload time to get a preferred base filename (e.g. the post title). */
   fileNameHint?: () => string;
+  /** Called after a successful image upload with the server's response. */
+  onImageUploaded?: (result: { url: string; fileName: string }) => void;
 }
 
 const UPLOAD_PLACEHOLDER = '![Uploading…]()';
@@ -41,6 +43,7 @@ export default function MarkdownEditor({
   disabled = false,
   uploadEndpoint = 'api/post-image',
   fileNameHint,
+  onImageUploaded,
   ...wrapperProps
 }: MarkdownEditorProps) {
   const [tab, setTab] = useState<'write' | 'preview'>('write');
@@ -130,6 +133,7 @@ export default function MarkdownEditor({
       fd.append('file', uploadFile);
       const result = await httpPostFormData<{ url: string; fileName: string }>(uploadEndpoint, fd);
       handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${safeAlt(uploadFile.name)}](${result.url})`));
+      onImageUploaded?.(result);
     } catch (e) {
       console.error('[MarkdownEditor] Image upload failed:', e);
       handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, ''));
