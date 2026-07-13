@@ -17,6 +17,8 @@ import PostPage from "@pages/post/post";
 import RecipePage from "@pages/recipe/recipe";
 import RecipeView, { recipeLoader } from "@pages/recipe/RecipeView";
 import UnauthorizedPage from "@pages/unauthorized";
+import ThingsPage from "@pages/things/index";
+import WordleHintsPage from "@pages/things/wordlehints";
 
 // Core Pages
 import DashboardPage from "@pages/dashboard"; // Public index page now
@@ -54,6 +56,8 @@ export const router = createBrowserRouter([
           { path: "post", element: <PostPage /> },
           { path: "recipe/:id", loader: recipeLoader, element: <RecipeView /> },
           { path: "recipe", element: <RecipePage /> },
+          { path: "things", element: <ThingsPage /> },
+          { path: "things/wordlehints", element: <WordleHintsPage /> },
         ],
       },
       // These pages manage their own full-page layout

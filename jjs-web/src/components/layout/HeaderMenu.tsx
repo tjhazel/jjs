@@ -88,15 +88,25 @@ export function HeaderMenu() {
       });
 
       if (menuItems) {
+         const isExternalParent = link.link.startsWith('http');
          return (
             <Menu key={link.label} trigger="hover" transitionProps={{ exitDuration: 0 }} withinPortal>
             <Menu.Target>
-               <a href={link.link} className={classes.link} onClick={(e) => e.preventDefault()}>
-                  <Center>
-                  <span className={classes.linkLabel}>{link.label}</span>
-                  <IconChevronDown size={14} stroke={1.5} />
-                  </Center>
-               </a>
+               {isExternalParent ? (
+                  <a href={link.link} className={classes.link} target="_blank" rel="noopener noreferrer">
+                     <Center>
+                     <span className={classes.linkLabel}>{link.label}</span>
+                     <IconChevronDown size={14} stroke={1.5} />
+                     </Center>
+                  </a>
+               ) : (
+                  <Link to={link.link} className={classes.link}>
+                     <Center>
+                     <span className={classes.linkLabel}>{link.label}</span>
+                     <IconChevronDown size={14} stroke={1.5} />
+                     </Center>
+                  </Link>
+               )}
             </Menu.Target>
             <Menu.Dropdown>{menuItems}</Menu.Dropdown>
             </Menu>
