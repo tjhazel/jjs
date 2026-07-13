@@ -1,6 +1,6 @@
 ﻿
 
-export type UserRole = "Admin" | "KnownUser" | "Guest";
+export type UserRole = "Admin" | "CircleOfTrust" | "Guest";
 
 export interface JJSUser {
    email: string;

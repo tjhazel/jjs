@@ -143,7 +143,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
       if (user.role === 'Admin') return null;
       const isRoleLoading = loadingRoleEmails.has(user.email);
 
-      if (user.role === 'KnownUser') {
+      if (user.role === 'CircleOfTrust') {
          return (
             <Tooltip label="Demote to Guest" withArrow>
                <ActionIcon
@@ -161,13 +161,13 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
 
       if (user.role === 'Guest') {
          return (
-            <Tooltip label="Promote to KnownUser" withArrow>
+            <Tooltip label="Promote to Circle of Trust" withArrow>
                <ActionIcon
                   variant="subtle"
                   color="green"
                   size="sm"
                   loading={isRoleLoading}
-                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, 'KnownUser'); }}
+                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, 'CircleOfTrust'); }}
                >
                   <IconUserPlus size={15} />
                </ActionIcon>

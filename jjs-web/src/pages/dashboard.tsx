@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router';
-import { Box, Center, Group, Image, Loader, Stack, Text } from '@mantine/core';
+import { Box, Center, Group, Image, Loader, Stack, Text, TextInput } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
+import { IconSearch } from '@tabler/icons-react';
 import { useApiContext } from '@api/ApiContext';
 import { useCarouselImages } from '@api/album/image-fetcher';
 import { usePosts } from '@api/post/post-fetcher';
@@ -13,6 +14,7 @@ function DashboardPage() {
   const { data: posts, isLoading } = usePosts(httpGet);
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedCategory = searchParams.get('category') ? Number(searchParams.get('category')) : null;
+  const textFilter = searchParams.get('q') ?? '';
 
   const handleCategoryChange = (id: number | null) => {
     setSearchParams(prev => {
@@ -22,9 +24,23 @@ function DashboardPage() {
     });
   };
 
-  const homePosts = selectedCategory != null
-    ? posts?.filter(p => p.categoryIds.includes(selectedCategory))
-    : posts;
+  const handleTextFilter = (value: string) => {
+    setSearchParams(prev => {
+      if (!value) prev.delete('q');
+      else prev.set('q', value);
+      return prev;
+    });
+  };
+
+  const needle = textFilter.toLowerCase();
+  const homePosts = posts?.filter(p => {
+    const matchesCategory = selectedCategory == null || p.categoryIds.includes(selectedCategory);
+    const matchesText = !needle
+      || p.title.toLowerCase().includes(needle)
+      || p.previewText.toLowerCase().includes(needle)
+      || p.body.toLowerCase().includes(needle);
+    return matchesCategory && matchesText;
+  });
 
   if (isLoading) {
     return (
@@ -70,6 +86,13 @@ function DashboardPage() {
 
         <Box bg="var(--mantine-color-indigo-light)">
           <Group justify="flex-end" px="md" pb="sm">
+            <TextInput
+              placeholder="Search posts..."
+              leftSection={<IconSearch size={14} />}
+              value={textFilter}
+              onChange={e => handleTextFilter(e.currentTarget.value)}
+              style={{ minWidth: 220 }}
+            />
             <CategorySelector
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}

@@ -77,7 +77,7 @@ public static class UserExtensions
 
    public static bool UserIsInCircleOfTrust(this IPrincipal user)
    {
-      return user.IsInRole(UserRoles.Admin) || user.IsInRole(UserRoles.KnownUser);
+      return user.IsInRole(UserRoles.Admin) || user.IsInRole(UserRoles.CircleOfTrust);
    }
 
    private static string? GetClaimValue(this ClaimsPrincipal claimUser, string typeName)

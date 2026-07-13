@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import { googleLogout } from "@react-oauth/google";
 import type { UserRole, JJSUser, User } from "@/api/user/user";
+import { mutatePosts } from "@api/post/post-fetcher";
 import config from '@/lib/config';
 
 // Import our helpers and explicitly use 'import type' for compilation efficiency
@@ -66,6 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
          isAuthenticated: true,
          isLoading: false,
       });
+
+      mutatePosts();
    }, []);
 
    const logout = useCallback(() => {

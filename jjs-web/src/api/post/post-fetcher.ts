@@ -56,6 +56,8 @@ export function useGetPost(httpGet: TGet, id?: number) {
    };
 }
 
+export const mutatePosts = () => mutate(basePostUrl);
+
 export const viewPost = async (httpPatch: TPatch, postId: number) => {
    const url = viewPostUrl(postId);
    const result = await httpPatch(url)

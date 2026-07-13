@@ -47,8 +47,8 @@ public class UserController(IUserService userService) : Controller
    [Authorize(Roles = "Admin")]
    public async Task<IActionResult> SetRole([FromBody] SetRoleRequest request)
    {
-      if (request.Role is not "KnownUser" and not "Guest")
-         return BadRequest(new { message = "Invalid role. Must be KnownUser or Guest." });
+      if (request.Role is not "CircleOfTrust" and not "Guest")
+         return BadRequest(new { message = "Invalid role. Must be CircleOfTrust or Guest." });
 
       await _userService.SetRole(request.Email, request.Role);
       return Ok();
