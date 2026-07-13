@@ -2,7 +2,7 @@
     [PostId]          INT              IDENTITY (1, 1) NOT NULL,
     [Title]           NVARCHAR (255)   NOT NULL,
     [PreviewText]     NVARCHAR (500)   NOT NULL,
-    [Body]            NTEXT            NOT NULL,
+    [Body]            NVARCHAR (MAX)   NOT NULL,
     [ReleaseDate]     SMALLDATETIME    NULL,
     [ExpireDate]      SMALLDATETIME    NULL,
     [CommentsEnabled] BIT              CONSTRAINT [DF_Posts_CommentsEnabled] DEFAULT ((1)) NOT NULL,
@@ -19,6 +19,8 @@
     CONSTRAINT [FK_Posts_Users_CreatedBy] FOREIGN KEY ([CreatedByFk]) REFERENCES [dbo].[Users] ([Id]),
     CONSTRAINT [FK_Posts_Users_ModifiedBy] FOREIGN KEY ([ModifiedByFk]) REFERENCES [dbo].[Users] ([Id])
 );
+
+
 
 
 GO

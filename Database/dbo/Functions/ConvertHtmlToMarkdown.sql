@@ -1,11 +1,11 @@
 ﻿CREATE FUNCTION [dbo].[ConvertHtmlToMarkdown]
 (
-    @html NVARCHAR(MAX)
+	@html NVARCHAR(MAX)
 )
 RETURNS NVARCHAR(MAX)
 AS
 BEGIN
-    DECLARE @md NVARCHAR(MAX) = @html;
+	 DECLARE @md NVARCHAR(MAX) = @html;
 
     -- 1. Handle Div Tags (Treat as block elements/line breaks)
     SET @md = REPLACE(@md, '<div>', CHAR(13) + CHAR(10));
@@ -70,6 +70,8 @@ BEGIN
    SET @md = REPLACE(@md, '&ldquo;', '''');
    SET @md = REPLACE(@md, '&rsquo;', '''');
 
+   --  Now you see, we pride ourselves in with our &ldquo;attention to detail&rdquo;.  That was sort of a big oversight.  You would think something as big as a visa required to enter your vacation would have popped up on the radar somewhere.  Well, it didn't!!!  Good news though, it turns out that Australia is the only country in the world that allows an electronic visa application.  The very nice and kind lady, Aimee Nutini, quickly brought our blood pressure back to normal and hooked us up.  
+   --  So, there we were, standing at the mercy of the United Airlines ticketing agent'I will add, we looked perfectly harmless and fairly happy (with minimal sleep).  Then we heard the line'&rdquo;Can I see your Visas?&rdquo;.  Now imagine, waiting years to make this trip, taking a years worth of vacation time, scheduling connecting flights, glacier trips, kayak trips, '.  And the only thing we could muster up was a simple, fleeting &ldquo;no ma am&rdquo;. Now you see, we pride ourselves in with our &ldquo;attention to detail&rdquo;.  That was sort of a big oversight.  You would think something as big as a visa required to enter your vacation would have popped up on the radar somewhere.  Well, it didn't!!!  Good news though, it turns out that Australia is the only country in the world that allows an electronic visa application.  The very nice and kind lady, Aimee Nutini, quickly brought our blood pressure back to normal and hooked us up.  We checked into our hotel in Sydney at 9:00 AM Monday morning.  That being said, we are having a great trip.  It is still day one with no (non air) sleep yet.  It has been less than 12 hours and we touched a python (Jeri too!), a two-headed skink, a starfish, and a sea cucumber.  We also got our first glimpse of a crocodile, wallaby, penguins, sharks, and koalas.  We finished the afternoon off with a drink in Darling Harbour (note the misspelling') and we are contemplating what to do for dinner.  This pretty much ends our first post in our private version of the amazing race'.  Make sure to shoot us some comments to this'feel free to offer up some suggestions on what to do next!  
     -- Strip remaining HTML tags
     DECLARE @Start INT = PATINDEX('%<[^>]*>%', @md);
     WHILE @Start > 0

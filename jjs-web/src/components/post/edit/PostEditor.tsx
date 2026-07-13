@@ -74,6 +74,8 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
         ...values,
 
         // 3. Apply explicit type maps to satisfy API entity rules
+        // postId is not a form field so values spread above sets it to undefined — restore it
+        postId: post?.postId,
         categoryIds: values.categoryIds.map(Number),
         releaseDate: values.releaseDate ?? undefined,
         expireDate: values.expireDate ?? undefined,

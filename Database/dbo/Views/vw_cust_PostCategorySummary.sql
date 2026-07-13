@@ -13,7 +13,7 @@ select p.*
 	,ct.CategoryType
 	,c.Title CategoryTitle
 	,c.[Description]
-	,c.ImageUrl
+	,c.ImageUrl 'categoryimageurl' 
 	,isnull((select count(cmt.CommentId) 
 			from Comments cmt 
 			where cmt.PostFk = p.PostId),0) as 'CommentCount'

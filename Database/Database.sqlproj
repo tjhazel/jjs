@@ -89,8 +89,8 @@
     <Build Include="dbo\Functions\SplitList.sql" />
     <Build Include="dbo\Tables\Users.sql" />
     <Build Include="dbo\Functions\ConvertHtmlToMarkdown.sql" />
-    <None Include="Scripts\001-AddUserCreatedDate.sql" />
-    <Build Include="Scripts\002-HideComments.sql" />
+    <Build Include="dbo\Tables\CommentReactions.sql" />
+    <Build Include="dbo\Tables\PostReactions.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\Migrate.sql" />
