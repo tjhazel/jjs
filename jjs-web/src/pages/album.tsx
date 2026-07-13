@@ -61,14 +61,14 @@ export default function AlbumPage() {
          {/* ─── Header & Breadcrumbs Section ─── */}
          <Stack gap="xs">
             <Title order={1} fw={600}>
-               {path ? "Album" : "Photos"}
+               {path ? (filteredData?.name ?? "Album") : "Album"}
             </Title>
 
             {/* Responsive horizontal breadcrumb list wrapper layout container */}
             <Group gap="xs" wrap="nowrap" style={{ overflowX: "auto", paddingBottom: "8px" }}>
-               {/* Base Root Level Pointer */}
-               <Anchor component="button" type="button" size="sm" onClick={() => navigateToPath(IMAGE_PREFIX)}>
-                  Photos
+               {/* Base Root Level Pointer — no path arg so navigateToPath goes to /album */}
+               <Anchor component="button" type="button" size="sm" onClick={() => navigateToPath()}>
+                  Album
                </Anchor>
 
                {/* 🔴 FIXED: Cleared orphaned duplicate tags. Safely maps path tokens sequentially */}
@@ -86,7 +86,7 @@ export default function AlbumPage() {
                               component="button"
                               type="button"
                               size="sm"
-                              onClick={() => navigateToPath(`${IMAGE_PREFIX}${breadcrumbPath}/`)}
+                              onClick={() => navigateToPath(`${IMAGE_PREFIX}/${breadcrumbPath}`)}
                            >
                               {segment}
                            </Anchor>
