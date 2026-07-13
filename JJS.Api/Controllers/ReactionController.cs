@@ -32,4 +32,23 @@ public class ReactionController(IReactionService reactionService) : Controller
         await _reactionService.Toggle(postId, email, input.Emoji);
         return Ok();
     }
+
+    [HttpGet, Route("[action]/{commentId}")]
+    public async Task<ReactionSummary> GetByComment(int commentId)
+    {
+        var email = User.Identity?.IsAuthenticated == true ? User.GetEmailFromClaims() : null;
+        return await _reactionService.GetByComment(commentId, email);
+    }
+
+    [HttpPost, Route("[action]/{commentId}")]
+    [Authorize]
+    public async Task<IActionResult> ToggleComment(int commentId, [FromBody] PostReactionInput input)
+    {
+        if (!AllowedEmojis.Contains(input.Emoji))
+            return BadRequest("Invalid emoji.");
+
+        var email = User.GetEmailFromClaims();
+        await _reactionService.ToggleComment(commentId, email, input.Emoji);
+        return Ok();
+    }
 }

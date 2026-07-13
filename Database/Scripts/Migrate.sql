@@ -71,6 +71,22 @@ begin
 end
 ;
 
+if not exists (select * from sys.tables where name = 'CommentReactions')
+begin
+    create table [dbo].[CommentReactions] (
+        [ReactionId] int           identity(1,1) not null,
+        [CommentFk]  int           not null,
+        [Email]      nvarchar(500) not null,
+        [Emoji]      nvarchar(10)  not null,
+        [ReactedAt]  smalldatetime default (getutcdate()) not null,
+        constraint [PK_CommentReactions] primary key clustered ([ReactionId] asc),
+        constraint [FK_CommentReactions_Comments] foreign key ([CommentFk]) references [dbo].[Comments] ([CommentId]),
+        constraint [UQ_CommentReactions_UserEmoji] unique ([CommentFk], [Email], [Emoji])
+    )
+    ;
+end
+;
+
 if not exists (select * from sys.tables where name = 'PostReactions')
 begin
     create table [dbo].[PostReactions] (

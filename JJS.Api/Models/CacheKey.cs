@@ -8,4 +8,5 @@ public class CacheKey
    public const string CommentByPostCacheName = "comment/bypost";
    public const string ReplyByCommentCacheName = "comment/replies";
    public const string ReactionByPostCacheName = "reaction/bypost";
+   public const string ReactionByCommentCacheName = "reaction/bycomment";
 }

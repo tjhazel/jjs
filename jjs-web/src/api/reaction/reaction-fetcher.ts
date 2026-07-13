@@ -29,3 +29,26 @@ export const toggleReaction = async (httpPost: TPost, postId: number, emoji: str
   mutate(basePostUrl);
   mutate(allPostsUrl);
 };
+
+const reactionsByCommentUrl = (commentId: number) => `api/reaction/getbycomment/${commentId}`;
+const toggleCommentReactionUrl = (commentId: number) => `api/reaction/togglecomment/${commentId}`;
+
+export function useCommentReactions(httpGet: TGet, commentId: number | undefined) {
+  const key = commentId ? reactionsByCommentUrl(commentId) : null;
+  const { data, isValidating, error } = useSWR<ReactionSummary, HttpError>(
+    key,
+    httpGet,
+    { ...swrOptions }
+  );
+
+  return {
+    data,
+    isLoading: !error && !data && isValidating,
+    error: error?.message,
+  };
+}
+
+export const toggleCommentReaction = async (httpPost: TPost, commentId: number, emoji: string) => {
+  await httpPost(toggleCommentReactionUrl(commentId), { emoji });
+  mutateKeysLike(reactionsByCommentUrl(commentId));
+};

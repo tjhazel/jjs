@@ -8,6 +8,7 @@ import { useAuth } from '@lib/auth/authContext';
 import HiddenOverlay from '@components/ui/HiddenOverlay';
 import InlineAlert from '@components/ui/InlineAlert';
 import AddCommentForm from './AddCommentForm';
+import CommentReactions from './CommentReactions';
 
 interface CommentItemProps {
    comment: Comment;
@@ -60,6 +61,7 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, isReply =
                <Text size="sm">{new Date(comment.createdDate).toLocaleDateString()}</Text>
             </Group>
             <Text size="sm" mt={4}>{comment.entryText}</Text>
+            <CommentReactions commentId={comment.commentId} />
             {banError && <InlineAlert message={banError} onClose={() => setBanError(null)} />}
 
             {!isReply && (

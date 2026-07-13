@@ -26,4 +26,29 @@ public partial class ReactionRepository
             VALUES (@postId, @email, @emoji, GETUTCDATE())
         ;
         """;
+
+    const string GetByComment_Sql = """
+        SELECT Emoji, COUNT(*) AS Count
+        FROM CommentReactions
+        WHERE CommentFk = @commentId
+        GROUP BY Emoji
+        ;
+        SELECT Emoji
+        FROM CommentReactions
+        WHERE CommentFk = @commentId AND (@email IS NOT NULL AND Email = @email)
+        ;
+        """;
+
+    const string ToggleComment_Sql = """
+        IF EXISTS (
+            SELECT 1 FROM CommentReactions
+            WHERE CommentFk = @commentId AND Email = @email AND Emoji = @emoji
+        )
+            DELETE FROM CommentReactions
+            WHERE CommentFk = @commentId AND Email = @email AND Emoji = @emoji
+        ELSE
+            INSERT INTO CommentReactions (CommentFk, Email, Emoji, ReactedAt)
+            VALUES (@commentId, @email, @emoji, GETUTCDATE())
+        ;
+        """;
 }

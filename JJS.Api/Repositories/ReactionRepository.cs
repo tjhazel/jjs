@@ -27,10 +27,29 @@ public partial class ReactionRepository(AppConfig appConfig) : IReactionReposito
         await db.OpenAsync();
         await db.ExecuteAsync(Toggle_Sql, new { postId, email, emoji });
     }
+
+    public async Task<ReactionSummary> GetByComment(int commentId, string? email)
+    {
+        await using var db = new SqlConnection(_appConfig.DbConnectionString);
+        await db.OpenAsync();
+        using var multi = await db.QueryMultipleAsync(GetByComment_Sql, new { commentId, email });
+        var counts = (await multi.ReadAsync<EmojiCount>()).ToDictionary(x => x.Emoji, x => x.Count);
+        var userReactions = (await multi.ReadAsync<string>()).ToList();
+        return new ReactionSummary { Counts = counts, UserReactions = userReactions };
+    }
+
+    public async Task ToggleComment(int commentId, string email, string emoji)
+    {
+        await using var db = new SqlConnection(_appConfig.DbConnectionString);
+        await db.OpenAsync();
+        await db.ExecuteAsync(ToggleComment_Sql, new { commentId, email, emoji });
+    }
 }
 
 public interface IReactionRepository
 {
     Task<ReactionSummary> GetByPost(int postId, string? email);
     Task Toggle(int postId, string email, string emoji);
+    Task<ReactionSummary> GetByComment(int commentId, string? email);
+    Task ToggleComment(int commentId, string email, string emoji);
 }

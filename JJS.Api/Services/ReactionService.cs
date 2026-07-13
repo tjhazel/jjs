@@ -28,10 +28,26 @@ public class ReactionService(
         await _cacheService.ClearByPrefix(CacheKey.PostPublicCacheName);
         await _cacheService.ClearByPrefix(CacheKey.PostAllCacheName);
     }
+
+    public Task<ReactionSummary> GetByComment(int commentId, string? email)
+    {
+        var cacheKey = $"{CacheKey.ReactionByCommentCacheName}/{commentId}/{email ?? "anon"}";
+        return _cacheService.GetCachedValue(
+            () => _reactionRepository.GetByComment(commentId, email),
+            cacheKey);
+    }
+
+    public async Task ToggleComment(int commentId, string email, string emoji)
+    {
+        await _reactionRepository.ToggleComment(commentId, email, emoji);
+        await _cacheService.ClearByPrefix($"{CacheKey.ReactionByCommentCacheName}/{commentId}");
+    }
 }
 
 public interface IReactionService
 {
     Task<ReactionSummary> GetByPost(int postId, string? email);
     Task Toggle(int postId, string email, string emoji);
+    Task<ReactionSummary> GetByComment(int commentId, string? email);
+    Task ToggleComment(int commentId, string email, string emoji);
 }
