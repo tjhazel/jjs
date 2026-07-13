@@ -15,4 +15,5 @@ public class Comment
    public bool? AuthorBlocked { get; set; }
    public int? ParentCommentFk { get; set; }
    public int ReplyCount { get; set; }
+   public string ReactionCounts { get; set; } = "";
 }

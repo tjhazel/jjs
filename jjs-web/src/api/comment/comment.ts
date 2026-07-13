@@ -12,6 +12,7 @@ export interface Comment {
    authorBlocked?: boolean;
    parentCommentFk?: number;
    replyCount: number;
+   reactionCounts?: string;
 }
 
 export interface CommentSummary extends Comment {

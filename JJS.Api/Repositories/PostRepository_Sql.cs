@@ -32,7 +32,7 @@ public partial class PostRepository
          left join (select PostFk, count(*) CommentCount from Comments group by PostFk) cc on cc.PostFk = p.PostId
          left join (
             select PostFk, string_agg(Emoji + ':' + cast(EmojiCount as varchar(10)), ',') as ReactionCounts
-            from (select PostFk, Emoji, count(*) as EmojiCount from PostReactions group by PostFk, Emoji) x
+            from (select PostFk, Emoji COLLATE Latin1_General_100_BIN2 as Emoji, count(*) as EmojiCount from PostReactions group by PostFk, Emoji COLLATE Latin1_General_100_BIN2) x
             group by PostFk
          ) rc on rc.PostFk = p.PostId
         join Users cu on cu.Id = p.CreatedByFk

@@ -103,6 +103,36 @@ begin
 end
 ;
 
+if exists (
+    select 1 from sys.columns c
+    join sys.tables t on t.object_id = c.object_id
+    where t.name = 'PostReactions' and c.name = 'Emoji' and c.collation_name <> 'Latin1_General_100_BIN2'
+)
+begin
+    alter table [dbo].[PostReactions] drop constraint [UQ_PostReactions_UserEmoji]
+    ;
+    alter table [dbo].[PostReactions] alter column [Emoji] nvarchar(10) collate Latin1_General_100_BIN2 not null
+    ;
+    alter table [dbo].[PostReactions] add constraint [UQ_PostReactions_UserEmoji] unique ([PostFk], [Email], [Emoji])
+    ;
+end
+;
+
+if exists (
+    select 1 from sys.columns c
+    join sys.tables t on t.object_id = c.object_id
+    where t.name = 'CommentReactions' and c.name = 'Emoji' and c.collation_name <> 'Latin1_General_100_BIN2'
+)
+begin
+    alter table [dbo].[CommentReactions] drop constraint [UQ_CommentReactions_UserEmoji]
+    ;
+    alter table [dbo].[CommentReactions] alter column [Emoji] nvarchar(10) collate Latin1_General_100_BIN2 not null
+    ;
+    alter table [dbo].[CommentReactions] add constraint [UQ_CommentReactions_UserEmoji] unique ([CommentFk], [Email], [Emoji])
+    ;
+end
+;
+
 if exists(select * from information_schema.columns where table_name = 'Posts' and column_name = 'Body'and data_type = 'ntext') begin
    alter table [Posts] alter column [Body] nvarchar(max) not null   
    ;

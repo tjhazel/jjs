@@ -16,8 +16,14 @@ public partial class CommentRepository
          ,case when @isAdmin = 1 then c.AuthorEmail else null end 'AuthorEmail'
          ,case when @isAdmin = 1 then isnull(u.Blocked, 0) else null end 'AuthorBlocked'
          ,(select count(*) from Comments r where r.ParentCommentFk = c.CommentId) 'ReplyCount'
+         ,isnull(rc.ReactionCounts, '') 'ReactionCounts'
       from Comments c
       left join Users u on u.Email = c.AuthorEmail
+      left join (
+         select CommentFk, string_agg(Emoji + ':' + cast(EmojiCount as varchar(10)), ',') as ReactionCounts
+         from (select CommentFk, Emoji COLLATE Latin1_General_100_BIN2 as Emoji, count(*) as EmojiCount from CommentReactions group by CommentFk, Emoji COLLATE Latin1_General_100_BIN2) x
+         group by CommentFk
+      ) rc on rc.CommentFk = c.CommentId
       where c.PostFk = @postId
         and c.ParentCommentFk is null
         and (@isAdmin = 1 or c.AdminHidden = 0)
@@ -40,8 +46,14 @@ public partial class CommentRepository
          ,case when @isAdmin = 1 then c.AuthorEmail else null end 'AuthorEmail'
          ,case when @isAdmin = 1 then isnull(u.Blocked, 0) else null end 'AuthorBlocked'
          ,0 'ReplyCount'
+         ,isnull(rc.ReactionCounts, '') 'ReactionCounts'
       from Comments c
       left join Users u on u.Email = c.AuthorEmail
+      left join (
+         select CommentFk, string_agg(Emoji + ':' + cast(EmojiCount as varchar(10)), ',') as ReactionCounts
+         from (select CommentFk, Emoji COLLATE Latin1_General_100_BIN2 as Emoji, count(*) as EmojiCount from CommentReactions group by CommentFk, Emoji COLLATE Latin1_General_100_BIN2) x
+         group by CommentFk
+      ) rc on rc.CommentFk = c.CommentId
       where c.ParentCommentFk = @commentId
         and (@isAdmin = 1 or c.AdminHidden = 0)
       order by c.CreatedDate asc
@@ -81,9 +93,15 @@ public partial class CommentRepository
          ,c.HiddenDate
          ,isnull(u.Blocked, 0) AS AuthorBlocked
          ,(select count(*) from Comments r where r.ParentCommentFk = c.CommentId) ReplyCount
+         ,isnull(rc.ReactionCounts, '') ReactionCounts
       FROM Comments c
       JOIN Posts p ON p.PostId = c.PostFk
       LEFT JOIN Users u ON u.Email = c.AuthorEmail
+      LEFT JOIN (
+         SELECT CommentFk, string_agg(Emoji + ':' + cast(EmojiCount as varchar(10)), ',') AS ReactionCounts
+         FROM (SELECT CommentFk, Emoji COLLATE Latin1_General_100_BIN2 AS Emoji, count(*) AS EmojiCount FROM CommentReactions GROUP BY CommentFk, Emoji COLLATE Latin1_General_100_BIN2) x
+         GROUP BY CommentFk
+      ) rc ON rc.CommentFk = c.CommentId
       WHERE (@email IS NULL OR c.AuthorEmail = @email)
         AND (@postId IS NULL OR c.PostFk = @postId)
       ORDER BY c.CreatedDate DESC
