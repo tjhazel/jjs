@@ -6,20 +6,25 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import { useAuth } from '@lib/auth/authContext';
 import { GoogleSignInButton } from '@lib/auth/GoogleLoginButton';
 import { useApiContext } from '@api/ApiContext';
-import { addComment } from '@api/comment/comment-fetcher';
+import { addComment, addReply } from '@api/comment/comment-fetcher';
 import { commentSchema, DEFAULT_COMMENT, type CommentFormValues } from '@api/comment/commentSchema';
 
 interface AddCommentFormProps {
    postId: number;
+   parentCommentId?: number;
+   compact?: boolean;
    onCommentAdded?: () => void;
+   onCancel?: () => void;
 }
 
-export default function AddCommentForm({ postId, onCommentAdded }: AddCommentFormProps) {
+export default function AddCommentForm({ postId, parentCommentId, compact, onCommentAdded, onCancel }: AddCommentFormProps) {
    const { isAuthenticated, user } = useAuth();
    const { httpPost } = useApiContext();
    const [isSaving, setIsSaving] = useState(false);
    const [submitError, setSubmitError] = useState<string | null>(null);
    const [submitted, setSubmitted] = useState(false);
+
+   const isReply = parentCommentId !== undefined;
 
    const form = useForm<CommentFormValues>({
       mode: 'uncontrolled',
@@ -28,6 +33,7 @@ export default function AddCommentForm({ postId, onCommentAdded }: AddCommentFor
    });
 
    if (!isAuthenticated) {
+      if (isReply) return null;
       return (
          <Box>
             <Text size="sm" c="dimmed" mb="sm">Sign in to leave a comment.</Text>
@@ -40,40 +46,49 @@ export default function AddCommentForm({ postId, onCommentAdded }: AddCommentFor
       setIsSaving(true);
       setSubmitError(null);
       try {
-         await addComment(httpPost, postId, values);
+         if (isReply) {
+            await addReply(httpPost, postId, parentCommentId, values);
+         } else {
+            await addComment(httpPost, postId, values);
+         }
          form.reset();
          setSubmitted(true);
          onCommentAdded?.();
       } catch {
-         setSubmitError('Failed to post comment. Please try again.');
+         setSubmitError(`Failed to post ${isReply ? 'reply' : 'comment'}. Please try again.`);
       } finally {
          setIsSaving(false);
       }
    };
+
    return (
       <Stack gap="sm">
          {submitted && (
             <Alert color="green" radius="none">
-               Your comment has been posted. Thanks, {user?.displayName}!
+               {isReply ? `Reply posted. Thanks, ${user?.displayName}!` : `Your comment has been posted. Thanks, ${user?.displayName}!`}
             </Alert>
          )}
          <Box component="form" onSubmit={form.onSubmit(handleSubmit)} noValidate>
             <Stack gap="sm">
-               <Text size="sm" c="dimmed">Commenting as <strong>{user?.displayName}</strong></Text>
+               {!compact && (
+                  <Text size="sm" c="dimmed">Commenting as <strong>{user?.displayName}</strong></Text>
+               )}
                <TextInput
                   withAsterisk
                   label="Title"
-                  placeholder="Comment title"
+                  placeholder={isReply ? 'Reply title' : 'Comment title'}
                   radius="none"
+                  size={compact ? 'sm' : 'md'}
                   key={form.key('title')}
                   {...form.getInputProps('title')}
                />
                <Textarea
                   withAsterisk
-                  label="Comment"
-                  placeholder="Write your comment…"
-                  rows={4}
+                  label={compact ? undefined : 'Comment'}
+                  placeholder={isReply ? 'Write your reply…' : 'Write your comment…'}
+                  rows={compact ? 2 : 4}
                   radius="none"
+                  size={compact ? 'sm' : 'md'}
                   key={form.key('entryText')}
                   {...form.getInputProps('entryText')}
                />
@@ -82,10 +97,15 @@ export default function AddCommentForm({ postId, onCommentAdded }: AddCommentFor
                      {submitError}
                   </Alert>
                )}
-               <Group>
-                  <Button type="submit" color="dark" radius="none" loading={isSaving}>
-                     Post Comment
+               <Group gap="xs">
+                  <Button type="submit" color="dark" radius="none" size={compact ? 'xs' : 'sm'} loading={isSaving}>
+                     {isReply ? 'Post Reply' : 'Post Comment'}
                   </Button>
+                  {onCancel && (
+                     <Button variant="subtle" color="gray" radius="none" size={compact ? 'xs' : 'sm'} onClick={onCancel}>
+                        Cancel
+                     </Button>
+                  )}
                </Group>
             </Stack>
          </Box>

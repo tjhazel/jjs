@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Card, Image, Text, Box, AspectRatio } from '@mantine/core';
 import classes from './ImageCard.module.css';
@@ -11,10 +12,11 @@ interface ImageCardProps {
   alt?: string;
   link: string;
   footerText?: string;
+  footerSlot?: ReactNode;
 }
 
 export default function ImageCard(props: ImageCardProps) {
-  const { title, previewText, previewLines = 3, timestamp, imageUrl, alt, link, footerText } = props;
+  const { title, previewText, previewLines = 3, timestamp, imageUrl, alt, link, footerText, footerSlot } = props;
 
   return (
     <Card
@@ -74,11 +76,16 @@ export default function ImageCard(props: ImageCardProps) {
           {previewText}
         </Text>
 
-        {footerText && (
-          <Text fw={500} size="sm" c="dark.9" mt="lg" className={classes.footerText}>
-            {footerText}
-          </Text>
-           )}
+        {(footerText || footerSlot) && (
+          <Box mt="lg" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+            {footerText && (
+              <Text fw={500} size="sm" c="dark.9" className={classes.footerText}>
+                {footerText}
+              </Text>
+            )}
+            {footerSlot}
+          </Box>
+        )}
       </Box>
     </Card>
   );

@@ -9,5 +9,5 @@ public class PostViewModel : Post
    public int[] CategoryIds { get; set; } = [];
    public string[] Categories { get; set; } = [];
    public int CommentCount { get; set; }
-
+   public string ReactionCounts { get; set; } = "";
 }

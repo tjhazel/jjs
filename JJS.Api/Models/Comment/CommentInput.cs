@@ -8,4 +8,5 @@ public class CommentInput
    public required string AuthorName { get; set; }
    public required string AuthorEmail { get; set; }
    public string? AuthorIp { get; set; }
+   public int? ParentCommentFk { get; set; }
 }

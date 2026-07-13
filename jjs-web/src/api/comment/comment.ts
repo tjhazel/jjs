@@ -10,6 +10,8 @@ export interface Comment {
    hiddenDate?: string;
    authorEmail?: string;
    authorBlocked?: boolean;
+   parentCommentFk?: number;
+   replyCount: number;
 }
 
 export interface CommentSummary extends Comment {
@@ -19,6 +21,7 @@ export interface CommentSummary extends Comment {
 export interface NewCommentRequest {
    title: string;
    entryText: string;
+   parentCommentFk?: number;
 }
 
 export interface PagedComments {

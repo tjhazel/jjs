@@ -20,6 +20,12 @@ public class CommentController(ICommentService commentService, IHttpContextAcces
       return await _commentService.GetByPost(postId, page, User.IsInRole("Admin"));
    }
 
+   [HttpGet, Route("[action]/{commentId}")]
+   public async Task<IEnumerable<Comment>> GetReplies(int commentId)
+   {
+      return await _commentService.GetReplies(commentId, User.IsInRole("Admin"));
+   }
+
    [HttpPost, Route("[action]/{postId}")]
    [Authorize]
    public async Task AddForPost(int postId, NewCommentRequest request)

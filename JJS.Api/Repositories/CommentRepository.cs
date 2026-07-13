@@ -39,6 +39,13 @@ public partial class CommentRepository(AppConfig appConfig) : ICommentRepository
       await db.ExecuteAsync(Unhide_Sql, new { commentId });
    }
 
+   public async Task<IEnumerable<Comment>> GetReplies(int commentId, bool isAdmin)
+   {
+      await using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      return await db.QueryAsync<Comment>(GetReplies_Sql, new { commentId, isAdmin });
+   }
+
    public async Task<IEnumerable<CommentSummary>> GetAll(string? email, int? postId)
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
@@ -50,6 +57,7 @@ public partial class CommentRepository(AppConfig appConfig) : ICommentRepository
 public interface ICommentRepository
 {
    Task<IEnumerable<Comment>> GetByPost(int postId, int offset, int pageSize, bool isAdmin);
+   Task<IEnumerable<Comment>> GetReplies(int commentId, bool isAdmin);
    Task Add(CommentInput input);
    Task Hide(int commentId, string hiddenBy);
    Task Unhide(int commentId);

@@ -63,6 +63,30 @@ begin
 end
 ;
 
+if col_length('dbo.Comments', 'ParentCommentFk') is null
+begin
+    alter table Comments add ParentCommentFk int null
+        constraint FK_Comments_ParentComment foreign key references Comments(CommentId)
+    ;
+end
+;
+
+if not exists (select * from sys.tables where name = 'PostReactions')
+begin
+    create table [dbo].[PostReactions] (
+        [ReactionId] int           identity(1,1) not null,
+        [PostFk]     int           not null,
+        [Email]      nvarchar(500) not null,
+        [Emoji]      nvarchar(10)  not null,
+        [ReactedAt]  smalldatetime default (getutcdate()) not null,
+        constraint [PK_PostReactions] primary key clustered ([ReactionId] asc),
+        constraint [FK_PostReactions_Posts] foreign key ([PostFk]) references [dbo].[Posts] ([PostId]),
+        constraint [UQ_PostReactions_UserEmoji] unique ([PostFk], [Email], [Emoji])
+    )
+    ;
+end
+;
+
 if exists(select * from information_schema.columns where table_name = 'Posts' and column_name = 'Body'and data_type = 'ntext') begin
    alter table [Posts] alter column [Body] nvarchar(max) not null   
    ;

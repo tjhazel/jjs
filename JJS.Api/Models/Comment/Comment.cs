@@ -13,4 +13,6 @@ public class Comment
    public DateTime? HiddenDate { get; set; }
    public string? AuthorEmail { get; set; }
    public bool? AuthorBlocked { get; set; }
+   public int? ParentCommentFk { get; set; }
+   public int ReplyCount { get; set; }
 }

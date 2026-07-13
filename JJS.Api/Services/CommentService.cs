@@ -41,6 +41,7 @@ public class CommentService(
       var input = new CommentInput
       {
          PostFk = postId,
+         ParentCommentFk = request.ParentCommentFk,
          Title = request.Title,
          EntryText = request.EntryText,
          AuthorName = user.DisplayName,
@@ -48,7 +49,18 @@ public class CommentService(
          AuthorIp = authorIp?[..Math.Min(authorIp.Length, 15)],
       };
       await _commentRepository.Add(input);
-      await _cacheService.ClearByPrefix($"{CacheKey.CommentByPostCacheName}/{postId}");
+      if (request.ParentCommentFk.HasValue)
+         await _cacheService.ClearByPrefix($"{CacheKey.ReplyByCommentCacheName}/{request.ParentCommentFk}");
+      else
+         await _cacheService.ClearByPrefix($"{CacheKey.CommentByPostCacheName}/{postId}");
+   }
+
+   public Task<IEnumerable<Comment>> GetReplies(int commentId, bool isAdmin)
+   {
+      var cacheKey = $"{CacheKey.ReplyByCommentCacheName}/{commentId}/{(isAdmin ? "admin" : "public")}";
+      return _cacheService.GetCachedValue(
+         () => _commentRepository.GetReplies(commentId, isAdmin),
+         cacheKey);
    }
 
    public async Task Hide(int commentId, string hiddenBy)
@@ -72,6 +84,7 @@ public class CommentService(
 public interface ICommentService
 {
    Task<PagedResult<Comment>> GetByPost(int postId, int page, bool isAdmin);
+   Task<IEnumerable<Comment>> GetReplies(int commentId, bool isAdmin);
    Task Add(int postId, NewCommentRequest request, ClaimsUser user, string? authorIp);
    Task Hide(int commentId, string hiddenBy);
    Task Unhide(int commentId);

@@ -12,8 +12,10 @@
     [AdminHidden]       BIT            CONSTRAINT [DF_Comments_AdminHidden] DEFAULT ((0)) NOT NULL,
     [HiddenBy]          NVARCHAR (256) NULL,
     [HiddenDate]        DATETIME       NULL,
+    [ParentCommentFk]   INT            NULL,
     CONSTRAINT [PK_sb_comments] PRIMARY KEY CLUSTERED ([CommentId] ASC),
-    CONSTRAINT [FK_Comments_Posts] FOREIGN KEY ([PostFk]) REFERENCES [dbo].[Posts] ([PostId])
+    CONSTRAINT [FK_Comments_Posts] FOREIGN KEY ([PostFk]) REFERENCES [dbo].[Posts] ([PostId]),
+    CONSTRAINT [FK_Comments_ParentComment] FOREIGN KEY ([ParentCommentFk]) REFERENCES [dbo].[Comments] ([CommentId])
 );
 
 

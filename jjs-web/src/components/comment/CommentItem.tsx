@@ -1,21 +1,31 @@
 import { useState } from 'react';
-import { Stack, Title, Text, Box, Group, ActionIcon, Tooltip } from '@mantine/core';
-import { IconEye, IconEyeOff, IconUserX, IconBan } from '@tabler/icons-react';
+import { Stack, Title, Text, Box, Group, ActionIcon, Tooltip, Button, Divider, Loader, Center } from '@mantine/core';
+import { IconEye, IconEyeOff, IconUserX, IconBan, IconMessageCircle } from '@tabler/icons-react';
 import type { Comment } from '@api/comment/comment';
+import { useReplies } from '@api/comment/comment-fetcher';
+import { useApiContext } from '@api/ApiContext';
+import { useAuth } from '@lib/auth/authContext';
 import HiddenOverlay from '@components/ui/HiddenOverlay';
 import InlineAlert from '@components/ui/InlineAlert';
+import AddCommentForm from './AddCommentForm';
 
 interface CommentItemProps {
    comment: Comment;
    isAdmin: boolean;
    isHighlighted?: boolean;
+   isReply?: boolean;
    onHide: (commentId: number) => void;
    onUnhide: (commentId: number) => void;
    onBanUser: (comment: Comment) => Promise<void>;
 }
 
-export default function CommentItem({ comment, isAdmin, isHighlighted, onHide, onUnhide, onBanUser }: CommentItemProps) {
+export default function CommentItem({ comment, isAdmin, isHighlighted, isReply = false, onHide, onUnhide, onBanUser }: CommentItemProps) {
+   const { httpGet } = useApiContext();
+   const { isAuthenticated } = useAuth();
    const [banError, setBanError] = useState<string | null>(null);
+   const [showReplyArea, setShowReplyArea] = useState(false);
+
+   const { data: replies, isLoading: repliesLoading } = useReplies(httpGet, comment.commentId, showReplyArea);
 
    const handleBanClick = async () => {
       setBanError(null);
@@ -24,6 +34,10 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, onHide, o
       } catch (e) {
          setBanError((e as Error).message);
       }
+   };
+
+   const handleReplyAdded = () => {
+      // keep area open so user can see their reply appear
    };
 
    return (
@@ -47,6 +61,25 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, onHide, o
             </Group>
             <Text size="sm" mt={4}>{comment.entryText}</Text>
             {banError && <InlineAlert message={banError} onClose={() => setBanError(null)} />}
+
+            {!isReply && (
+               <Group gap="xs" mt={6}>
+                  {(isAuthenticated || comment.replyCount > 0) && (
+                     <Button
+                        variant="subtle"
+                        color="gray"
+                        size="compact-xs"
+                        radius="xl"
+                        leftSection={<IconMessageCircle size={13} />}
+                        onClick={() => setShowReplyArea(v => !v)}
+                     >
+                        {comment.replyCount > 0
+                           ? `${comment.replyCount} ${comment.replyCount === 1 ? 'reply' : 'replies'}`
+                           : 'Reply'}
+                     </Button>
+                  )}
+               </Group>
+            )}
          </Stack>
 
          {isAdmin && comment.adminHidden && <HiddenOverlay />}
@@ -54,10 +87,7 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, onHide, o
          {isAdmin && (
             <Box style={{ position: 'absolute', top: 0, right: 0, zIndex: 2 }}>
                <Group gap={4} wrap="nowrap">
-                  <Tooltip
-                     label={comment.adminHidden ? 'Unhide comment' : 'Hide comment'}
-                     withArrow
-                  >
+                  <Tooltip label={comment.adminHidden ? 'Unhide comment' : 'Hide comment'} withArrow>
                      <ActionIcon
                         variant="subtle"
                         color={comment.adminHidden ? 'blue' : 'orange'}
@@ -80,6 +110,50 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, onHide, o
                      </ActionIcon>
                   </Tooltip>
                </Group>
+            </Box>
+         )}
+
+         {!isReply && showReplyArea && (
+            <Box
+               mt="sm"
+               ml="md"
+               pl="md"
+               style={{ borderLeft: '2px solid var(--mantine-color-gray-3)' }}
+            >
+               {repliesLoading && (
+                  <Center py="xs">
+                     <Loader size="xs" type="dots" />
+                  </Center>
+               )}
+
+               {replies && replies.length > 0 && (
+                  <Stack gap="sm" mb="sm">
+                     {replies.map((reply, i) => (
+                        <Box key={reply.commentId}>
+                           <CommentItem
+                              comment={reply}
+                              isAdmin={isAdmin}
+                              isReply
+                              onHide={onHide}
+                              onUnhide={onUnhide}
+                              onBanUser={onBanUser}
+                           />
+                           {i < replies.length - 1 && <Divider mt="sm" />}
+                        </Box>
+                     ))}
+                     <Divider />
+                  </Stack>
+               )}
+
+               {isAuthenticated && (
+                  <AddCommentForm
+                     postId={comment.postFk}
+                     parentCommentId={comment.commentId}
+                     compact
+                     onCommentAdded={handleReplyAdded}
+                     onCancel={() => setShowReplyArea(false)}
+                  />
+               )}
             </Box>
          )}
       </Box>

@@ -24,4 +24,5 @@ export interface PostDetail extends Post {
    imageUrl?: string;
    categoryIds: number[];
    categories?: string[];
+   reactionCounts?: string;
 }
