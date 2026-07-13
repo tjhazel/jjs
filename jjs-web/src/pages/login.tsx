@@ -5,18 +5,16 @@ import { GoogleSignInButton } from "@/lib/auth/GoogleLoginButton";
 import { Center, Paper, Title, Text, Stack, Box } from "@mantine/core";
 
 export default function LoginPage() {
-   const { isAuthenticated, isLoading } = useAuth();
+   const { isAuthenticated, isLoading, hasRole } = useAuth();
    const navigate = useNavigate();
    const [searchParams] = useSearchParams();
 
-   const callbackUrl = searchParams.get("callbackUrl") ?? '/admin';
-
-   // Handles safe redirection if user is already authenticated
    useEffect(() => {
       if (!isLoading && isAuthenticated) {
-         navigate(callbackUrl, { replace: true });
+         const target = searchParams.get("callbackUrl") ?? (hasRole('Admin') ? '/admin' : '/');
+         navigate(target, { replace: true });
       }
-   }, [isAuthenticated, isLoading, navigate, callbackUrl]);
+   }, [isAuthenticated, isLoading, navigate, hasRole, searchParams]);
 
    return (
       // Center utility element forces children to snap perfectly into middle vertical/horizontal bounds
@@ -35,7 +33,6 @@ export default function LoginPage() {
                </Box>
 
                <GoogleSignInButton
-                  onSuccess={() => navigate("/admin")}
                   onError={(err) => {
                      if (err.message === 'ACCOUNT_BLOCKED') navigate('/unauthorized', { replace: true });
                   }}
