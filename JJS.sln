@@ -47,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wwwroot", "wwwroot", "{4DAA
 		deployment\web.config = deployment\web.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JJS.Api.Tests", "JJS.Api.Tests\JJS.Api.Tests.csproj", "{9B965AAF-03F4-4F70-B9F2-63643F021A71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{21B81E9A-0F0F-45CD-B121-600EB8C01D8D}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{9B965AAF-03F4-4F70-B9F2-63643F021A71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B965AAF-03F4-4F70-B9F2-63643F021A71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B965AAF-03F4-4F70-B9F2-63643F021A71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B965AAF-03F4-4F70-B9F2-63643F021A71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
