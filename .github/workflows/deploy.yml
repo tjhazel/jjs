@@ -11,7 +11,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 1. Setup .NET 10 and Publish API
+    # 1. Setup .NET 10, run unit tests and Publish API
     - name: Setup .NET 10
       uses: actions/setup-dotnet@v4
       with:
@@ -19,6 +19,10 @@ jobs:
 
     - name: Restore .NET Dependencies
       run: dotnet restore JJS.Api/JJS.Api.csproj
+
+    #use --no-restore because dependencies were fetched in the previous step.
+    - name: Run C# Unit Tests
+      run: dotnet test JJS.Api.Tests/JJS.Api.Tests.csproj -c Release --no-restore --verbosity normal
 
     - name: Build and Publish .NET WebAPI
       run: dotnet publish JJS.Api/JJS.Api.csproj -c Release -r win-x86 -o ./publish-output/api
@@ -32,12 +36,10 @@ jobs:
         cache-dependency-path: 'jjs-web/package-lock.json' 
 
     - name: Install npm Dependencies
-      # FIX: Change working directory to your new Vite folder name (assuming 'ui')
       working-directory: jjs-web 
       run: npm ci
 
     - name: Build UI (Vite Static Production Build)
-      # FIX: Change working directory to your new Vite folder name
       working-directory: jjs-web 
       run: npm run winhost
 
@@ -49,6 +51,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         protocol: ftp
+        timeout: 60000  # Sets a 60-second limit
         server-dir: ./
         local-dir: ./deployment/
         exclude: |
@@ -67,7 +70,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         protocol: ftp
-        timeout: 900000
+        timeout: 60000  # Sets a 60-second limit on individual socket operations
         log-level: verbose
         server-dir: ./
         local-dir: ./publish-output/api/
@@ -85,7 +88,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         protocol: ftp
-        timeout: 900000
+        timeout: 60000  # Sets a 60-second limit on individual socket operations
         log-level: verbose
         server-dir: ./ui/
         # FIX: Vite outputs static files to 'dist' folder instead of Next.js 'out'
@@ -103,6 +106,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         protocol: ftp
+        timeout: 60000  # Sets a 60-second limit on individual socket operations
         server-dir: ./
         local-dir: ./deployment/
         exclude: |

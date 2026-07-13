@@ -3,7 +3,7 @@ using JJS.Api.Models.Album;
 using JJS.Api.Models.Configuration;
 using JJS.Api.Repositories;
 using JJS.Api.Services;
-using JJS.Api.Services.Cache;
+using JJS.Api.Tests.Fakes;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
 using System.Text.Json;
@@ -440,42 +440,4 @@ public class AlbumServiceTest
         await _attachmentRepo.Received(1).Upsert(Arg.Any<Attachment>());
     }
 
-    // ── FakeCacheService ─────────────────────────────────────────────────────
-
-    private sealed class FakeCacheService : ICacheService
-    {
-        private readonly Dictionary<string, object?> _store = new();
-
-        public void Seed<T>(string key, T value) where T : class => _store[key] = value;
-
-        public Task<bool> TryGetValue<T>(string key, out T value) where T : class
-        {
-            if (_store.TryGetValue(key, out var obj) && obj is T typed)
-            {
-                value = typed;
-                return Task.FromResult(true);
-            }
-            value = null!;
-            return Task.FromResult(false);
-        }
-
-        // Not used by AlbumService — pass through to the data accessor
-        public Task<T> GetCachedValue<T>(Func<Task<T>> dataAccessMethod, string cacheKey) where T : class
-            => dataAccessMethod();
-
-        public Task<U> GetCachedValue<T, U>(Func<T, Task<U>> dataAccessMethod, T parameter, string cacheKey) where U : class
-            => dataAccessMethod(parameter);
-
-        public Task Set(string key, object value)                              { _store[key] = value; return Task.CompletedTask; }
-        public Task Set(string key, DateTime absoluteExpiration, object value) { _store[key] = value; return Task.CompletedTask; }
-        public Task Clear()          { _store.Clear(); return Task.CompletedTask; }
-        public Task Clear(string key){ _store.Remove(key); return Task.CompletedTask; }
-
-        public Task ClearByPrefix(string prefix)
-        {
-            foreach (var k in _store.Keys.Where(k => k.StartsWith(prefix)).ToList())
-                _store.Remove(k);
-            return Task.CompletedTask;
-        }
-    }
 }
