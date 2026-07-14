@@ -146,10 +146,10 @@ export default function AlbumPage() {
                               fit="cover"
                               w="100%"
                               h="100%"
+                              loading="lazy"
                               style={{
                                  transition: "transform 200ms ease",
                               }}
-                              // Utilize native mouse handling to cleanly drive micro-animations 
                               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
                               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
                            />

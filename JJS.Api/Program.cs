@@ -52,6 +52,13 @@ app.UseFileServer(new FileServerOptions
    FileProvider = new PhysicalFileProvider(imgDir),
    RequestPath = "/Image",
    EnableDefaultFiles = true,
+   StaticFileOptions =
+   {
+      OnPrepareResponse = ctx =>
+      {
+         ctx.Context.Response.Headers["Cache-Control"] = "public, max-age=86400";
+      }
+   }
 });
 
 
