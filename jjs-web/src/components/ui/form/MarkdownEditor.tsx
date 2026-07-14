@@ -101,7 +101,8 @@ export default function MarkdownEditor({
 
   // ── Image upload ─────────────────────────────────────────────────────────
 
-  const resolveUploadFile = (file: File): File => {
+  const resolveUploadFile = (file: File, isPaste: boolean): File => {
+    if (!isPaste) return file;
     const hint = fileNameHint?.().trim() ?? '';
     if (!hint) return file;
     // Strip filesystem-invalid chars plus markdown-special chars that would break ![alt](url) syntax
@@ -118,10 +119,10 @@ export default function MarkdownEditor({
   // Strip characters that break markdown image syntax from the alt text
   const safeAlt = (name: string) => name.replace(/[\[\]()!\\]/g, '');
 
-  const handleImageFile = async (file: File) => {
+  const handleImageFile = async (file: File, isPaste = false) => {
     if (!uploadEndpoint || !file.type.startsWith('image/')) return;
 
-    const uploadFile = resolveUploadFile(file);
+    const uploadFile = resolveUploadFile(file, isPaste);
     const el = textareaRef.current;
     const insertPos = el ? el.selectionStart : text.length;
     const withPlaceholder = text.slice(0, insertPos) + UPLOAD_PLACEHOLDER + text.slice(insertPos);
@@ -264,7 +265,7 @@ export default function MarkdownEditor({
                 if (imageItem) {
                   e.preventDefault();
                   const file = imageItem.getAsFile();
-                  if (file) handleImageFile(file);
+                  if (file) handleImageFile(file, true);
                 }
               } : undefined}
             />
