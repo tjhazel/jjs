@@ -22,28 +22,35 @@ This site has grown up right alongside the web itself.
 
 What started as a personal tech experiment quickly became a real travel diary. We used it to document a journey through **Australia** and **New Zealand**, with a custom-built comment section so family and friends back home could follow along from across the globe.
 
-[![Welcome to Sydney](http://johnandjeri.com/images/carousel/welcometosydney.jpg)](http://johnandjeri.com/album)
+[![Welcome to Sydney|500](http://johnandjeri.com/images/carousel/welcometosydney.jpg)](http://johnandjeri.com/album)
 
 ### 2007 — The Recipes Move In
 
 The site grew a kitchen. We added a digital cookbook to collect and share family favorites — the kind of recipes that get requested at every holiday. Those recipes are still here today, and there's always room for more.
 
-[![Recipe collection](http://johnandjeri.com/images/recipeHeader.jpg)](http://johnandjeri.com/recipe)
+[![Recipe collection|500](http://johnandjeri.com/images/recipeHeader.jpg)](http://johnandjeri.com/recipe)
 
 ### 2026 — The Modern Refresh
 
 Twenty years in, the original codebase got a full architectural overhaul. The legacy app has been retired in favor of a modern, cloud-native stack — rebuilt from scratch to be fast, clean, and a lot more fun to work on.
 
+| | |
+|:---:|:---:|
+| ![Original Home](http://johnandjeri.com/images/articles/home-original.png) | ![Modern Refresh](http://johnandjeri.com/images/articles/home-refresh.png) |
+| *The original design — circa 2006* | *The modern refresh — 2026* |
+
 ---
 
 ## 🌍 Moments From the Road
 
-| | | |
-|:---:|:---:|:---:|
-| [![Athens](http://johnandjeri.com/images/carousel/athens-view.jpg)](http://johnandjeri.com/album) | [![Paris](http://johnandjeri.com/images/carousel/eiffeltower.jpg)](http://johnandjeri.com/album) | [![Tokyo](http://johnandjeri.com/images/carousel/TokyoTower-3.jpg)](http://johnandjeri.com/album) |
-| Athens | Paris | Tokyo |
-| [![Parthenon](http://johnandjeri.com/images/carousel/parthenon.jpg)](http://johnandjeri.com/album) | [![Ice Park](http://johnandjeri.com/images/carousel/icepark.jpg)](http://johnandjeri.com/album) | [![150k Miles](http://johnandjeri.com/images/carousel/150000Miles.jpg)](http://johnandjeri.com/album) |
-| Parthenon | Ice Park | 150,000 Miles |
+| | |
+|:---:|:---:|
+| [![Athens](http://johnandjeri.com/images/carousel/athens-view.jpg)](http://johnandjeri.com/album) | [![Paris](http://johnandjeri.com/images/carousel/eiffeltower.jpg)](http://johnandjeri.com/album) |
+| Athens | Paris |
+| [![Tokyo](http://johnandjeri.com/images/carousel/TokyoTower-3.jpg)](http://johnandjeri.com/album) | [![Parthenon](http://johnandjeri.com/images/carousel/parthenon.jpg)](http://johnandjeri.com/album) |
+| Tokyo | Parthenon |
+| [![Ice Park](http://johnandjeri.com/images/carousel/icepark.jpg)](http://johnandjeri.com/album) | [![150k Miles](http://johnandjeri.com/images/carousel/150000Miles.jpg)](http://johnandjeri.com/album) |
+| Ice Park | 150,000 Miles |
 
 Browse the full collection in the [Photo Album](http://johnandjeri.com/album).
 
