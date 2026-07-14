@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "@/lib/auth/authContext";
+import { ROLE_ADMIN } from "@/lib/auth/roles";
 import { GoogleSignInButton } from "@/lib/auth/GoogleLoginButton";
 import { Center, Paper, Title, Text, Stack, Box } from "@mantine/core";
 
@@ -11,7 +12,7 @@ export default function LoginPage() {
 
    useEffect(() => {
       if (!isLoading && isAuthenticated) {
-         const target = searchParams.get("callbackUrl") ?? (hasRole('Admin') ? '/admin' : '/');
+         const target = searchParams.get("callbackUrl") ?? (hasRole(ROLE_ADMIN) ? '/admin' : '/');
          navigate(target, { replace: true });
       }
    }, [isAuthenticated, isLoading, navigate, hasRole, searchParams]);

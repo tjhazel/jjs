@@ -4,6 +4,7 @@ import { useComments, hideComment, unhideComment } from '@api/comment/comment-fe
 import { blockUser } from '@api/user/user-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import { useAuth } from '@lib/auth/authContext';
+import { ROLE_ADMIN } from '@lib/auth/roles';
 import type { HttpError } from '@lib/httpClient';
 import type { Comment } from '@api/comment/comment';
 import CommentItem from './CommentItem';
@@ -17,7 +18,7 @@ interface CommentListProps {
 export default function CommentList({ postId, highlightCommentId }: CommentListProps) {
    const { httpGet, httpPatch } = useApiContext();
    const { hasRole } = useAuth();
-   const isAdmin = hasRole('Admin');
+   const isAdmin = hasRole(ROLE_ADMIN);
    const [page, setPage] = useState(1);
    const [allComments, setAllComments] = useState<Comment[]>([]);
    const scrolledRef = useRef(false);

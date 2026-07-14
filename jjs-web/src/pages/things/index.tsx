@@ -1,13 +1,22 @@
 import { Container, Title, Text, SimpleGrid, Card, Stack, Group } from '@mantine/core';
 import { IconExternalLink } from '@tabler/icons-react';
 import { Link } from 'react-router';
+import type { UserRole } from '@/api/user/user';
+import { useAuth } from '@/lib/auth/authContext';
+import { ROLE_ADMIN, ROLE_CIRCLE_OF_TRUST } from '@/lib/auth/roles';
+
+type LinkBehavior =
+  | 'router'       // React Router <Link> — stays in SPA
+  | 'browser-new'  // plain <a> opening in a new tab
+  | 'browser-same' // plain <a> opening in same tab (for server-served files)
 
 interface ThingItem {
   title: string;
   description: React.ReactNode;
   icon: string;
   link: string;
-  external: boolean;
+  linkBehavior: LinkBehavior;
+  requiredRoles?: UserRole[];
 }
 
 const mapLink = (
@@ -36,32 +45,46 @@ const THINGS: ThingItem[] = [
     description: 'Find matching Wordle words by entering your guesses and marking letter states.',
     icon: '🟩',
     link: '/things/wordlehints',
-    external: false,
+    linkBehavior: 'router',
   },
   {
     title: 'Original Wordle Hints',
     description: 'The original Wordle hints tool on GitHub Pages.',
     icon: '🔗',
     link: 'https://tjhazel.github.io/wordlehints/',
-    external: true,
+    linkBehavior: 'browser-new',
   },
   {
     title: 'Globle',
     description: <>Guess the mystery country each day. Use the {mapLink} to help plan your guesses.</>,
     icon: '🌍',
     link: 'https://globle-game.com',
-    external: true,
+    linkBehavior: 'browser-new',
+  },
+  {
+    title: 'LOTR Character Map',
+    description: 'An interactive relationship map of Middle-earth\'s key characters — coming soon. Browse the cast in the meantime.',
+    icon: '🗺️',
+    link: '/things/placeholder',
+    linkBehavior: 'router',
   },
   {
     title: 'Wedding',
     description: 'Wedding arrangements and information.',
     icon: '💍',
-    link: '/wedding/arrangements/default.htm',
-    external: false,
+    link: '/things/wedding',
+    linkBehavior: 'router',
+    requiredRoles: [ROLE_CIRCLE_OF_TRUST, ROLE_ADMIN],
   },
 ];
 
 export default function ThingsPage() {
+  const { hasRole, isLoading } = useAuth();
+
+  const visibleThings = THINGS.filter(item =>
+    !item.requiredRoles || (!isLoading && hasRole(item.requiredRoles))
+  );
+
   return (
     <Container size="lg" py="xl">
       <Stack gap="xl">
@@ -71,37 +94,30 @@ export default function ThingsPage() {
         </Stack>
 
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
-          {THINGS.map(item =>
-            item.external ? (
-              <Card
-                key={item.title}
-                withBorder
-                padding="lg"
-                radius="md"
-                shadow="sm"
-                component="a"
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ textDecoration: 'none', cursor: 'pointer' }}
-              >
+          {visibleThings.map(item => {
+            const cardStyle = { textDecoration: 'none', cursor: 'pointer' } as const;
+            const sharedProps = { key: item.title, withBorder: true, padding: 'lg' as const, radius: 'md' as const, shadow: 'sm' as const, style: cardStyle };
+
+            if (item.linkBehavior === 'browser-new') {
+              return (
+                <Card {...sharedProps} component="a" href={item.link} target="_blank" rel="noopener noreferrer">
+                  <CardBody item={item} />
+                </Card>
+              );
+            }
+            if (item.linkBehavior === 'browser-same') {
+              return (
+                <Card {...sharedProps} component="a" href={item.link}>
+                  <CardBody item={item} />
+                </Card>
+              );
+            }
+            return (
+              <Card {...sharedProps} component={Link} to={item.link}>
                 <CardBody item={item} />
               </Card>
-            ) : (
-              <Card
-                key={item.title}
-                withBorder
-                padding="lg"
-                radius="md"
-                shadow="sm"
-                component={Link}
-                to={item.link}
-                style={{ textDecoration: 'none', cursor: 'pointer' }}
-              >
-                <CardBody item={item} />
-              </Card>
-            )
-          )}
+            );
+          })}
         </SimpleGrid>
       </Stack>
     </Container>
@@ -114,7 +130,7 @@ function CardBody({ item }: { item: ThingItem }) {
       <Text size="xl">{item.icon}</Text>
       <Group gap="xs" align="center">
         <Text fw={600} size="lg">{item.title}</Text>
-        {item.external && <IconExternalLink size={16} color="gray" />}
+        {item.linkBehavior !== 'router' && <IconExternalLink size={16} color="gray" />}
       </Group>
       <Text size="sm" c="dimmed">{item.description}</Text>
     </Stack>

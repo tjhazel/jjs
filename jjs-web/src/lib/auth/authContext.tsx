@@ -12,6 +12,7 @@ import {
    TOKEN_STORAGE_KEY,
    USER_STORAGE_KEY,
 } from "./authUtils";
+import { ROLE_GUEST } from "./roles";
 import type {
    AuthState,
    AuthContextValue,
@@ -48,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const apiData = await apiRes.json() as User;
       const { role }: { role: UserRole } = apiData.role
          ? { role: apiData.role as UserRole }
-         : { role: "Guest" as UserRole };
+         : { role: ROLE_GUEST };
 
       const user: JJSUser = {
          email: payload.email,

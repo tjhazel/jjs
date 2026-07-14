@@ -4,6 +4,7 @@ import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge,
 import { IconChevronUp, IconChevronDown, IconSelector, IconExternalLink, IconUserX, IconBan, IconUserMinus, IconUserPlus, IconMessageCircle } from '@tabler/icons-react';
 import { formatDate } from '@lib/time.functions';
 import type { UserSummary } from '@api/user/user';
+import { ROLE_ADMIN, ROLE_CIRCLE_OF_TRUST, ROLE_GUEST } from '@lib/auth/roles';
 import InlineAlert from '@components/ui/InlineAlert';
 import CommentsModal from '@components/comment/CommentsModal';
 
@@ -140,10 +141,10 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
    };
 
    const renderRoleToggle = (user: UserSummary) => {
-      if (user.role === 'Admin') return null;
+      if (user.role === ROLE_ADMIN) return null;
       const isRoleLoading = loadingRoleEmails.has(user.email);
 
-      if (user.role === 'CircleOfTrust') {
+      if (user.role === ROLE_CIRCLE_OF_TRUST) {
          return (
             <Tooltip label="Demote to Guest" withArrow>
                <ActionIcon
@@ -151,7 +152,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                   color="orange"
                   size="sm"
                   loading={isRoleLoading}
-                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, 'Guest'); }}
+                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, ROLE_GUEST); }}
                >
                   <IconUserMinus size={15} />
                </ActionIcon>
@@ -159,7 +160,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
          );
       }
 
-      if (user.role === 'Guest') {
+      if (user.role === ROLE_GUEST) {
          return (
             <Tooltip label="Promote to Circle of Trust" withArrow>
                <ActionIcon
@@ -167,7 +168,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                   color="green"
                   size="sm"
                   loading={isRoleLoading}
-                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, 'CircleOfTrust'); }}
+                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, ROLE_CIRCLE_OF_TRUST); }}
                >
                   <IconUserPlus size={15} />
                </ActionIcon>
@@ -179,7 +180,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
    };
 
    const renderBlockToggle = (user: UserSummary) => {
-      const isAdmin = user.role === 'Admin';
+      const isAdmin = user.role === ROLE_ADMIN;
       const isLoading = loadingEmails.has(user.email);
 
       if (isAdmin) {
@@ -239,7 +240,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                            <Table.Td><Text size="sm" truncate c="gray.6">{user.email}</Text></Table.Td>
                            <Table.Td>
                               <Group gap={4} wrap="nowrap" align="center">
-                                 <Badge color={user.role === 'Admin' ? 'blue' : 'gray'} radius="none" variant="light" size="sm">
+                                 <Badge color={user.role === ROLE_ADMIN ? 'blue' : 'gray'} radius="none" variant="light" size="sm">
                                     {user.role}
                                  </Badge>
                                  {renderRoleToggle(user)}
@@ -298,7 +299,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                         <Text size="sm" c="gray.7"><strong>Email:</strong> {user.email}</Text>
                         <Group gap="xs">
                            <Text size="sm" c="gray.7"><strong>Role:</strong></Text>
-                           <Badge color={user.role === 'Admin' ? 'blue' : 'gray'} radius="none" size="xs" variant="light">{user.role}</Badge>
+                           <Badge color={user.role === ROLE_ADMIN ? 'blue' : 'gray'} radius="none" size="xs" variant="light">{user.role}</Badge>
                            {renderRoleToggle(user)}
                         </Group>
                         <Group gap="xs">

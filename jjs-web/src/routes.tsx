@@ -1,5 +1,6 @@
 // src/routes.tsx
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, isRouteErrorResponse, useRouteError } from "react-router";
+import { Container, Title, Text, Button, Stack } from "@mantine/core";
 
 // Layout & Route Guards
 import { ProtectedRoute } from "@lib/auth/protectedRoute";
@@ -18,7 +19,10 @@ import RecipePage from "@pages/recipe/recipe";
 import RecipeView, { recipeLoader } from "@pages/recipe/RecipeView";
 import UnauthorizedPage from "@pages/unauthorized";
 import ThingsPage from "@pages/things/index";
+import { ROLE_ADMIN, ROLE_CIRCLE_OF_TRUST } from "@lib/auth/roles";
 import WordleHintsPage from "@pages/things/wordlehints";
+import WeddingPage from "@pages/things/wedding";
+import PlaceholderPage from "@pages/things/placeholder";
 
 // Core Pages
 import DashboardPage from "@pages/dashboard"; // Public index page now
@@ -29,6 +33,24 @@ import EditPostPage, { editPostLoader } from "@pages/admin/post-editor";
 import ManageRecipesPage from '@pages/admin/recipes';
 import EditRecipePage, { editRecipeLoader } from '@pages/admin/recipe-editor';
 import ManageUsersPage from '@pages/admin/users';
+
+function RootErrorBoundary() {
+  const error = useRouteError();
+  const is404 = isRouteErrorResponse(error) && error.status === 404;
+  return (
+    <Container size="sm" py="xl">
+      <Stack gap="md" align="center">
+        <Title order={2}>{is404 ? "Page Not Found" : "Something went wrong"}</Title>
+        <Text c="dimmed" ta="center">
+          {is404
+            ? "The page you're looking for doesn't exist."
+            : "An unexpected error occurred. Please try again."}
+        </Text>
+        <Button component="a" href="/">Go home</Button>
+      </Stack>
+    </Container>
+  );
+}
 /*
 export const router = createBrowserRouter([
   {
@@ -41,11 +63,11 @@ export const router = createBrowserRouter([
 */
 export const router = createBrowserRouter([
   {
-    // FIX: Match BOTH the standard slash "/" and the server's empty string context ""
-    path: "/", 
+    path: "/",
     element: <DashboardLayout />,
+    errorElement: <RootErrorBoundary />,
     children: [
-      // ─── 1 & 2. PUBLIC PAGES (consistent padding via PublicPageLayout) ───
+      // ─── PUBLIC PAGES (consistent padding via PublicPageLayout) ───
       {
         element: <PublicPageLayout />,
         children: [
@@ -58,14 +80,22 @@ export const router = createBrowserRouter([
           { path: "recipe", element: <RecipePage /> },
           { path: "things", element: <ThingsPage /> },
           { path: "things/wordlehints", element: <WordleHintsPage /> },
+          { path: "things/placeholder", element: <PlaceholderPage /> },
         ],
       },
       // These pages manage their own full-page layout
       { path: "login", element: <LoginPage /> },
       { path: "about", element: <AboutPage /> },
+      // ─── CIRCLE OF TRUST ───
+      {
+        element: <ProtectedRoute requiredRoles={[ROLE_CIRCLE_OF_TRUST, ROLE_ADMIN]} />,
+        children: [
+          { path: "things/wedding", element: <WeddingPage /> },
+        ],
+      },
       // ─── 3. PROTECTED SUBSYSTEM ───
       {
-        element: <ProtectedRoute requiredRoles={["Admin"]} />,
+        element: <ProtectedRoute requiredRoles={[ROLE_ADMIN]} />,
         children: [
           {
             element: <AdminLayout />,

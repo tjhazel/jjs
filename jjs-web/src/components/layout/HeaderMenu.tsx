@@ -15,8 +15,13 @@ import { useDisclosure } from '@mantine/hooks';
 import { Link } from 'react-router'; 
 import classes from './HeaderMenu.module.css';
 import { useAuth } from "@/lib/auth/authContext";
+import type { UserRole } from "@/api/user/user";
+import { ROLE_ADMIN, ROLE_CIRCLE_OF_TRUST } from "@/lib/auth/roles";
 
-const links = [
+interface SubLink { link: string; label: string; requiredRoles?: UserRole[]; }
+interface NavLink { link: string; label: string; links?: SubLink[]; }
+
+const links: NavLink[] = [
    { link: '/', label: 'Home' },
    { link: '/album', label: 'Album' },
    { link: '/recipe', label: 'Recipe' },
@@ -25,9 +30,9 @@ const links = [
       label: 'Things',
       links: [
          { link: 'https://tjhazel.github.io/wordlehints/', label: 'Original Wordle Hints' },
-         { link: '/things/wordlehints/', label: 'Ported Wordle Hints' },
-         { link: '/#', label: 'Placeholder' },
-         { link: '/wedding/arrangements/default.htm', label: 'Wedding' },
+         { link: '/things/wordlehints', label: 'Ported Wordle Hints' },
+         { link: '/things/placeholder', label: 'LOTR Character Map' },
+         { link: '/things/wedding', label: 'Wedding', requiredRoles: [ROLE_CIRCLE_OF_TRUST, ROLE_ADMIN] },
       ],
    },
    { link: '/about', label: 'About' },
@@ -35,7 +40,7 @@ const links = [
 ];
 
 export function HeaderMenu() {
-   const { user } = useAuth();
+   const { user, hasRole } = useAuth();
 
    const [opened, { toggle, close }] = useDisclosure(false);
 
@@ -59,7 +64,9 @@ export function HeaderMenu() {
    };
 
    const items = links.map((link) => {
-      const menuItems = link.links?.map((item) => {
+      const menuItems = link.links?.filter(item =>
+        !item.requiredRoles || hasRole(item.requiredRoles)
+      ).map((item) => {
          const isExternal = item.link.startsWith('http');
 
          if (isExternal) {
@@ -135,7 +142,8 @@ export function HeaderMenu() {
         <Divider my="sm" />
         {links.map((link) => {
           if (link.links) {
-            return <DrawerLinksGroup key={link.label} link={link} onLinkClick={close} renderLinkHelper={renderLink} />;
+            const visibleSubLinks = link.links.filter(s => !s.requiredRoles || hasRole(s.requiredRoles));
+            return <DrawerLinksGroup key={link.label} link={{ ...link, links: visibleSubLinks }} onLinkClick={close} renderLinkHelper={renderLink} />;
           }
           return renderLink(link.link, link.label, classes.link, close);
         })}
