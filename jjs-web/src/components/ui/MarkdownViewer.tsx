@@ -1,4 +1,5 @@
 import Markdown, { type Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import config from '@lib/config';
 
 interface MarkdownViewerProps {
@@ -18,6 +19,7 @@ function resolveImageSrc(src?: string): string {
 export default function MarkdownViewer({ children, components }: MarkdownViewerProps) {
   return (
     <Markdown
+      remarkPlugins={[remarkGfm]}
       components={{
         ...components,
         img({ src, alt, ...rest }) {
