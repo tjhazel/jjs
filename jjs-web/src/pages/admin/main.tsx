@@ -3,6 +3,7 @@ import { Stack, Title, Text, SimpleGrid, Divider, Group, Button } from '@mantine
 import { IconRefresh } from '@tabler/icons-react';
 import ImageCard from '@components/ui/ImageCard';
 import { useApiContext } from '@api/ApiContext';
+import { refreshAlbumCache } from '@api/album/album-fetcher';
 
 export default function AdminPage() {
   const { httpPost } = useApiContext();
@@ -13,7 +14,7 @@ export default function AdminPage() {
     setRefreshing(true);
     setRefreshResult(null);
     try {
-      const result = await httpPost<{ fileCount: number }>('api/album/refresh');
+      const result = await refreshAlbumCache(httpPost);
       setRefreshResult(`Cache rebuilt — ${result.fileCount} images indexed.`);
     } catch {
       setRefreshResult('Refresh failed. Check server logs.');

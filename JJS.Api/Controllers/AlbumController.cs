@@ -29,7 +29,7 @@ public class AlbumController(IAlbumService albumService, ICacheService cacheServ
       // Post caches embed resolved image URLs, so they must be invalidated whenever the album changes.
       await Task.WhenAll(
          _cacheService.Clear(CacheKey.PostAllCacheName),
-         _cacheService.Clear(CacheKey.PostAllCacheName));
+         _cacheService.Clear(CacheKey.PostPublicCacheName));
 
       var fileCount = CountFiles(folder);
       return Ok(new { fileCount });

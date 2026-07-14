@@ -50,9 +50,9 @@ public class PostImageService(IAlbumService albumService) : IPostImageService
 
       // Re-apply title / comment in case the resize/format-change stripped them.
       var outExif = image.Metadata.ExifProfile ??= new ExifProfile();
-      if (imageDescription is not null) outExif.SetValue(ExifTag.ImageDescription, imageDescription.Value);
-      if (xpTitle          is not null) outExif.SetValue(ExifTag.XPTitle,          xpTitle.Value);
-      if (xpComment        is not null) outExif.SetValue(ExifTag.XPComment,        xpComment.Value);
+      if (imageDescription is not null) outExif.SetValue(ExifTag.ImageDescription, imageDescription.Value.Replace("\0", "").Trim());
+      if (xpTitle          is not null) outExif.SetValue(ExifTag.XPTitle,          xpTitle.Value.Replace("\0", "").Trim());
+      if (xpComment        is not null) outExif.SetValue(ExifTag.XPComment,        xpComment.Value.Replace("\0", "").Trim());
 
       await image.SaveAsJpegAsync(fullPath, new JpegEncoder { Quality = JpegQuality });
 

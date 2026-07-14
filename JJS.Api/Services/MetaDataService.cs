@@ -1,7 +1,7 @@
-﻿using JJS.Api.Models;
+using JJS.Api.Models;
 using JJS.Api.Models.Album;
-using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace JJS.Api.Services;
 
@@ -10,106 +10,39 @@ public class MetaDataService() : IMetaDataService
 {
    public async Task<ImageTag?> GetMetadata(string filePath)
    {
-      ImageTag? image = null;
-      try 
-      { 
-      string? title = null, comment = null;
-      var directories = ImageMetadataReader.ReadMetadata(filePath);
-
-      //foreach (var directory in directories)
-      //   foreach (var tag in directory.Tags)
-      //      System.Diagnostics.Debug.WriteLine($"{directory.Name} - {tag.Name} = {tag.Description}");
-
-      //Exif IFD0 -Windows XP Title = Sidney Presents The Rainbow
-      //Exif IFD0 - Windows XP Comment = Shadow Mountain Lake, July 3rd
-
-      var subIfdDirectory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
-      if (subIfdDirectory != null)
+      try
       {
-         var titleTag = subIfdDirectory.Tags.FirstOrDefault(y => y.Name.Contains("title", StringComparison.OrdinalIgnoreCase));
-         if (titleTag != null)
+         var info = await Image.IdentifyAsync(filePath);
+         var exif = info.Metadata.ExifProfile;
+
+         string? title = null, comment = null;
+
+         if (exif is not null)
          {
-            title = titleTag.Description;
+            // XPTitle is the Windows "Title" field; fall back to standard ImageDescription
+            if (exif.TryGetValue(ExifTag.XPTitle, out var xpTitle) && !string.IsNullOrWhiteSpace(xpTitle.Value))
+               title = xpTitle.Value.Replace("\0", "").Trim();
+            else if (exif.TryGetValue(ExifTag.ImageDescription, out var imgDesc))
+               title = imgDesc.Value?.Replace("\0", "").Trim();
+
+            if (exif.TryGetValue(ExifTag.XPComment, out var xpComment))
+               comment = xpComment.Value.Replace("\0", "").Trim();
          }
+
          if (string.IsNullOrWhiteSpace(title))
-         {
             title = Path.GetFileNameWithoutExtension(filePath);
-         }
 
-         var commentTag = subIfdDirectory.Tags.FirstOrDefault(y => y.Name.Contains("comment", StringComparison.OrdinalIgnoreCase));
-         if (commentTag != null)
-         {
-            comment = commentTag.Description;
-         }
+         return new ImageTag { Title = title, Comment = comment ?? "" };
       }
-
-      if (string.IsNullOrWhiteSpace(title))
+      catch (Exception ex)
       {
-         title = Path.GetFileNameWithoutExtension(filePath);
+         Console.WriteLine($"Skipping corrupted or invalid image file: {filePath}. Error: {ex.Message}");
+         return null;
       }
-
-      image = new ImageTag
-      {
-         Title = title,
-         Comment = comment ?? "",
-      };
-      }
-      catch (ImageProcessingException ex)
-      {
-         // Log the bad file path so you know exactly which file caused it
-         //_logger.LogWarning($"Skipping corrupted or invalid image file: {filePath}. Error: {ex.Message}");
-         Console.WriteLine($"Skippirng corrupted or invalid image file: {filePath}. Error: {ex.Message}");
-      }
-
-      return await Task.FromResult(image);
    }
-
-   //public void SaveMetadata(string filePath, ImageTag tag)
-   //{
-   //   var tfile = TagLib.File.Create(filePath);
-   //   tfile.Tag.Title = tag.Title;
-   //   tfile.Tag.Comment = tag.Comment;
-   //   tfile.Save();
-   //}
 }
-
-///// <summary>
-///// See https://github.com/mono/taglib-sharp
-/////
-///// NOTE: this library things comment and title are one in the same
-/////
-///// </summary>
-//[ServiceImplementation(typeof(ITagData))]
-//public class TagData : ITagData
-//{
-//   public TagData()
-//   {
-//   }
-
-//   public ImageTag GetMetadata(string filePath)
-//   {
-//      var tfile = TagLib.File.Create(filePath, TagLib.ReadStyle.Average);
-
-//      var image = new ImageTag
-//      {
-//         Title = tfile.Tag.Title,
-//         Comment = tfile.Tag.Comment,
-//      };
-
-//      return image;
-//   }
-
-//   public void SaveMetadata(string filePath, ImageTag tag)
-//   {
-//      var tfile = TagLib.File.Create(filePath);
-//      tfile.Tag.Title = tag.Title;
-//      tfile.Tag.Comment = tag.Comment;
-//      tfile.Save();
-//   }
-//}
 
 public interface IMetaDataService
 {
    Task<ImageTag?> GetMetadata(string filePath);
-   // void SaveMetadata(string filePath, ImageTag tag);
 }

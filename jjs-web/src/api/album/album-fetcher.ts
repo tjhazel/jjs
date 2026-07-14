@@ -1,11 +1,17 @@
-import type { HttpError, TGet } from "@/lib/httpClient";
+import type { HttpError, TGet, TPost } from "@/lib/httpClient";
 import { type Folder, IMAGE_PREFIX } from "./album-models";
 import useSWR from "swr";
-import { swrOptions } from "@/lib/swr.functions";
+import { swrOptions, mutateKeysLike } from "@/lib/swr.functions";
 import { useMemo } from "react";
 
 
 export const albumBaseUrl = `api/album`;
+
+export const refreshAlbumCache = async (httpPost: TPost): Promise<{ fileCount: number }> => {
+   const result = await httpPost<{ fileCount: number }>(`${albumBaseUrl}/refresh`);
+   mutateKeysLike(albumBaseUrl);
+   return result;
+};
 
 export function useAlbum(httpGet: TGet) {
    const { data, isValidating, error } = useSWR<Folder, HttpError>(
