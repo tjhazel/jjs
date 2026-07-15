@@ -10,6 +10,7 @@ namespace JJS.Api.Services;
 public class MetaDataService() : IMetaDataService
 {
    private const int MaxDimension = 1920;
+   private static readonly string CopyrightText = $"© 2006 - {DateTime.Now.Year} johnandjeri.com";
 
    public async Task<ImageTag?> GetMetadata(string filePath)
    {
@@ -74,6 +75,7 @@ public class MetaDataService() : IMetaDataService
       if (imageDescription is not null) outExif.SetValue(ExifTag.ImageDescription, imageDescription.Value.Replace("\0", "").Trim());
       if (xpTitle          is not null) outExif.SetValue(ExifTag.XPTitle,          xpTitle.Value.Replace("\0", "").Trim());
       if (xpComment        is not null) outExif.SetValue(ExifTag.XPComment,        xpComment.Value.Replace("\0", "").Trim());
+      outExif.SetValue(ExifTag.Copyright, CopyrightText);
    }
 }
 
