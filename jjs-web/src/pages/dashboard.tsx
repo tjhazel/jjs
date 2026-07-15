@@ -7,6 +7,7 @@ import { useCarouselImages } from '@api/album/image-fetcher';
 import { usePosts } from '@api/post/post-fetcher';
 import PostList from '@components/post/PostList';
 import CategorySelector from '@components/post/CategorySelector';
+import InfiniteScroll from '@components/ui/InfiniteScroll';
 
 function DashboardPage() {
   const { httpGet } = useApiContext();
@@ -15,7 +16,6 @@ function DashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedCategory = searchParams.get('category') ? Number(searchParams.get('category')) : null;
   const textFilter = searchParams.get('q') ?? '';
-
   const handleCategoryChange = (id: number | null) => {
     setSearchParams(prev => {
       if (id == null) prev.delete('category');
@@ -40,7 +40,7 @@ function DashboardPage() {
       || p.previewText.toLowerCase().includes(needle)
       || p.body.toLowerCase().includes(needle);
     return matchesCategory && matchesText;
-  });
+  }) ?? [];
 
   if (isLoading) {
     return (
@@ -98,7 +98,14 @@ function DashboardPage() {
               onCategoryChange={handleCategoryChange}
             />
           </Group>
-          <PostList posts={homePosts} />
+          <InfiniteScroll
+            items={homePosts}
+            pageSize={9}
+            resetKey={searchParams}
+            endMessage={<Text ta="center" c="dimmed" mt="md" mb="xl">You're all caught up.</Text>}
+          >
+            {(visiblePosts) => <PostList posts={visiblePosts} />}
+          </InfiniteScroll>
         </Box>
     </>
   );
