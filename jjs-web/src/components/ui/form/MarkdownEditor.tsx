@@ -256,6 +256,7 @@ export default function MarkdownEditor({
               placeholder={placeholder}
               minRows={minRows}
               autosize
+              spellCheck={true}
               disabled={disabled || uploading}
               classNames={{ input: classes.textareaInput }}
               styles={maxHeight ? { input: { maxHeight, overflowY: 'auto' } } : undefined}
