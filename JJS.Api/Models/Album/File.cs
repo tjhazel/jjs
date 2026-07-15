@@ -13,6 +13,7 @@ public class File
    public string FullName { get; set; }
    public string RelativePath { get; set; }
    public string HttpPath { get; set; }
+   public string ThumbHttpPath { get; set; }
 
    public DateTime CreatedOn { get; set; }
    public DateTime ModifiedOn { get; set; }

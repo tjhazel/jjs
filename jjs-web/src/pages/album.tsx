@@ -131,29 +131,30 @@ export default function AlbumPage() {
                <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
                   {filteredData.files.map((file, index) => (
                      <Box key={index}>
-                        {/* Image Container with fixed Aspect Ratio scaling and clean inline hover definitions */}
-                        <Box
-                           style={{
-                              aspectRatio: "1 / 1",
-                              overflow: "hidden",
-                              borderRadius: "4px",
-                              border: "1px solid var(--mantine-color-gray-3)"
-                           }}
-                        >
-                           <Image
-                              src={file.httpPath}
-                              alt={file.title || file.name}
-                              fit="cover"
-                              w="100%"
-                              h="100%"
-                              loading="lazy"
+                        <a href={file.httpPath} target="_blank" rel="noopener noreferrer" style={{ display: "block", textDecoration: "none" }}>
+                           <Box
                               style={{
-                                 transition: "transform 200ms ease",
+                                 aspectRatio: "1 / 1",
+                                 overflow: "hidden",
+                                 borderRadius: "4px",
+                                 border: "1px solid var(--mantine-color-gray-3)"
                               }}
-                              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-                              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
-                           />
-                        </Box>
+                           >
+                              <Image
+                                 src={file.thumbHttpPath}
+                                 alt={file.title || file.name}
+                                 fit="cover"
+                                 w="100%"
+                                 h="100%"
+                                 loading="lazy"
+                                 style={{
+                                    transition: "transform 200ms ease",
+                                 }}
+                                 onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+                                 onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+                              />
+                           </Box>
+                        </a>
                         <Box mt="xs">
                            <Text size="sm" fw={500} truncate>
                               {file.title || file.name}

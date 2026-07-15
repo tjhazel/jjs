@@ -7,6 +7,7 @@ export interface File {
   name: string;
   relativePath: string;
   httpPath: string;
+  thumbHttpPath: string;
   createdOn: string;     // ISO date string
   modifiedOn: string;    // ISO date string
   lastAccessTime: string;// ISO date string

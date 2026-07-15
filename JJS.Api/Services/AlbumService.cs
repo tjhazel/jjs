@@ -54,6 +54,11 @@ public class AlbumService(IMetaDataService tagData,
    public async Task<Folder> Refresh()
    {
       await _cacheService.Clear(AlbumRoot);
+
+      var thumbDir = Path.Combine(AlbumRoot, ".thumbs");
+      if (Directory.Exists(thumbDir))
+         Directory.Delete(thumbDir, recursive: true);
+
       return await BuildAndSaveCacheAsync();
    }
 
@@ -149,7 +154,7 @@ public class AlbumService(IMetaDataService tagData,
       }
 
       var subFolders = new List<Folder>();
-      foreach (var dir in dirInfo.GetDirectories())
+      foreach (var dir in dirInfo.GetDirectories().Where(d => !d.Name.Equals(".thumbs", StringComparison.OrdinalIgnoreCase)))
       {
          // recursion to same function.
          Folder subfolder = GetFolderFromPath(dir.FullName).Result;
@@ -175,6 +180,7 @@ public class AlbumService(IMetaDataService tagData,
          FullName = fileInfo.FullName,
          RelativePath = relativePath,
          HttpPath = GetHttpPath(relativePath),
+         ThumbHttpPath = GetThumbHttpPath(relativePath),
          CreatedOn = fileInfo.CreationTimeUtc,
          ModifiedOn = fileInfo.LastWriteTimeUtc,
          LastAccessTime = fileInfo.LastAccessTimeUtc,
@@ -198,6 +204,16 @@ public class AlbumService(IMetaDataService tagData,
       var relativePath = $"{path.Replace(AlbumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/')}";
       var fullUrl = $"{baseURL}/{relativePath}";
       return fullUrl;
+   }
+
+   private string GetThumbHttpPath(string relativePath)
+   {
+      // relativePath = /Image/Trips/Paris/DSC001.png
+      // result:        https://host/api/thumbnail/Trips/Paris/DSC001.png
+      var request = _httpContextAccessor.HttpContext.Request;
+      var baseUrl = $"{request.Scheme}://{request.Host}";
+      var stripped = relativePath.TrimStart('/').Replace("Image/", "", StringComparison.OrdinalIgnoreCase).TrimStart('/');
+      return $"{baseUrl}/api/thumbnail/{stripped}";
    }
 
    public string GetFullFilePath(string relativePath)
