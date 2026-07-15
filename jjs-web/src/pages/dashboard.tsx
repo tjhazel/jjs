@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { useSearchParams } from 'react-router';
+import Autoplay from 'embla-carousel-autoplay';
 import { Box, Center, Group, Image, Loader, Stack, Text, TextInput } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { IconSearch } from '@tabler/icons-react';
@@ -11,8 +13,9 @@ import InfiniteScroll from '@components/ui/InfiniteScroll';
 
 function DashboardPage() {
   const { httpGet } = useApiContext();
-  const { data: carouselImages } = useCarouselImages(httpGet);
+  const { data: carouselImages } = useCarouselImages();
   const { data: posts, isLoading } = usePosts(httpGet);
+  const autoplay = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedCategory = searchParams.get('category') ? Number(searchParams.get('category')) : null;
   const textFilter = searchParams.get('q') ?? '';
@@ -76,9 +79,12 @@ function DashboardPage() {
         {/* 
           👉 FIXED: Added loop property assignment directly to layout configs
         */}
-        <Carousel 
-          withIndicators 
+        <Carousel
+          withIndicators
           height={300}
+          plugins={[autoplay.current]}
+          onMouseEnter={autoplay.current.stop}
+          onMouseLeave={autoplay.current.reset}
         >
           {slides}
         </Carousel>
