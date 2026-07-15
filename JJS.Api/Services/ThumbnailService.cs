@@ -28,7 +28,7 @@ public class ThumbnailService(IAlbumService albumService) : IThumbnailService
       var thumbDir    = Path.Combine(_albumService.AlbumRoot, ThumbFolder, thumbRelDir);
       var thumbPath   = Path.Combine(thumbDir, Path.GetFileNameWithoutExtension(normalizedPath) + ".jpg");
 
-      if (!File.Exists(thumbPath))
+      if (!File.Exists(thumbPath) || !HasCopyrightTag(thumbPath))
       {
          Directory.CreateDirectory(thumbDir);
          var tmpPath = thumbPath + ".tmp";
@@ -45,6 +45,17 @@ public class ThumbnailService(IAlbumService albumService) : IThumbnailService
       }
 
       return thumbPath;
+   }
+
+   private static bool HasCopyrightTag(string path)
+   {
+      try
+      {
+         var info = Image.Identify(path);
+         return info?.Metadata.ExifProfile?.Values
+            .Any(v => v.Tag == ExifTag.Copyright) ?? false;
+      }
+      catch { return false; }
    }
 
    private static void ApplyWatermark(Image image)
