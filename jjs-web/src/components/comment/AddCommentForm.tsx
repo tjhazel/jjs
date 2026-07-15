@@ -74,7 +74,6 @@ export default function AddCommentForm({ postId, parentCommentId, compact, onCom
                   <Text size="sm" c="dimmed">Commenting as <strong>{user?.displayName}</strong></Text>
                )}
                <TextInput
-                  withAsterisk
                   label="Title"
                   placeholder={isReply ? 'Reply title' : 'Comment title'}
                   radius="none"
@@ -84,6 +83,7 @@ export default function AddCommentForm({ postId, parentCommentId, compact, onCom
                />
                <Textarea
                   withAsterisk
+                  spellCheck={true}
                   label={compact ? undefined : 'Comment'}
                   placeholder={isReply ? 'Write your reply…' : 'Write your comment…'}
                   rows={compact ? 2 : 4}

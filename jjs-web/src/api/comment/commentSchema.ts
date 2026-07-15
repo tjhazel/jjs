@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const commentSchema = z.object({
-   title: z.string().min(1, { message: 'Title is required' }),
+   title: z.string().optional(),
    entryText: z.string().min(1, { message: 'Comment is required' }),
 });
 

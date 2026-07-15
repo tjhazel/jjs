@@ -1,5 +1,14 @@
 ﻿
 
+-- Make Comments.Title nullable
+IF COL_LENGTH('dbo.Comments', 'Title') IS NOT NULL
+   AND COLUMNPROPERTY(OBJECT_ID('dbo.Comments'), 'Title', 'AllowsNull') = 0
+BEGIN
+   ALTER TABLE dbo.Comments ALTER COLUMN [Title] NVARCHAR(255) NULL;
+END
+GO
+
+
 MERGE dbo.[Users] AS Target
 USING (VALUES
 

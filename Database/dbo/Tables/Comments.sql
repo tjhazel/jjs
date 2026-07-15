@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[Comments] (
     [CommentId]         INT            IDENTITY (1, 1) NOT NULL,
     [PostFk]            INT            NOT NULL,
-    [Title]             NVARCHAR (255) NOT NULL,
+    [Title]             NVARCHAR (255) NULL,
     [EntryText]         NTEXT          NOT NULL,
     [AuthorName]        NVARCHAR (255) NOT NULL,
     [AuthorURL]         NVARCHAR (500) NULL,

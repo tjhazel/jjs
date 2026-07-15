@@ -1,7 +1,7 @@
 export interface Comment {
    commentId: number;
    postFk: number;
-   title: string;
+   title?: string;
    entryText: string;
    authorName: string;
    createdDate: string;
@@ -20,7 +20,7 @@ export interface CommentSummary extends Comment {
 }
 
 export interface NewCommentRequest {
-   title: string;
+   title?: string;
    entryText: string;
    parentCommentFk?: number;
 }
