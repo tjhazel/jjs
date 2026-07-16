@@ -1,4 +1,4 @@
-import { IconChevronDown } from '@tabler/icons-react';
+import { IconChevronDown, IconExternalLink } from '@tabler/icons-react';
 import {
    Burger,
    Center,
@@ -33,7 +33,9 @@ const links: NavLink[] = [
          { link: '/things/wordlehints', label: 'Ported Wordle Hints' },
          { link: '/things/placeholder', label: 'LOTR Character Map' },
          { link: '/things/wedding', label: 'Wedding', requiredRoles: [ROLE_CIRCLE_OF_TRUST, ROLE_ADMIN] },
-      ],
+         { link: 'https://globle-game.com/', label: 'Globle' },
+         { link: 'https://www.duolingo.com/', label: 'Duolingo' },
+    ],
    },
    { link: '/about', label: 'About' },
    { link: '/login', label: 'Login' }
@@ -51,7 +53,10 @@ export function HeaderMenu() {
       if (isExternal) {
          return (
             <a key={to} href={to} className={className} target="_blank" rel="noopener noreferrer" onClick={onClickCb}>
-               {label}
+               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  {label}
+                  <IconExternalLink size={12} stroke={1.5} />
+               </span>
             </a>
          );
       }
