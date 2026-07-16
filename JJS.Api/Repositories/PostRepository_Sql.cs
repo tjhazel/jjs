@@ -42,7 +42,7 @@ public partial class PostRepository
            and p.approved = 1
            and (p.Archived is null or p.Archived = 0)
            and (p.releaseDate is null or p.releaseDate <= getutcdate())
-           and (p.[ExpireDate] is null or p.[ExpireDate] is null or p.[ExpireDate] <= getutcdate())
+           and (p.[ExpireDate] is null or p.[ExpireDate] >= getutcdate())
            )
       group by p.PostId
          ,p.Title

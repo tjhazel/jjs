@@ -97,7 +97,7 @@ export default function RecipeView() {
               <Group justify="space-between"><Text size="sm" fw={500}>Servings:</Text><Text size="sm">{recipe.numberServed}</Text></Group>
               <Group justify="space-between"><Text size="sm" fw={500}>Prep Time:</Text><Text size="sm">{recipe.prepTime || "N/A"}</Text></Group>
               <Group justify="space-between"><Text size="sm" fw={500}>Cook Time:</Text><Text size="sm">{recipe.cookTime || "N/A"}</Text></Group>
-              <Group justify="space-between"><Text size="sm" fw={500}>Cost:</Text><Text size="sm">${recipe.estimatedCost.toFixed(2)}</Text></Group>
+              <Group justify="space-between"><Text size="sm" fw={500}>Cost:</Text><Text size="sm">{recipe.estimatedCost != null ? `$${recipe.estimatedCost.toFixed(2)}` : 'N/A'}</Text></Group>
               <Group justify="space-between"><Text size="sm" fw={500}>Calories:</Text><Text size="sm">{recipe.calories || "N/A"}</Text></Group>
               <Group justify="space-between"><Text size="sm" fw={500}>Fat:</Text><Text size="sm">{recipe.fat || "N/A"}g</Text></Group>
               <Divider my={4} />

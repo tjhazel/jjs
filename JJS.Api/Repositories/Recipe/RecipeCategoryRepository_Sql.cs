@@ -8,11 +8,17 @@ public partial class RecipeCategoryRepository
         from RecipeCategories
       """;
 
-   const string DELETE_BY_RECIPE_SQL = """
-      DELETE FROM [RecipeCategory_xref] WHERE RecipeFk = @recipeId;
-      """;
-
-   const string INSERT_CATEGORY_SQL = """
-      INSERT INTO [RecipeCategory_xref] (RecipeFk, RecipeCategoryFk) VALUES (@recipeId, @categoryId);
+   const string MERGE_CATEGORIES_SQL = """
+      MERGE [RecipeCategory_xref] AS TARGET
+      USING (
+          SELECT CAST(value AS int) AS RecipeCategoryFk
+          FROM STRING_SPLIT(@categoryIds, ',')
+          WHERE value <> ''
+      ) AS SOURCE
+      ON TARGET.RecipeFk = @recipeId AND TARGET.RecipeCategoryFk = SOURCE.RecipeCategoryFk
+      WHEN NOT MATCHED BY TARGET THEN
+          INSERT (RecipeFk, RecipeCategoryFk) VALUES (@recipeId, SOURCE.RecipeCategoryFk)
+      WHEN NOT MATCHED BY SOURCE AND TARGET.RecipeFk = @recipeId THEN
+          DELETE;
       """;
 }

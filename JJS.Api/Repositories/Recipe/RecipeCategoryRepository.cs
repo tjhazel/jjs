@@ -22,11 +22,8 @@ public partial class RecipeCategoryRepository(AppConfig appConfig) : IRecipeCate
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
-      await db.ExecuteAsync(DELETE_BY_RECIPE_SQL, new { recipeId });
-      foreach (var categoryId in categoryIds)
-      {
-         await db.ExecuteAsync(INSERT_CATEGORY_SQL, new { recipeId, categoryId });
-      }
+      var ids = string.Join(',', categoryIds);
+      await db.ExecuteAsync(MERGE_CATEGORIES_SQL, new { recipeId, categoryIds = ids });
    }
 }
 

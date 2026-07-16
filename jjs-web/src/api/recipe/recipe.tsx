@@ -13,7 +13,7 @@ export interface Recipe {
    numberServed: number;
    prepTime?: string;
    cookTime?: string;
-   estimatedCost: number;
+   estimatedCost?: number;
    pictureFk?: number;
    isViewableByPublic: boolean;
    viewCount: number;

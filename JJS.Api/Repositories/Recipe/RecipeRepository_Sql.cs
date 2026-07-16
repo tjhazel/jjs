@@ -29,10 +29,9 @@ public partial class RecipeRepository
           ,string_agg(cat.CategoryName, ',') 'RecipeCategories'
       from Recipes r
        left join (
-         select top 100 x.RecipeFk, x.RecipeCategoryFk, _cat.[Name] 'CategoryName'
+         select x.RecipeFk, x.RecipeCategoryFk, _cat.[Name] 'CategoryName'
           from RecipeCategory_xref x
              left join RecipeCategories _cat on _cat.RecipeCategoryId = x.RecipeCategoryFk
-          order by _cat.Name
        ) cat on cat.RecipeFk = r.RecipeId
       join Users cu on cu.Id = r.CreatedByFk
       join Users mu on mu.Id = r.ModifiedByFk
