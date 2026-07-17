@@ -70,7 +70,8 @@ The current site is built with a stack we're genuinely proud of:
 - [**Mantine UI**](https://mantine.dev) — Beautiful, accessible React component library
 - [**Vite**](https://vitejs.dev) — Lightning-fast frontend build tooling
 
-**Data & DevOps**
+**AI & Data & DevOps**
+- [**Gemini AI**](https://ai.google.dev) — AI-powered comment moderation via Gemini 3.5 Flash, screening every comment for spam and toxic content before it's published
 - [**SQL Server**](https://www.microsoft.com/en-us/sql-server) — Reliable relational storage for posts, recipes, and more
 - [**GitHub Actions**](https://github.com/features/actions) — Automated CI/CD for builds and deployments to production
 
