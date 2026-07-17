@@ -78,7 +78,7 @@ jobs:
           **/.git*
           **/.git*/**
           **/node_modules/**
-          **/appsettings*.json
+          **/appsettings.*.json
 
     # 6. Deploy Vite UI to Server via FTP
     - name: Deploy Vite UI to FTP
