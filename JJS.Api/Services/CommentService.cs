@@ -63,9 +63,9 @@ public class CommentService(
          cacheKey);
    }
 
-   public async Task Hide(int commentId, string hiddenBy)
+   public async Task Hide(int commentId, string hiddenBy, string? hiddenReason)
    {
-      await _commentRepository.Hide(commentId, hiddenBy);
+      await _commentRepository.Hide(commentId, hiddenBy, hiddenReason);
       await _cacheService.Clear();
    }
 
@@ -86,7 +86,7 @@ public interface ICommentService
    Task<PagedResult<Comment>> GetByPost(int postId, int page, bool isAdmin);
    Task<IEnumerable<Comment>> GetReplies(int commentId, bool isAdmin);
    Task Add(int postId, NewCommentRequest request, ClaimsUser user, string? authorIp);
-   Task Hide(int commentId, string hiddenBy);
+   Task Hide(int commentId, string hiddenBy, string? hiddenReason);
    Task Unhide(int commentId);
    Task<IEnumerable<CommentSummary>> GetAll(string? email, int? postId);
 }

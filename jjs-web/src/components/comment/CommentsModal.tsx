@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Modal, Table, Text, Group, Stack, Badge, ActionIcon, Tooltip, Box, Center, Loader, Divider } from '@mantine/core';
+import { Modal, Table, Text, Group, Stack, Badge, ActionIcon, Tooltip, Box, Center, Loader, Divider, Popover, TextInput, Button } from '@mantine/core';
 import { IconEye, IconEyeOff, IconUserX, IconBan, IconChevronUp, IconChevronDown } from '@tabler/icons-react';
 import { useAllComments, hideComment, unhideComment } from '@api/comment/comment-fetcher';
 import { blockUser, unblockUser } from '@api/user/user-fetcher';
@@ -29,6 +29,8 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
    const [expandedPostIds, setExpandedPostIds] = useState<Set<number>>(new Set());
    const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
    const [rowErrors, setRowErrors] = useState<Record<number, string | null>>({});
+   const [hidePopoverOpenId, setHidePopoverOpenId] = useState<number | null>(null);
+   const [pendingHideReason, setPendingHideReason] = useState('');
 
    const groups = useMemo<PostGroup[]>(() => {
       if (!comments) return [];
@@ -66,8 +68,8 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
       }
    };
 
-   const handleHide = (c: CommentSummary) =>
-      withLoading(c.commentId, () => hideComment(httpPatch, c.commentId));
+   const handleHide = (c: CommentSummary, reason?: string) =>
+      withLoading(c.commentId, () => hideComment(httpPatch, c.commentId, reason));
 
    const handleUnhide = (c: CommentSummary) =>
       withLoading(c.commentId, () => unhideComment(httpPatch, c.commentId));
@@ -86,17 +88,59 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
 
    const renderCommentActions = (c: CommentSummary) => (
       <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
-         <Tooltip label={c.adminHidden ? 'Unhide comment' : 'Hide comment'} withArrow>
-            <ActionIcon
-               variant="subtle"
-               color={c.adminHidden ? 'blue' : 'orange'}
-               size="sm"
-               loading={loadingIds.has(c.commentId)}
-               onClick={() => c.adminHidden ? handleUnhide(c) : handleHide(c)}
+         {c.adminHidden ? (
+            <Tooltip label="Unhide comment" withArrow>
+               <ActionIcon
+                  variant="subtle"
+                  color="blue"
+                  size="sm"
+                  loading={loadingIds.has(c.commentId)}
+                  onClick={() => handleUnhide(c)}
+               >
+                  <IconEye size={15} />
+               </ActionIcon>
+            </Tooltip>
+         ) : (
+            <Popover
+               opened={hidePopoverOpenId === c.commentId}
+               onClose={() => setHidePopoverOpenId(null)}
+               withArrow
+               position="bottom-end"
             >
-               {c.adminHidden ? <IconEye size={15} /> : <IconEyeOff size={15} />}
-            </ActionIcon>
-         </Tooltip>
+               <Popover.Target>
+                  <ActionIcon
+                     variant="subtle"
+                     color="orange"
+                     size="sm"
+                     loading={loadingIds.has(c.commentId)}
+                     onClick={() => { setPendingHideReason(''); setHidePopoverOpenId(c.commentId); }}
+                  >
+                     <IconEyeOff size={15} />
+                  </ActionIcon>
+               </Popover.Target>
+               <Popover.Dropdown>
+                  <Stack gap="xs">
+                     <TextInput
+                        label="Hide reason"
+                        placeholder="Optional..."
+                        size="xs"
+                        value={pendingHideReason}
+                        onChange={e => setPendingHideReason(e.currentTarget.value)}
+                        style={{ minWidth: 200 }}
+                        autoFocus
+                     />
+                     <Group gap="xs" justify="flex-end">
+                        <Button size="compact-xs" variant="subtle" onClick={() => setHidePopoverOpenId(null)}>
+                           Cancel
+                        </Button>
+                        <Button size="compact-xs" color="orange" onClick={() => { handleHide(c, pendingHideReason || undefined); setHidePopoverOpenId(null); }}>
+                           Hide
+                        </Button>
+                     </Group>
+                  </Stack>
+               </Popover.Dropdown>
+            </Popover>
+         )}
          {c.authorEmail && (
             <Tooltip label={c.authorBlocked ? 'Unban user' : 'Ban user'} withArrow>
                <ActionIcon
@@ -143,7 +187,7 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
                         <Text size="sm" mt={2} style={{ whiteSpace: 'pre-wrap' }}>{c.entryText}</Text>
                         {c.adminHidden && c.hiddenBy && (
                            <Text size="xs" c="orange.6">
-                              Hidden by {c.hiddenBy}{c.hiddenDate ? ` on ${formatDate(c.hiddenDate)}` : ''}
+                              Hidden by {c.hiddenBy}{c.hiddenDate ? ` on ${formatDate(c.hiddenDate)}` : ''}{c.hiddenReason ? ` · ${c.hiddenReason}` : ''}
                            </Text>
                         )}
                         {rowErrors[c.commentId] && (

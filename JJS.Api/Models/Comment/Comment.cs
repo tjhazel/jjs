@@ -11,6 +11,7 @@ public class Comment
    public bool AdminHidden { get; set; }
    public string? HiddenBy { get; set; }
    public DateTime? HiddenDate { get; set; }
+   public string? HiddenReason { get; set; }
    public string? AuthorEmail { get; set; }
    public bool? AuthorBlocked { get; set; }
    public int? ParentCommentFk { get; set; }

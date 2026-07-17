@@ -72,6 +72,13 @@ begin
 end
 ;
 
+if col_length('dbo.Comments', 'HiddenReason') is null
+begin
+    alter table Comments add HiddenReason nvarchar(255) null
+    ;
+end
+;
+
 if col_length('dbo.Comments', 'ParentCommentFk') is null
 begin
     alter table Comments add ParentCommentFk int null

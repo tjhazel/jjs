@@ -13,6 +13,7 @@ public partial class CommentRepository
          ,c.AdminHidden
          ,c.HiddenBy
          ,c.HiddenDate
+         ,c.HiddenReason
          ,case when @isAdmin = 1 then c.AuthorEmail else null end 'AuthorEmail'
          ,case when @isAdmin = 1 then isnull(u.Blocked, 0) else null end 'AuthorBlocked'
          ,(select count(*) from Comments r where r.ParentCommentFk = c.CommentId) 'ReplyCount'
@@ -43,6 +44,7 @@ public partial class CommentRepository
          ,c.AdminHidden
          ,c.HiddenBy
          ,c.HiddenDate
+         ,c.HiddenReason
          ,case when @isAdmin = 1 then c.AuthorEmail else null end 'AuthorEmail'
          ,case when @isAdmin = 1 then isnull(u.Blocked, 0) else null end 'AuthorBlocked'
          ,0 'ReplyCount'
@@ -65,6 +67,7 @@ public partial class CommentRepository
       set AdminHidden = 1
          ,HiddenBy = @hiddenBy
          ,HiddenDate = getutcdate()
+         ,HiddenReason = @hiddenReason
       where CommentId = @commentId
       ;
       """;
@@ -74,6 +77,7 @@ public partial class CommentRepository
       set AdminHidden = 0
          ,HiddenBy = null
          ,HiddenDate = null
+         ,HiddenReason = null
       where CommentId = @commentId
       ;
       """;
@@ -91,6 +95,7 @@ public partial class CommentRepository
          ,c.AdminHidden
          ,c.HiddenBy
          ,c.HiddenDate
+         ,c.HiddenReason
          ,isnull(u.Blocked, 0) AS AuthorBlocked
          ,(select count(*) from Comments r where r.ParentCommentFk = c.CommentId) ReplyCount
          ,isnull(rc.ReactionCounts, '') ReactionCounts

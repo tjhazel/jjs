@@ -46,8 +46,8 @@ export default function CommentList({ postId, highlightCommentId }: CommentListP
 
    const reset = () => { setPage(1); setAllComments([]); scrolledRef.current = false; };
 
-   const handleHide = async (commentId: number) => {
-      await hideComment(httpPatch, commentId);
+   const handleHide = async (commentId: number, reason?: string) => {
+      await hideComment(httpPatch, commentId, reason);
       reset();
    };
 

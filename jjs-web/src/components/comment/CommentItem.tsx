@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Stack, Title, Text, Box, Group, ActionIcon, Tooltip, Button, Divider, Loader, Center } from '@mantine/core';
+import { Stack, Title, Text, Box, Group, ActionIcon, Tooltip, Button, Divider, Loader, Center, Popover, TextInput } from '@mantine/core';
 import { IconEye, IconEyeOff, IconUserX, IconBan, IconMessageCircle } from '@tabler/icons-react';
 import type { Comment } from '@api/comment/comment';
 import { useReplies } from '@api/comment/comment-fetcher';
@@ -15,7 +15,7 @@ interface CommentItemProps {
    isAdmin: boolean;
    isHighlighted?: boolean;
    isReply?: boolean;
-   onHide: (commentId: number) => void;
+   onHide: (commentId: number, reason?: string) => void;
    onUnhide: (commentId: number) => void;
    onBanUser: (comment: Comment) => Promise<void>;
 }
@@ -25,6 +25,8 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, isReply =
    const { isAuthenticated } = useAuth();
    const [banError, setBanError] = useState<string | null>(null);
    const [showReplyArea, setShowReplyArea] = useState(false);
+   const [hidePopoverOpen, setHidePopoverOpen] = useState(false);
+   const [hideReason, setHideReason] = useState('');
 
    const { data: replies, isLoading: repliesLoading } = useReplies(httpGet, comment.commentId, showReplyArea);
 
@@ -89,16 +91,57 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, isReply =
          {isAdmin && (
             <Box style={{ position: 'absolute', top: 0, right: 0, zIndex: 2 }}>
                <Group gap={4} wrap="nowrap">
-                  <Tooltip label={comment.adminHidden ? 'Unhide comment' : 'Hide comment'} withArrow>
-                     <ActionIcon
-                        variant="subtle"
-                        color={comment.adminHidden ? 'blue' : 'orange'}
-                        size="sm"
-                        onClick={() => comment.adminHidden ? onUnhide(comment.commentId) : onHide(comment.commentId)}
+                  {comment.adminHidden ? (
+                     <Tooltip label="Unhide comment" withArrow>
+                        <ActionIcon
+                           variant="subtle"
+                           color="blue"
+                           size="sm"
+                           onClick={() => onUnhide(comment.commentId)}
+                        >
+                           <IconEye size={15} />
+                        </ActionIcon>
+                     </Tooltip>
+                  ) : (
+                     <Popover
+                        opened={hidePopoverOpen}
+                        onClose={() => { setHidePopoverOpen(false); setHideReason(''); }}
+                        withArrow
+                        position="bottom-end"
                      >
-                        {comment.adminHidden ? <IconEye size={15} /> : <IconEyeOff size={15} />}
-                     </ActionIcon>
-                  </Tooltip>
+                        <Popover.Target>
+                           <ActionIcon
+                              variant="subtle"
+                              color="orange"
+                              size="sm"
+                              onClick={() => setHidePopoverOpen(true)}
+                           >
+                              <IconEyeOff size={15} />
+                           </ActionIcon>
+                        </Popover.Target>
+                        <Popover.Dropdown>
+                           <Stack gap="xs">
+                              <TextInput
+                                 label="Hide reason"
+                                 placeholder="Optional..."
+                                 size="xs"
+                                 value={hideReason}
+                                 onChange={e => setHideReason(e.currentTarget.value)}
+                                 style={{ minWidth: 200 }}
+                                 autoFocus
+                              />
+                              <Group gap="xs" justify="flex-end">
+                                 <Button size="compact-xs" variant="subtle" onClick={() => { setHidePopoverOpen(false); setHideReason(''); }}>
+                                    Cancel
+                                 </Button>
+                                 <Button size="compact-xs" color="orange" onClick={() => { onHide(comment.commentId, hideReason || undefined); setHidePopoverOpen(false); setHideReason(''); }}>
+                                    Hide
+                                 </Button>
+                              </Group>
+                           </Stack>
+                        </Popover.Dropdown>
+                     </Popover>
+                  )}
 
                   <Tooltip label={comment.authorBlocked ? 'User is blocked' : 'Ban user'} withArrow>
                      <ActionIcon

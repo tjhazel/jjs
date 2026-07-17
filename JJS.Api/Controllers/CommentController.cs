@@ -37,10 +37,10 @@ public class CommentController(ICommentService commentService, IHttpContextAcces
 
    [HttpPatch, Route("[action]/{commentId}")]
    [Authorize(Roles = "Admin")]
-   public async Task HideComment(int commentId)
+   public async Task HideComment(int commentId, [FromBody] HideCommentRequest? request = null)
    {
       var user = User.GetUserFromClaims();
-      await _commentService.Hide(commentId, user.DisplayName);
+      await _commentService.Hide(commentId, user.DisplayName, request?.HiddenReason);
    }
 
    [HttpPatch, Route("[action]/{commentId}")]
