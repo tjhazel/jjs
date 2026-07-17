@@ -143,7 +143,8 @@ public class AppBuilder
       .SetBasePath(AppContext.BaseDirectory) // Forces IIS to look in the API folder
       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
       .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
-      .AddEnvironmentVariables();
+      .AddEnvironmentVariables()
+      .AddUserSecrets(typeof(AppBuilder).Assembly, optional: true); // must be last so secrets override json files
 
 
       if (string.IsNullOrWhiteSpace(builder.Configuration[AppConfig.DATABASE_CONNECTION_STRING]))

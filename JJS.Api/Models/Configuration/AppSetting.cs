@@ -7,4 +7,6 @@ public class AppSetting
    public string GoogleClientId { get; set; }
    public string GoogleClientSecret { get; set; }
    public string JwtEmailEncryption { get; set; }
+   public string? GeminiApiUrl { get; set; }
+   public string? GeminiApiKey { get; set; }
 }

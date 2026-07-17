@@ -30,7 +30,7 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
    const [loadingIds, setLoadingIds] = useState<Set<number>>(new Set());
    const [rowErrors, setRowErrors] = useState<Record<number, string | null>>({});
    const [hidePopoverOpenId, setHidePopoverOpenId] = useState<number | null>(null);
-   const [pendingHideReason, setPendingHideReason] = useState('');
+   const [pendingScreenResult, setPendingScreenResult] = useState('');
 
    const groups = useMemo<PostGroup[]>(() => {
       if (!comments) return [];
@@ -68,8 +68,8 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
       }
    };
 
-   const handleHide = (c: CommentSummary, reason?: string) =>
-      withLoading(c.commentId, () => hideComment(httpPatch, c.commentId, reason));
+   const handleHide = (c: CommentSummary, screenResult?: string) =>
+      withLoading(c.commentId, () => hideComment(httpPatch, c.commentId, screenResult));
 
    const handleUnhide = (c: CommentSummary) =>
       withLoading(c.commentId, () => unhideComment(httpPatch, c.commentId));
@@ -113,7 +113,7 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
                      color="orange"
                      size="sm"
                      loading={loadingIds.has(c.commentId)}
-                     onClick={() => { setPendingHideReason(''); setHidePopoverOpenId(c.commentId); }}
+                     onClick={() => { setPendingScreenResult(''); setHidePopoverOpenId(c.commentId); }}
                   >
                      <IconEyeOff size={15} />
                   </ActionIcon>
@@ -124,8 +124,8 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
                         label="Hide reason"
                         placeholder="Optional..."
                         size="xs"
-                        value={pendingHideReason}
-                        onChange={e => setPendingHideReason(e.currentTarget.value)}
+                        value={pendingScreenResult}
+                        onChange={e => setPendingScreenResult(e.currentTarget.value)}
                         style={{ minWidth: 200 }}
                         autoFocus
                      />
@@ -133,7 +133,7 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
                         <Button size="compact-xs" variant="subtle" onClick={() => setHidePopoverOpenId(null)}>
                            Cancel
                         </Button>
-                        <Button size="compact-xs" color="orange" onClick={() => { handleHide(c, pendingHideReason || undefined); setHidePopoverOpenId(null); }}>
+                        <Button size="compact-xs" color="orange" onClick={() => { handleHide(c, pendingScreenResult || undefined); setHidePopoverOpenId(null); }}>
                            Hide
                         </Button>
                      </Group>
@@ -185,9 +185,9 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
                            {' · '}{formatDate(c.createdDate)}
                         </Text>
                         <Text size="sm" mt={2} style={{ whiteSpace: 'pre-wrap' }}>{c.entryText}</Text>
-                        {c.adminHidden && c.hiddenBy && (
+                        {c.adminHidden && c.screenedBy && (
                            <Text size="xs" c="orange.6">
-                              Hidden by {c.hiddenBy}{c.hiddenDate ? ` on ${formatDate(c.hiddenDate)}` : ''}{c.hiddenReason ? ` · ${c.hiddenReason}` : ''}
+                              Screened by {c.screenedBy}{c.hiddenDate ? ` on ${formatDate(c.hiddenDate)}` : ''}{c.screenResult ? ` · ${c.screenResult}` : ''}
                            </Text>
                         )}
                         {rowErrors[c.commentId] && (

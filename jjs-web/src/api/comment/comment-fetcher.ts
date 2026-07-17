@@ -48,8 +48,8 @@ export const addComment = async (httpPost: TPost, postId: number, request: NewCo
    mutateKeysLike(commentsByPostBaseUrl(postId));
 };
 
-export const hideComment = async (httpPatch: TPatch, commentId: number, hiddenReason?: string) => {
-   await httpPatch(`api/comment/hidecomment/${commentId}`, { hiddenReason: hiddenReason ?? null });
+export const hideComment = async (httpPatch: TPatch, commentId: number, screenResult?: string) => {
+   await httpPatch(`api/comment/hidecomment/${commentId}`, { screenResult: screenResult ?? null });
    mutateKeysLike('api/comment/getbypost');
    mutateKeysLike('api/comment/getreplies');
    mutateKeysLike('api/comment/getall');

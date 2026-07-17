@@ -26,7 +26,7 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, isReply =
    const [banError, setBanError] = useState<string | null>(null);
    const [showReplyArea, setShowReplyArea] = useState(false);
    const [hidePopoverOpen, setHidePopoverOpen] = useState(false);
-   const [hideReason, setHideReason] = useState('');
+   const [screenResult, setScreenResult] = useState('');
 
    const { data: replies, isLoading: repliesLoading } = useReplies(httpGet, comment.commentId, showReplyArea);
 
@@ -105,7 +105,7 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, isReply =
                   ) : (
                      <Popover
                         opened={hidePopoverOpen}
-                        onClose={() => { setHidePopoverOpen(false); setHideReason(''); }}
+                        onClose={() => { setHidePopoverOpen(false); setScreenResult(''); }}
                         withArrow
                         position="bottom-end"
                      >
@@ -125,16 +125,16 @@ export default function CommentItem({ comment, isAdmin, isHighlighted, isReply =
                                  label="Hide reason"
                                  placeholder="Optional..."
                                  size="xs"
-                                 value={hideReason}
-                                 onChange={e => setHideReason(e.currentTarget.value)}
+                                 value={screenResult}
+                                 onChange={e => setScreenResult(e.currentTarget.value)}
                                  style={{ minWidth: 200 }}
                                  autoFocus
                               />
                               <Group gap="xs" justify="flex-end">
-                                 <Button size="compact-xs" variant="subtle" onClick={() => { setHidePopoverOpen(false); setHideReason(''); }}>
+                                 <Button size="compact-xs" variant="subtle" onClick={() => { setHidePopoverOpen(false); setScreenResult(''); }}>
                                     Cancel
                                  </Button>
-                                 <Button size="compact-xs" color="orange" onClick={() => { onHide(comment.commentId, hideReason || undefined); setHidePopoverOpen(false); setHideReason(''); }}>
+                                 <Button size="compact-xs" color="orange" onClick={() => { onHide(comment.commentId, screenResult || undefined); setHidePopoverOpen(false); setScreenResult(''); }}>
                                     Hide
                                  </Button>
                               </Group>

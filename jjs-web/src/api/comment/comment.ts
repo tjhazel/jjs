@@ -6,9 +6,9 @@ export interface Comment {
    authorName: string;
    createdDate: string;
    adminHidden: boolean;
-   hiddenBy?: string;
+   screenedBy?: string;
    hiddenDate?: string;
-   hiddenReason?: string;
+   screenResult?: string;
    authorEmail?: string;
    authorBlocked?: boolean;
    parentCommentFk?: number;

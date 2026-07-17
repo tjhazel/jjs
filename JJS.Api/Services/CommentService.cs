@@ -10,10 +10,12 @@ namespace JJS.Api.Services;
 [ServiceImplementation(typeof(ICommentService))]
 public class CommentService(
    ICommentRepository commentRepository,
-   ICacheService cacheService) : ICommentService
+   ICacheService cacheService,
+   ICommentModerationService commentModerationService) : ICommentService
 {
    private readonly ICommentRepository _commentRepository = commentRepository;
    private readonly ICacheService _cacheService = cacheService;
+   private readonly ICommentModerationService _commentModerationService = commentModerationService;
 
    private const int PageSize = 10;
 
@@ -48,6 +50,18 @@ public class CommentService(
          AuthorEmail = user.Email,
          AuthorIp = authorIp?[..Math.Min(authorIp.Length, 15)],
       };
+
+      var moderation = await _commentModerationService.CheckCommentAsync($"{request.Title} {request.EntryText}".Trim());
+      if (moderation.WasProcessed)
+      {
+         input.ScreenedBy = "Gemini AI";
+         input.ScreenResult = moderation.Reason;
+      }
+      if (moderation.IsFlagged)
+      {
+         input.AdminHidden = true;
+      }
+
       await _commentRepository.Add(input);
       if (request.ParentCommentFk.HasValue)
          await _cacheService.ClearByPrefix($"{CacheKey.ReplyByCommentCacheName}/{request.ParentCommentFk}");
@@ -63,9 +77,9 @@ public class CommentService(
          cacheKey);
    }
 
-   public async Task Hide(int commentId, string hiddenBy, string? hiddenReason)
+   public async Task Hide(int commentId, string screenedBy, string? screenResult)
    {
-      await _commentRepository.Hide(commentId, hiddenBy, hiddenReason);
+      await _commentRepository.Hide(commentId, screenedBy, screenResult);
       await _cacheService.Clear();
    }
 
@@ -86,7 +100,7 @@ public interface ICommentService
    Task<PagedResult<Comment>> GetByPost(int postId, int page, bool isAdmin);
    Task<IEnumerable<Comment>> GetReplies(int commentId, bool isAdmin);
    Task Add(int postId, NewCommentRequest request, ClaimsUser user, string? authorIp);
-   Task Hide(int commentId, string hiddenBy, string? hiddenReason);
+   Task Hide(int commentId, string screenedBy, string? screenResult);
    Task Unhide(int commentId);
    Task<IEnumerable<CommentSummary>> GetAll(string? email, int? postId);
 }

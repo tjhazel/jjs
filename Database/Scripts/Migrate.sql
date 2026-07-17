@@ -79,6 +79,20 @@ begin
 end
 ;
 
+if col_length('dbo.Comments', 'ScreenedBy') is null and col_length('dbo.Comments', 'HiddenBy') is not null
+begin
+    exec sp_rename 'dbo.Comments.HiddenBy', 'ScreenedBy', 'COLUMN'
+    ;
+end
+;
+
+if col_length('dbo.Comments', 'ScreenResult') is null and col_length('dbo.Comments', 'HiddenReason') is not null
+begin
+    exec sp_rename 'dbo.Comments.HiddenReason', 'ScreenResult', 'COLUMN'
+    ;
+end
+;
+
 if col_length('dbo.Comments', 'ParentCommentFk') is null
 begin
     alter table Comments add ParentCommentFk int null

@@ -9,4 +9,7 @@ public class CommentInput
    public required string AuthorEmail { get; set; }
    public string? AuthorIp { get; set; }
    public int? ParentCommentFk { get; set; }
+   public bool AdminHidden { get; set; }
+   public string? ScreenedBy { get; set; }
+   public string? ScreenResult { get; set; }
 }

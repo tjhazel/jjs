@@ -11,9 +11,9 @@ public partial class CommentRepository
          ,c.AuthorName
          ,c.CreatedDate
          ,c.AdminHidden
-         ,c.HiddenBy
+         ,c.ScreenedBy
          ,c.HiddenDate
-         ,c.HiddenReason
+         ,c.ScreenResult
          ,case when @isAdmin = 1 then c.AuthorEmail else null end 'AuthorEmail'
          ,case when @isAdmin = 1 then isnull(u.Blocked, 0) else null end 'AuthorBlocked'
          ,(select count(*) from Comments r where r.ParentCommentFk = c.CommentId) 'ReplyCount'
@@ -42,9 +42,9 @@ public partial class CommentRepository
          ,c.AuthorName
          ,c.CreatedDate
          ,c.AdminHidden
-         ,c.HiddenBy
+         ,c.ScreenedBy
          ,c.HiddenDate
-         ,c.HiddenReason
+         ,c.ScreenResult
          ,case when @isAdmin = 1 then c.AuthorEmail else null end 'AuthorEmail'
          ,case when @isAdmin = 1 then isnull(u.Blocked, 0) else null end 'AuthorBlocked'
          ,0 'ReplyCount'
@@ -65,9 +65,9 @@ public partial class CommentRepository
    const string Hide_Sql = """
       update Comments
       set AdminHidden = 1
-         ,HiddenBy = @hiddenBy
+         ,ScreenedBy = @screenedBy
          ,HiddenDate = getutcdate()
-         ,HiddenReason = @hiddenReason
+         ,ScreenResult = @screenResult
       where CommentId = @commentId
       ;
       """;
@@ -75,9 +75,9 @@ public partial class CommentRepository
    const string Unhide_Sql = """
       update Comments
       set AdminHidden = 0
-         ,HiddenBy = null
+         ,ScreenedBy = null
          ,HiddenDate = null
-         ,HiddenReason = null
+         ,ScreenResult = null
       where CommentId = @commentId
       ;
       """;
@@ -93,9 +93,9 @@ public partial class CommentRepository
          ,c.AuthorEmail
          ,c.CreatedDate
          ,c.AdminHidden
-         ,c.HiddenBy
+         ,c.ScreenedBy
          ,c.HiddenDate
-         ,c.HiddenReason
+         ,c.ScreenResult
          ,isnull(u.Blocked, 0) AS AuthorBlocked
          ,(select count(*) from Comments r where r.ParentCommentFk = c.CommentId) ReplyCount
          ,isnull(rc.ReactionCounts, '') ReactionCounts
@@ -113,8 +113,8 @@ public partial class CommentRepository
       """;
 
    const string Add_Sql = """
-      insert into Comments (PostFk, ParentCommentFk, Title, EntryText, AuthorName, AuthorEmail, AuthorIP, CreatedDate)
-      values (@PostFk, @ParentCommentFk, @Title, @EntryText, @AuthorName, @AuthorEmail, @AuthorIp, getutcdate())
+      insert into Comments (PostFk, ParentCommentFk, Title, EntryText, AuthorName, AuthorEmail, AuthorIP, CreatedDate, AdminHidden, ScreenedBy, HiddenDate, ScreenResult)
+      values (@PostFk, @ParentCommentFk, @Title, @EntryText, @AuthorName, @AuthorEmail, @AuthorIp, getutcdate(), @AdminHidden, @ScreenedBy, case when @AdminHidden = 1 then getutcdate() else null end, @ScreenResult)
       ;
       """;
 }

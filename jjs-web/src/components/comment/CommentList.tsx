@@ -46,8 +46,8 @@ export default function CommentList({ postId, highlightCommentId }: CommentListP
 
    const reset = () => { setPage(1); setAllComments([]); scrolledRef.current = false; };
 
-   const handleHide = async (commentId: number, reason?: string) => {
-      await hideComment(httpPatch, commentId, reason);
+   const handleHide = async (commentId: number, screenResult?: string) => {
+      await hideComment(httpPatch, commentId, screenResult);
       reset();
    };
 
@@ -83,6 +83,11 @@ export default function CommentList({ postId, highlightCommentId }: CommentListP
 
    return (
       <Stack gap="xl">
+         <Box>
+            <Title order={4} fw={600} mb="sm">Leave a Comment</Title>
+            <AddCommentForm postId={postId} onCommentAdded={reset} />
+         </Box>
+
          {allComments.length === 0 ? (
             <Text size="sm" c="dimmed">No comments yet. Be the first!</Text>
          ) : (
@@ -116,11 +121,6 @@ export default function CommentList({ postId, highlightCommentId }: CommentListP
                )}
             </Stack>
          )}
-
-         <Box>
-            <Title order={4} fw={600} mb="sm">Leave a Comment</Title>
-            <AddCommentForm postId={postId} onCommentAdded={reset} />
-         </Box>
       </Stack>
    );
 }
