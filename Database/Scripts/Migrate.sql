@@ -9,6 +9,76 @@ END
 GO
 
 
+if col_length('dbo.Attachments', 'Content') is null
+begin
+    alter table Attachments add Content varbinary(max)
+    ;
+end
+;
+
+GO
+
+
+if col_length('dbo.Posts', 'ImageUrl') is null
+begin
+    alter table Posts add ImageUrl nvarchar(500) null
+    ;
+end
+;
+
+GO
+if col_length('dbo.Posts', 'Archived') is null
+begin
+    alter table Posts add Archived bit null
+    ;
+end
+;
+
+GO
+if col_length('dbo.Posts', 'CircleOfTrust') is null
+begin
+    alter table Posts add CircleOfTrust bit null
+    ;
+end
+;
+
+GO
+if col_length('dbo.Comments', 'HiddenReason') is null
+begin
+    alter table Comments add HiddenReason nvarchar(255) null
+    ;
+end
+;
+
+GO
+if col_length('dbo.Comments', 'ScreenedBy') is null and col_length('dbo.Comments', 'HiddenBy') is not null
+begin
+    exec sp_rename 'dbo.Comments.HiddenBy', 'ScreenedBy', 'COLUMN'
+    ;
+end
+;
+
+GO
+if col_length('dbo.Comments', 'ScreenResult') is null and col_length('dbo.Comments', 'HiddenReason') is not null
+begin
+    exec sp_rename 'dbo.Comments.HiddenReason', 'ScreenResult', 'COLUMN'
+    ;
+end
+;
+
+GO
+if col_length('dbo.Comments', 'ParentCommentFk') is null
+begin
+    alter table Comments add ParentCommentFk int null
+        constraint FK_Comments_ParentComment foreign key references Comments(CommentId)
+    ;
+end
+;
+
+/*
+--https://www.freeformatter.com/sql-escape.html#before-output
+
+
 MERGE dbo.[Users] AS Target
 USING (VALUES
 
@@ -37,131 +107,10 @@ update RecipeInstructions
  set Instructions = dbo.[ConvertHtmlToMarkdown](instructions)
  ;
 
-
-if col_length('dbo.Attachments', 'Content') is null
-begin
-    alter table Attachments add Content varbinary(max)
-    ;
-end
-;
-
-GO
-
+ 
 update Attachments set Content = Data where Content is null
 ;
 
-
-if col_length('dbo.Posts', 'ImageUrl') is null
-begin
-    alter table Posts add ImageUrl nvarchar(500) null
-    ;
-end
-;
-
-if col_length('dbo.Posts', 'Archived') is null
-begin
-    alter table Posts add Archived bit null
-    ;
-end
-;
-
-if col_length('dbo.Posts', 'CircleOfTrust') is null
-begin
-    alter table Posts add CircleOfTrust bit null
-    ;
-end
-;
-
-if col_length('dbo.Comments', 'HiddenReason') is null
-begin
-    alter table Comments add HiddenReason nvarchar(255) null
-    ;
-end
-;
-
-if col_length('dbo.Comments', 'ScreenedBy') is null and col_length('dbo.Comments', 'HiddenBy') is not null
-begin
-    exec sp_rename 'dbo.Comments.HiddenBy', 'ScreenedBy', 'COLUMN'
-    ;
-end
-;
-
-if col_length('dbo.Comments', 'ScreenResult') is null and col_length('dbo.Comments', 'HiddenReason') is not null
-begin
-    exec sp_rename 'dbo.Comments.HiddenReason', 'ScreenResult', 'COLUMN'
-    ;
-end
-;
-
-if col_length('dbo.Comments', 'ParentCommentFk') is null
-begin
-    alter table Comments add ParentCommentFk int null
-        constraint FK_Comments_ParentComment foreign key references Comments(CommentId)
-    ;
-end
-;
-
-if not exists (select * from sys.tables where name = 'CommentReactions')
-begin
-    create table [dbo].[CommentReactions] (
-        [ReactionId] int           identity(1,1) not null,
-        [CommentFk]  int           not null,
-        [Email]      nvarchar(500) not null,
-        [Emoji]      nvarchar(10)  not null,
-        [ReactedAt]  smalldatetime default (getutcdate()) not null,
-        constraint [PK_CommentReactions] primary key clustered ([ReactionId] asc),
-        constraint [FK_CommentReactions_Comments] foreign key ([CommentFk]) references [dbo].[Comments] ([CommentId]),
-        constraint [UQ_CommentReactions_UserEmoji] unique ([CommentFk], [Email], [Emoji])
-    )
-    ;
-end
-;
-
-if not exists (select * from sys.tables where name = 'PostReactions')
-begin
-    create table [dbo].[PostReactions] (
-        [ReactionId] int           identity(1,1) not null,
-        [PostFk]     int           not null,
-        [Email]      nvarchar(500) not null,
-        [Emoji]      nvarchar(10)  not null,
-        [ReactedAt]  smalldatetime default (getutcdate()) not null,
-        constraint [PK_PostReactions] primary key clustered ([ReactionId] asc),
-        constraint [FK_PostReactions_Posts] foreign key ([PostFk]) references [dbo].[Posts] ([PostId]),
-        constraint [UQ_PostReactions_UserEmoji] unique ([PostFk], [Email], [Emoji])
-    )
-    ;
-end
-;
-
-if exists (
-    select 1 from sys.columns c
-    join sys.tables t on t.object_id = c.object_id
-    where t.name = 'PostReactions' and c.name = 'Emoji' and c.collation_name <> 'Latin1_General_100_BIN2'
-)
-begin
-    alter table [dbo].[PostReactions] drop constraint [UQ_PostReactions_UserEmoji]
-    ;
-    alter table [dbo].[PostReactions] alter column [Emoji] nvarchar(10) collate Latin1_General_100_BIN2 not null
-    ;
-    alter table [dbo].[PostReactions] add constraint [UQ_PostReactions_UserEmoji] unique ([PostFk], [Email], [Emoji])
-    ;
-end
-;
-
-if exists (
-    select 1 from sys.columns c
-    join sys.tables t on t.object_id = c.object_id
-    where t.name = 'CommentReactions' and c.name = 'Emoji' and c.collation_name <> 'Latin1_General_100_BIN2'
-)
-begin
-    alter table [dbo].[CommentReactions] drop constraint [UQ_CommentReactions_UserEmoji]
-    ;
-    alter table [dbo].[CommentReactions] alter column [Emoji] nvarchar(10) collate Latin1_General_100_BIN2 not null
-    ;
-    alter table [dbo].[CommentReactions] add constraint [UQ_CommentReactions_UserEmoji] unique ([CommentFk], [Email], [Emoji])
-    ;
-end
-;
 
 if exists(select * from information_schema.columns where table_name = 'Posts' and column_name = 'Body'and data_type = 'ntext') begin
    alter table [Posts] alter column [Body] nvarchar(max) not null   
@@ -174,8 +123,7 @@ if exists(select * from information_schema.columns where table_name = 'Posts' an
    ;
 end
 
-/*
---https://www.freeformatter.com/sql-escape.html#before-output
+
 
 update posts
 set 
