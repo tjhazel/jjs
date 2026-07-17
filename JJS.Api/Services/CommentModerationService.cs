@@ -12,6 +12,7 @@ namespace JJS.Api.Services;
 /// here is a sample that will flag a comment.  
 /// <![CDATA[
 /// Contains the GTUBE (Generic Test for Unsolicited Bulk Email) standard string designed to trigger anti-spam filters.
+/// XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X
 /// ]]>
 /// </summary>
 /// <param name="httpClientFactory"></param>
@@ -34,7 +35,8 @@ public class CommentModerationService(
       if (string.IsNullOrWhiteSpace(_appSetting.GeminiApiKey) || string.IsNullOrWhiteSpace(_appSetting.GeminiApiUrl))
       {
          _logger.LogWarning("Gemini moderation not configured — allowing comment through");
-         return new ModerationResult();
+         throw new Exception($"{_appSetting.GeminiApiUrl}, Key Is Empty: {string.IsNullOrWhiteSpace(_appSetting.GeminiApiKey)}");
+         //return new ModerationResult();
       }
 
       var url = $"{_appSetting.GeminiApiUrl}?key={_appSetting.GeminiApiKey}";
@@ -85,7 +87,10 @@ public class CommentModerationService(
          _logger.LogWarning(ex, "Gemini moderation check failed — allowing comment through");
          if (!string.IsNullOrWhiteSpace(responseString))
             _logger.LogWarning(responseString);
-         return new ModerationResult { WasProcessed = wasProcessed };
+
+         throw new Exception($"wasProcessed: {wasProcessed}, [{responseString}] \r\n {ex}");
+
+         //return new ModerationResult { WasProcessed = wasProcessed };
       }
    }
 

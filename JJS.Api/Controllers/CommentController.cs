@@ -28,11 +28,19 @@ public class CommentController(ICommentService commentService, IHttpContextAcces
 
    [HttpPost, Route("[action]/{postId}")]
    [Authorize]
-   public async Task AddForPost(int postId, NewCommentRequest request)
+   public async Task<IActionResult> AddForPost(int postId, NewCommentRequest request)
    {
-      var user = User.GetUserFromClaims();
-      var ip = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
-      await _commentService.Add(postId, request, user, ip);
+      try
+      {
+         var user = User.GetUserFromClaims();
+         var ip = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+         await _commentService.Add(postId, request, user, ip);
+         return Ok();
+      }
+      catch (Exception ex)
+      {
+         return BadRequest(ex);
+      }
    }
 
    [HttpPatch, Route("[action]/{commentId}")]
