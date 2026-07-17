@@ -1,21 +1,18 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
-import Autoplay from 'embla-carousel-autoplay';
-import { Box, Center, Group, Image, Loader, Stack, Text, TextInput } from '@mantine/core';
-import { Carousel } from '@mantine/carousel';
-import { IconSearch } from '@tabler/icons-react';
+import { ActionIcon, Box, Center, Group, Loader, Popover, Stack, Text, TextInput } from '@mantine/core';
+import { IconAdjustments, IconSearch } from '@tabler/icons-react';
 import { useApiContext } from '@api/ApiContext';
-import { useCarouselImages } from '@api/album/image-fetcher';
 import { usePosts } from '@api/post/post-fetcher';
+import CarouselBanner from '@components/ui/CarouselBanner';
 import PostList from '@components/post/PostList';
 import CategorySelector from '@components/post/CategorySelector';
 import InfiniteScroll from '@components/ui/InfiniteScroll';
 
 function DashboardPage() {
   const { httpGet } = useApiContext();
-  const { data: carouselImages } = useCarouselImages();
   const { data: posts, isLoading } = usePosts(httpGet);
-  const autoplay = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
+  const [filterOpen, setFilterOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedCategory = searchParams.get('category') ? Number(searchParams.get('category')) : null;
   const textFilter = searchParams.get('q') ?? '';
@@ -25,6 +22,7 @@ function DashboardPage() {
       else prev.set('category', String(id));
       return prev;
     });
+    setFilterOpen(false);
   };
 
   const handleTextFilter = (value: string) => {
@@ -56,53 +54,42 @@ function DashboardPage() {
     );
   }
 
-  const slides = (carouselImages || []).map((img) => (
-    <Carousel.Slide key={img.path}
-    style={{ 
-      backgroundColor: 'var(--mantine-color-dark-8)', // Dark neutral backdrop filler
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center' 
-    }}>
-      <Image src={img.path} 
-         alt={img.title} 
-         height={300} 
-         w="auto"          // 👉 Tells Mantine to dynamically calculate scaling width
-         fit="contain"     // 👉 Keeps the aspect ratio locked without side-clipping
-   />
-    </Carousel.Slide>
-  ));
-
   return (
     <>
-      <Box bg="var(--mantine-color-indigo-light)" mb="xl">
-        {/* 
-          👉 FIXED: Added loop property assignment directly to layout configs
-        */}
-        <Carousel
-          withIndicators
-          height={300}
-          plugins={[autoplay.current]}
-          onMouseEnter={autoplay.current.stop}
-          onMouseLeave={autoplay.current.reset}
-        >
-          {slides}
-        </Carousel>
-      </Box>
+      <CarouselBanner />
 
-        <Box bg="var(--mantine-color-indigo-light)">
-          <Group justify="flex-end" px="md" pb="sm">
+        <Box bg="var(--mantine-color-gray-0)">
+          <Group justify="flex-end" px="md" py={6} wrap="nowrap">
             <TextInput
               placeholder="Search posts..."
               leftSection={<IconSearch size={14} />}
               value={textFilter}
               onChange={e => handleTextFilter(e.currentTarget.value)}
-              style={{ minWidth: 220 }}
+              style={{ flex: 1, minWidth: 0 }}
             />
-            <CategorySelector
-              selectedCategory={selectedCategory}
-              onCategoryChange={handleCategoryChange}
-            />
+            <Popover
+              opened={filterOpen}
+              onChange={setFilterOpen}
+              position="bottom-end"
+              withinPortal
+            >
+              <Popover.Target>
+                <ActionIcon
+                  size="input-sm"
+                  variant={selectedCategory != null ? 'filled' : 'default'}
+                  onClick={() => setFilterOpen(o => !o)}
+                  aria-label="Filter by category"
+                >
+                  <IconAdjustments size={16} />
+                </ActionIcon>
+              </Popover.Target>
+              <Popover.Dropdown>
+                <CategorySelector
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={handleCategoryChange}
+                />
+              </Popover.Dropdown>
+            </Popover>
           </Group>
           <InfiniteScroll
             items={homePosts}
