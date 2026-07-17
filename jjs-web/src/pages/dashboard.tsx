@@ -65,7 +65,7 @@ function DashboardPage() {
               leftSection={<IconSearch size={14} />}
               value={textFilter}
               onChange={e => handleTextFilter(e.currentTarget.value)}
-              style={{ flex: 1, minWidth: 0 }}
+              style={{ flex: 1, minWidth: 0, maxWidth: 300 }}
             />
             <Popover
               opened={filterOpen}
