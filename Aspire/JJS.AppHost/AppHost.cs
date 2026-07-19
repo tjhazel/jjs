@@ -6,7 +6,7 @@ var api = builder.AddProject<Projects.JJS_Api>("jjs-api")
    .WithExternalHttpEndpoints()
 ;
 
-var ui = builder.AddNpmApp(name: "jjs-web-ui", workingDirectory: "../../jjs-web", scriptName: "dev")
+var ui = builder.AddJavaScriptApp(name: "jjs-web-ui", appDirectory: "../../jjs-web", runScriptName: "dev")
     .WithHttpEndpoint(port: 5173, targetPort: 5173, env: "dev", name: "dev-ui", isProxied: false)
     .WithExternalHttpEndpoints()
     .WithReference(api)
