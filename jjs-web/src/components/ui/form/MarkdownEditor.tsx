@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Box, Group, ActionIcon, Tooltip, Text, Tabs, Textarea,
   InputWrapper, Divider, Menu,
@@ -52,6 +52,13 @@ export default function MarkdownEditor({
   const [text, setText] = useState(value ?? defaultValue);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const dotsWrapperRef = useRef<HTMLDivElement>(null);
+  // Stores each item's right-edge position relative to the toolbar's left edge,
+  // measured on first render when all items are in the DOM. Reused on every
+  // subsequent resize so removed items can still be "seen" by the calculator.
+  const itemRightsRef = useRef<number[]>([]);
+  const [visibleCount, setVisibleCount] = useState(Number.MAX_SAFE_INTEGER);
   const { httpPostFormData } = useApiContext();
 
   // Sync when controlled value changes from outside.
@@ -143,36 +150,101 @@ export default function MarkdownEditor({
     }
   };
 
-  // ── Toolbar definition ───────────────────────────────────────────────────
+  // ── Toolbar definition (ordered most- to least-common; rightmost overflow first) ──
 
   type ToolItem = { icon: React.ReactNode; label: string; action: () => void; loading?: boolean };
 
-  // Always visible inline
-  const primaryTools: (ToolItem | null)[] = [
-    { icon: <IconH1 size={14} />,   label: 'Heading 1',    action: () => prependLines('# ') },
-    { icon: <IconH2 size={14} />,   label: 'Heading 2',    action: () => prependLines('## ') },
+  const allTools: (ToolItem | null)[] = [
+    { icon: <IconH1 size={14} />,            label: 'Heading 1',       action: () => prependLines('# ') },
+    { icon: <IconH2 size={14} />,            label: 'Heading 2',       action: () => prependLines('## ') },
     null,
-    { icon: <IconBold size={14} />,   label: 'Bold',        action: () => wrap('**', '**', 'bold text') },
-    { icon: <IconItalic size={14} />, label: 'Italic',      action: () => wrap('*', '*', 'italic text') },
+    { icon: <IconBold size={14} />,          label: 'Bold',            action: () => wrap('**', '**', 'bold text') },
+    { icon: <IconItalic size={14} />,        label: 'Italic',          action: () => wrap('*', '*', 'italic text') },
     null,
-    { icon: <IconCode size={14} />,   label: 'Inline code', action: () => wrap('`', '`', 'code') },
-    { icon: <IconLink size={14} />,   label: 'Link',        action: () => wrap('[', '](url)', 'link text') },
+    { icon: <IconCode size={14} />,          label: 'Inline code',     action: () => wrap('`', '`', 'code') },
+    { icon: <IconLink size={14} />,          label: 'Link',            action: () => wrap('[', '](url)', 'link text') },
     null,
-    { icon: <IconList size={14} />,   label: 'Unordered list', action: () => prependLines('- ') },
+    { icon: <IconList size={14} />,          label: 'Unordered list',  action: () => prependLines('- ') },
+    { icon: <IconListNumbers size={14} />,   label: 'Ordered list',    action: () => prependLines('1. ') },
+    null,
+    { icon: <IconStrikethrough size={14} />, label: 'Strikethrough',   action: () => wrap('~~', '~~', 'struck text') },
+    { icon: <IconBlockquote size={14} />,    label: 'Quote',           action: () => prependLines('> ') },
+    null,
+    { icon: <IconMinus size={14} />,         label: 'Horizontal rule', action: () => insert('\n\n---\n\n') },
     ...(uploadEndpoint ? [
       null as null,
-      { icon: <IconPhoto size={14} />, label: 'Insert image', loading: uploading, action: () => fileInputRef.current?.click() },
+      { icon: <IconPhoto size={14} />, label: 'Insert image', loading: uploading, action: () => fileInputRef.current?.click() } as ToolItem,
     ] : []),
   ];
 
-  // Hidden behind "…" overflow menu
-  const overflowTools: (ToolItem | null)[] = [
-    { icon: <IconStrikethrough size={14} />, label: 'Strikethrough', action: () => wrap('~~', '~~', 'struck text') },
-    { icon: <IconBlockquote size={14} />,    label: 'Quote',         action: () => prependLines('> ') },
-    { icon: <IconListNumbers size={14} />,   label: 'Ordered list',  action: () => prependLines('1. ') },
-    null,
-    { icon: <IconMinus size={14} />,         label: 'Horizontal rule', action: () => insert('\n\n---\n\n') },
-  ];
+  // ── Overflow measurement via ResizeObserver ──────────────────────────────
+  //
+  // The dots wrapper is always rendered (visibility: hidden when unused) so its
+  // width is always reserved in the calculation, preventing layout oscillation.
+  // Item widths are captured on first render (all items visible) and reused on
+  // subsequent resize events so we can restore items even after they leave the DOM.
+
+  useLayoutEffect(() => {
+    const toolbar = toolbarRef.current;
+    const dotsWrapper = dotsWrapperRef.current;
+    if (!toolbar || !dotsWrapper) return;
+
+    const measure = () => {
+      const toolbarRect = toolbar.getBoundingClientRect();
+      // dotsWrapper is always in the DOM (visibility:hidden when unused), so its
+      // bounding width — which includes children's flex-layout margins — is stable.
+      const dotsWidth = dotsWrapper.getBoundingClientRect().width;
+      const available = toolbarRect.width - dotsWidth;
+
+      // Capture right-edge positions on the first call (all items still in DOM).
+      // getBoundingClientRect().right accounts for the element's actual viewport
+      // position, so it implicitly includes every preceding item's width, margin,
+      // and the flex gap — unlike offsetWidth which would miss margins entirely.
+      if (itemRightsRef.current.length === 0) {
+        const items = (Array.from(toolbar.children) as HTMLElement[]).filter(
+          el => el !== dotsWrapper,
+        );
+        itemRightsRef.current = items.map(
+          el => el.getBoundingClientRect().right - toolbarRect.left,
+        );
+      }
+
+      const rights = itemRightsRef.current;
+      let newCount = rights.length;
+
+      for (let i = 0; i < rights.length; i++) {
+        if (rights[i] > available) {
+          newCount = i;
+          break;
+        }
+      }
+
+      setVisibleCount(newCount);
+    };
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(toolbar);
+    measure();
+    return () => ro.disconnect();
+  }, []);
+
+  // ── Split tools into visible (inline) vs overflow (menu) ─────────────────
+
+  const allVisible = allTools.slice(0, visibleCount);
+  const allOverflow = allTools.slice(visibleCount);
+
+  // Drop trailing dividers from inline section and leading dividers from menu section
+  let visEnd = allVisible.length - 1;
+  while (visEnd >= 0 && allVisible[visEnd] === null) visEnd--;
+  const visibleTools = allVisible.slice(0, visEnd + 1);
+
+  let ovStart = 0;
+  while (ovStart < allOverflow.length && allOverflow[ovStart] === null) ovStart++;
+  const overflowTools = allOverflow.slice(ovStart);
+
+  const hasOverflow = overflowTools.some(t => t !== null);
+
+  // ── Render helpers ───────────────────────────────────────────────────────
 
   const renderInlineButton = (t: ToolItem, i: number) => (
     <Tooltip key={i} label={t.label} withArrow fz="xs" openDelay={400}>
@@ -207,44 +279,48 @@ export default function MarkdownEditor({
           </Box>
 
           {tab === 'write' && (
-            <Group gap={2} px="xs" py={4} wrap="nowrap" className={classes.toolbar}>
-              {primaryTools.map((t, i) =>
+            <Group ref={toolbarRef} gap={2} px="xs" py={4} wrap="nowrap" className={classes.toolbar}>
+              {visibleTools.map((t, i) =>
                 t === null
                   ? <Divider key={i} orientation="vertical" h={16} mx={2} style={{ alignSelf: 'center' }} />
                   : renderInlineButton(t, i)
               )}
 
-              <Divider orientation="vertical" h={16} mx={2} style={{ alignSelf: 'center' }} />
-
-              <Menu shadow="md" position="bottom-end" withinPortal>
-                <Menu.Target>
-                  <Tooltip label="More" withArrow fz="xs" openDelay={400}>
-                    <ActionIcon
-                      variant="subtle" color="gray" size="sm"
-                      disabled={disabled || uploading}
-                      aria-label="More formatting options"
-                    >
-                      <IconDots size={14} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  {overflowTools.map((t, i) =>
-                    t === null
-                      ? <Menu.Divider key={i} />
-                      : (
-                        <Menu.Item
-                          key={i}
-                          leftSection={t.icon}
-                          fz="sm"
-                          onClick={() => t.action()}
-                        >
-                          {t.label}
-                        </Menu.Item>
-                      )
-                  )}
-                </Menu.Dropdown>
-              </Menu>
+              <div
+                ref={dotsWrapperRef}
+                style={{ display: 'flex', alignItems: 'center', visibility: hasOverflow ? 'visible' : 'hidden' }}
+              >
+                <Divider orientation="vertical" h={16} mx={2} style={{ alignSelf: 'center' }} />
+                <Menu shadow="md" position="bottom-end" withinPortal>
+                  <Menu.Target>
+                    <Tooltip label="More" withArrow fz="xs" openDelay={400}>
+                      <ActionIcon
+                        variant="subtle" color="gray" size="sm"
+                        disabled={disabled || uploading}
+                        aria-label="More formatting options"
+                      >
+                        <IconDots size={14} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    {overflowTools.map((t, i) =>
+                      t === null
+                        ? <Menu.Divider key={i} />
+                        : (
+                          <Menu.Item
+                            key={i}
+                            leftSection={t.icon}
+                            fz="sm"
+                            onClick={() => t.action()}
+                          >
+                            {t.label}
+                          </Menu.Item>
+                        )
+                    )}
+                  </Menu.Dropdown>
+                </Menu>
+              </div>
             </Group>
           )}
 

@@ -10,12 +10,7 @@
 .toolbar {
   border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
   background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6));
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.toolbar::-webkit-scrollbar {
-  display: none;
+  overflow-x: hidden;
 }
 
 /* Ensure ActionIcon buttons are readable against the themed toolbar background */
