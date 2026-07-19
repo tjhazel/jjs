@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { ActionIcon, Box, Button, Group, Modal, Stack } from '@mantine/core';
+import { ActionIcon, Box, Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { IconCamera, IconCameraRotate } from '@tabler/icons-react';
 
 export interface CameraCaptureHandle {
@@ -15,12 +15,13 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
     const [opened, setOpened] = useState(false);
     const [capturedDataUrl, setCapturedDataUrl] = useState<string | null>(null);
     const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+    const [cameraError, setCameraError] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
     useImperativeHandle(ref, () => ({
-      open: () => { setCapturedDataUrl(null); setOpened(true); },
+      open: () => { setCapturedDataUrl(null); setCameraError(null); setOpened(true); },
     }));
 
     // Start/stop the camera stream based on modal state and capture phase.
@@ -32,6 +33,14 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       }
       if (capturedDataUrl) return; // Preview showing; don't restart stream.
 
+      // navigator.mediaDevices is undefined on HTTP or unsupported browsers.
+      // Accessing it without this guard throws a TypeError that bubbles to the
+      // root error boundary and shows the "Something went wrong" page.
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setCameraError('Camera access is not available. Make sure the page is loaded over HTTPS and your browser supports camera access.');
+        return;
+      }
+
       let cancelled = false;
       navigator.mediaDevices
         .getUserMedia({ video: { facingMode }, audio: false })
@@ -40,7 +49,31 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
           streamRef.current = stream;
           if (videoRef.current) videoRef.current.srcObject = stream;
         })
-        .catch(() => { if (!cancelled) setOpened(false); });
+        .catch((err: unknown) => {
+          if (cancelled) return;
+          const name = err instanceof DOMException ? err.name : '';
+          if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+            setCameraError('Camera permission was denied. Please allow camera access in your browser settings and try again.');
+          } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+            setCameraError('No camera was found on this device.');
+          } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+            setCameraError('Camera is already in use by another app. Close it and try again.');
+          } else if (name === 'OverconstrainedError') {
+            // Requested facingMode isn't available — retry without the constraint.
+            navigator.mediaDevices
+              .getUserMedia({ video: true, audio: false })
+              .then(stream => {
+                if (cancelled) { stream.getTracks().forEach(t => t.stop()); return; }
+                streamRef.current = stream;
+                if (videoRef.current) videoRef.current.srcObject = stream;
+              })
+              .catch(() => {
+                if (!cancelled) setCameraError('Could not start camera. Please try again.');
+              });
+          } else {
+            setCameraError('Could not start camera. Please try again.');
+          }
+        });
 
       return () => { cancelled = true; };
     }, [opened, capturedDataUrl, facingMode]);
@@ -57,7 +90,7 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       setCapturedDataUrl(canvas.toDataURL('image/jpeg', 0.92));
     };
 
-    const retake = () => setCapturedDataUrl(null); // effect restarts stream
+    const retake = () => { setCameraError(null); setCapturedDataUrl(null); };
 
     const usePhoto = () => {
       canvasRef.current?.toBlob(blob => {
@@ -69,30 +102,37 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       }, 'image/jpeg', 0.92);
     };
 
-    const close = () => { setOpened(false); setCapturedDataUrl(null); };
+    const close = () => { setOpened(false); setCapturedDataUrl(null); setCameraError(null); };
 
     return (
       <Modal opened={opened} onClose={close} title="Capture Image" centered size="lg">
         <Stack gap="sm">
+          {/* Error state */}
+          {cameraError && (
+            <Text c="red" size="sm">{cameraError}</Text>
+          )}
+
           {/* Live feed */}
-          <Box style={{
-            position: 'relative', background: '#000', borderRadius: 4,
-            overflow: 'hidden', display: capturedDataUrl ? 'none' : 'block',
-          }}>
-            <video
-              ref={videoRef}
-              autoPlay playsInline muted
-              style={{ width: '100%', maxHeight: '60vh', display: 'block', objectFit: 'contain' }}
-            />
-            <ActionIcon
-              variant="filled" color="dark" size="md"
-              style={{ position: 'absolute', top: 8, right: 8, opacity: 0.7 }}
-              onClick={() => setFacingMode(m => m === 'user' ? 'environment' : 'user')}
-              aria-label="Flip camera"
-            >
-              <IconCameraRotate size={16} />
-            </ActionIcon>
-          </Box>
+          {!cameraError && (
+            <Box style={{
+              position: 'relative', background: '#000', borderRadius: 4,
+              overflow: 'hidden', display: capturedDataUrl ? 'none' : 'block',
+            }}>
+              <video
+                ref={videoRef}
+                autoPlay playsInline muted
+                style={{ width: '100%', maxHeight: '60vh', display: 'block', objectFit: 'contain' }}
+              />
+              <ActionIcon
+                variant="filled" color="dark" size="md"
+                style={{ position: 'absolute', top: 8, right: 8, opacity: 0.7 }}
+                onClick={() => { setCameraError(null); setFacingMode(m => m === 'user' ? 'environment' : 'user'); }}
+                aria-label="Flip camera"
+              >
+                <IconCameraRotate size={16} />
+              </ActionIcon>
+            </Box>
+          )}
 
           {/* Captured preview */}
           {capturedDataUrl && (
@@ -114,7 +154,11 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
                 <Button onClick={usePhoto}>Use Photo</Button>
               </>
             ) : (
-              <Button leftSection={<IconCamera size={16} />} onClick={capture}>
+              <Button
+                leftSection={<IconCamera size={16} />}
+                onClick={capture}
+                disabled={!!cameraError}
+              >
                 Capture
               </Button>
             )}
