@@ -9,8 +9,11 @@ import {
   IconBold, IconItalic, IconStrikethrough,
   IconH1, IconH2, IconBlockquote, IconCode, IconLink,
   IconList, IconListNumbers, IconMinus, IconPhoto, IconDots,
+  IconCamera,
 } from '@tabler/icons-react';
 import { useApiContext } from '@api/ApiContext';
+import CameraCapture, { type CameraCaptureHandle } from './CameraCapture';
+import ImageUpload, { type ImageUploadHandle } from './ImageUpload';
 import classes from './MarkdownEditor.module.css';
 
 export interface MarkdownEditorProps extends Omit<InputWrapperProps, 'children'> {
@@ -51,7 +54,7 @@ export default function MarkdownEditor({
   // Internal text state: initialized from value (controlled) or defaultValue (uncontrolled).
   const [text, setText] = useState(value ?? defaultValue);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageUploadRef = useRef<ImageUploadHandle>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const dotsWrapperRef = useRef<HTMLDivElement>(null);
   // Stores each item's right-edge position relative to the toolbar's left edge,
@@ -60,6 +63,7 @@ export default function MarkdownEditor({
   const itemRightsRef = useRef<number[]>([]);
   const [visibleCount, setVisibleCount] = useState(Number.MAX_SAFE_INTEGER);
   const { httpPostFormData } = useApiContext();
+  const cameraRef = useRef<CameraCaptureHandle>(null);
 
   // Sync when controlled value changes from outside.
   useEffect(() => {
@@ -173,7 +177,8 @@ export default function MarkdownEditor({
     { icon: <IconMinus size={14} />,         label: 'Horizontal rule', action: () => insert('\n\n---\n\n') },
     ...(uploadEndpoint ? [
       null as null,
-      { icon: <IconPhoto size={14} />, label: 'Insert image', loading: uploading, action: () => fileInputRef.current?.click() } as ToolItem,
+      { icon: <IconPhoto size={14} />,  label: 'Insert image',  loading: uploading, action: () => imageUploadRef.current?.open() } as ToolItem,
+      { icon: <IconCamera size={14} />, label: 'Capture image', loading: uploading, action: () => cameraRef.current?.open() } as ToolItem,
     ] : []),
   ];
 
@@ -181,7 +186,7 @@ export default function MarkdownEditor({
   //
   // The dots wrapper is always rendered (visibility: hidden when unused) so its
   // width is always reserved in the calculation, preventing layout oscillation.
-  // Item widths are captured on first render (all items visible) and reused on
+  // Item positions are captured on first render (all items visible) and reused on
   // subsequent resize events so we can restore items even after they leave the DOM.
 
   useLayoutEffect(() => {
@@ -362,20 +367,14 @@ export default function MarkdownEditor({
           <Text size="xs" c="dimmed">Markdown supported</Text>
         </Group>
 
-        {uploadEndpoint && (
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={e => {
-              const file = e.target.files?.[0];
-              if (file) handleImageFile(file);
-              e.target.value = '';
-            }}
-          />
-        )}
       </Box>
+
+      {uploadEndpoint && (
+        <>
+          <ImageUpload ref={imageUploadRef} onUpload={handleImageFile} />
+          <CameraCapture ref={cameraRef} onCapture={handleImageFile} />
+        </>
+      )}
     </InputWrapper>
   );
 }
