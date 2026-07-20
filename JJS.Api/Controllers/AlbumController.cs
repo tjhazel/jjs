@@ -20,6 +20,38 @@ public class AlbumController(IAlbumService albumService, ICacheService cacheServ
       return await _albumService.Get();
    }
 
+   [HttpPost("upload")]
+   [Authorize(Roles = "Admin")]
+   [Consumes("multipart/form-data")]
+   public async Task<IActionResult> Upload(IFormFile file, [FromForm] string folderPath)
+   {
+      try
+      {
+         if (file == null || !file.ContentType.StartsWith("image/"))
+            return BadRequest("An image file is required.");
+
+         var relativePath = await _albumService.UploadImage(file, folderPath);
+         return Ok(new { relativePath });
+      }
+      catch (ArgumentException ex)        { return BadRequest(ex.Message); }
+      catch (InvalidOperationException ex) { return Conflict(ex.Message); }
+      catch (Exception ex)                { return StatusCode(500, new { error = ex.Message }); }
+   }
+
+   [HttpPost("folder")]
+   [Authorize(Roles = "Admin")]
+   public async Task<IActionResult> CreateFolder([FromBody] CreateFolderRequest request)
+   {
+      try
+      {
+         await _albumService.CreateFolder(request.ParentPath, request.FolderName);
+         return Ok();
+      }
+      catch (ArgumentException ex)        { return BadRequest(ex.Message); }
+      catch (InvalidOperationException ex) { return Conflict(ex.Message); }
+      catch (Exception ex)                { return StatusCode(500, new { error = ex.Message }); }
+   }
+
    [HttpPost("refresh")]
    [Authorize(Roles = "Admin")]
    public async Task<IActionResult> Refresh()
@@ -45,3 +77,5 @@ public class AlbumController(IAlbumService albumService, ICacheService cacheServ
       return count;
    }
 }
+
+public record CreateFolderRequest(string ParentPath, string FolderName);

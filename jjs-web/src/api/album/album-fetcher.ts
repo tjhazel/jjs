@@ -1,4 +1,4 @@
-import type { HttpError, TGet, TPost } from "@/lib/httpClient";
+import type { HttpError, TGet, TPost, TPostFormData } from "@/lib/httpClient";
 import { type Folder, IMAGE_PREFIX } from "./album-models";
 import useSWR from "swr";
 import { swrOptions, mutateKeysLike } from "@/lib/swr.functions";
@@ -6,6 +6,28 @@ import { useMemo } from "react";
 
 
 export const albumBaseUrl = `api/album`;
+
+export const uploadAlbumImage = async (
+   httpPostFormData: TPostFormData,
+   file: File,
+   folderPath: string,
+): Promise<{ relativePath: string }> => {
+   const fd = new FormData();
+   fd.append('file', file);
+   fd.append('folderPath', folderPath);
+   const result = await httpPostFormData<{ relativePath: string }>(`${albumBaseUrl}/upload`, fd);
+   mutateKeysLike(albumBaseUrl);
+   return result;
+};
+
+export const createAlbumFolder = async (
+   httpPost: TPost,
+   parentPath: string,
+   folderName: string,
+): Promise<void> => {
+   await httpPost<void>(`${albumBaseUrl}/folder`, { parentPath, folderName });
+   mutateKeysLike(albumBaseUrl);
+};
 
 export const refreshAlbumCache = async (httpPost: TPost): Promise<{ fileCount: number }> => {
    const result = await httpPost<{ fileCount: number }>(`${albumBaseUrl}/refresh`);

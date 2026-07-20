@@ -144,7 +144,8 @@ const AlbumImagePicker = forwardRef<AlbumImagePickerHandle, AlbumImagePickerProp
 AlbumImagePicker.displayName = 'AlbumImagePicker';
 export default AlbumImagePicker;
 
-function findFolderByPath(folders: Folder[], path: string): Folder | undefined {
+function findFolderByPath(folders: Folder[] | null | undefined, path: string): Folder | undefined {
+  if (!folders) return undefined;
   for (const f of folders) {
     if (f.relativePath === path) return f;
     const found = findFolderByPath(f.folders, path);

@@ -27,6 +27,7 @@ export default function AdminPage() {
     { id: 1, title: "Posts",   description: "Edit all posts",   link: "/admin/posts" },
     { id: 2, title: "Recipes", description: "Edit all recipes", link: "/admin/recipes"  },
     { id: 3, title: "Users",   description: "View registered users and comment activity", link: "/admin/users" },
+    { id: 4, title: "Album",   description: "Upload photos and manage album folders", link: "/admin/album" },
   ];
 
   return (

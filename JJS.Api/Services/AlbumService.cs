@@ -4,6 +4,8 @@ using JJS.Api.Models.Album;
 using JJS.Api.Models.Configuration;
 using JJS.Api.Repositories;
 using JJS.Api.Services.Cache;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 using File = JJS.Api.Models.Album.File;
 
 namespace JJS.Api.Services;
@@ -191,6 +193,75 @@ public class AlbumService(IMetaDataService tagData,
       return photo;
    }
 
+   public async Task<string> UploadImage(IFormFile file, string targetRelativePath)
+   {
+      var targetDir = RelativePathToFileSystem(targetRelativePath);
+
+      var fullAlbumRoot = Path.GetFullPath(AlbumRoot);
+      var fullTargetDir = Path.GetFullPath(targetDir);
+      if (!fullTargetDir.StartsWith(fullAlbumRoot, StringComparison.OrdinalIgnoreCase))
+         throw new InvalidOperationException("Target path is outside the album root.");
+
+      Directory.CreateDirectory(targetDir);
+
+      var jpegFileName = Path.ChangeExtension(file.FileName, ".jpg");
+      var fullPath     = Path.Combine(targetDir, jpegFileName);
+
+      if (System.IO.File.Exists(fullPath))
+         throw new InvalidOperationException($"A file named '{jpegFileName}' already exists in this folder.");
+
+      await using var inputStream = file.OpenReadStream();
+      using var image = await Image.LoadAsync(inputStream);
+      _tagData.RefineImage(image);
+      await image.SaveAsJpegAsync(fullPath, new JpegEncoder { Quality = 85 });
+
+      await BuildAndSaveCacheAsync();
+      return GetRelativePath(fullPath);
+   }
+
+   public async Task CreateFolder(string parentRelativePath, string folderName)
+   {
+      if (string.IsNullOrWhiteSpace(folderName))
+         throw new ArgumentException("Folder name cannot be empty.");
+
+      if (folderName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || folderName.Contains('.'))
+         throw new ArgumentException("Folder name contains invalid characters.");
+
+      var parentDir = RelativePathToFileSystem(parentRelativePath);
+
+      var fullAlbumRoot = Path.GetFullPath(AlbumRoot);
+      var fullParentDir = Path.GetFullPath(parentDir);
+      if (!fullParentDir.StartsWith(fullAlbumRoot, StringComparison.OrdinalIgnoreCase))
+         throw new InvalidOperationException("Parent path is outside the album root.");
+
+      if (!Directory.Exists(parentDir))
+         throw new InvalidOperationException("Parent folder does not exist.");
+
+      var newFolderPath = Path.Combine(parentDir, folderName);
+      if (Directory.Exists(newFolderPath))
+         throw new InvalidOperationException($"A folder named '{folderName}' already exists here.");
+
+      Directory.CreateDirectory(newFolderPath);
+      await BuildAndSaveCacheAsync();
+   }
+
+   private string RelativePathToFileSystem(string relativePath)
+   {
+      // /Image/Trips/Paris → <AlbumRoot>\Trips\Paris
+      // /Image or empty    → <AlbumRoot>
+      if (string.IsNullOrWhiteSpace(relativePath) ||
+          relativePath.TrimStart('/').Equals("Image", StringComparison.OrdinalIgnoreCase))
+         return AlbumRoot;
+
+      var stripped = relativePath
+         .TrimStart('/')
+         .Replace("Image/", "", StringComparison.OrdinalIgnoreCase)
+         .TrimStart('/')
+         .Replace('/', Path.DirectorySeparatorChar);
+
+      return Path.Combine(AlbumRoot, stripped);
+   }
+
    public string GetRelativePath(string path)
    {
       var relativePath = $"/Image/{path.Replace(AlbumRoot, "").Replace(Path.DirectorySeparatorChar, '/').Trim('/')}";
@@ -260,9 +331,11 @@ public class AlbumService(IMetaDataService tagData,
 public interface IAlbumService
 {
    string AlbumRoot { get; }
-   Task <Folder> Get();
+   Task<Folder> Get();
    Task<Folder> Refresh();
    Task<Dictionary<string, File>> GetFlatList();
+   Task<string> UploadImage(IFormFile file, string targetRelativePath);
+   Task CreateFolder(string parentRelativePath, string folderName);
    string GetFullFilePath(string relativePath);
    string GetContentType(string path);
 }
