@@ -9,11 +9,12 @@ import {
   IconBold, IconItalic, IconStrikethrough,
   IconH1, IconH2, IconBlockquote, IconCode, IconLink,
   IconList, IconListNumbers, IconMinus, IconPhoto, IconDots,
-  IconCamera,
+  IconCamera, IconFolderOpen,
 } from '@tabler/icons-react';
 import { useApiContext } from '@api/ApiContext';
 import CameraCapture, { type CameraCaptureHandle } from './CameraCapture';
 import ImageUpload, { type ImageUploadHandle } from './ImageUpload';
+import AlbumImagePicker, { type AlbumImagePickerHandle } from './AlbumImagePicker';
 import classes from './MarkdownEditor.module.css';
 
 export interface MarkdownEditorProps extends Omit<InputWrapperProps, 'children'> {
@@ -55,6 +56,7 @@ export default function MarkdownEditor({
   const [text, setText] = useState(value ?? defaultValue);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
+  const albumPickerRef = useRef<AlbumImagePickerHandle>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const dotsWrapperRef = useRef<HTMLDivElement>(null);
   // Stores each item's right-edge position relative to the toolbar's left edge,
@@ -177,8 +179,9 @@ export default function MarkdownEditor({
     { icon: <IconMinus size={14} />,         label: 'Horizontal rule', action: () => insert('\n\n---\n\n') },
     ...(uploadEndpoint ? [
       null as null,
-      { icon: <IconPhoto size={14} />,  label: 'Insert image',  loading: uploading, action: () => imageUploadRef.current?.open() } as ToolItem,
-      { icon: <IconCamera size={14} />, label: 'Capture image', loading: uploading, action: () => cameraRef.current?.open() } as ToolItem,
+      { icon: <IconPhoto size={14} />,       label: 'Insert image',       loading: uploading, action: () => imageUploadRef.current?.open() } as ToolItem,
+      { icon: <IconCamera size={14} />,      label: 'Capture image',      loading: uploading, action: () => cameraRef.current?.open() } as ToolItem,
+      { icon: <IconFolderOpen size={14} />,  label: 'Insert from album',  action: () => albumPickerRef.current?.open() } as ToolItem,
     ] : []),
   ];
 
@@ -196,6 +199,10 @@ export default function MarkdownEditor({
 
     const measure = () => {
       const toolbarRect = toolbar.getBoundingClientRect();
+      // Guard: skip when toolbar is hidden (display:none → width=0). Without this,
+      // the ResizeObserver fires a zero-size callback when the element goes off-screen
+      // and would collapse visibleCount to 0.
+      if (toolbarRect.width === 0) return;
       // dotsWrapper is always in the DOM (visibility:hidden when unused), so its
       // bounding width — which includes children's flex-layout margins — is stable.
       const dotsWidth = dotsWrapper.getBoundingClientRect().width;
@@ -283,8 +290,12 @@ export default function MarkdownEditor({
             </Tabs.List>
           </Box>
 
-          {tab === 'write' && (
-            <Group ref={toolbarRef} gap={2} px="xs" py={4} wrap="nowrap" className={classes.toolbar}>
+          <Group
+            ref={toolbarRef}
+            gap={2} px="xs" py={4} wrap="nowrap"
+            className={classes.toolbar}
+            style={{ display: tab === 'write' ? undefined : 'none' }}
+          >
               {visibleTools.map((t, i) =>
                 t === null
                   ? <Divider key={i} orientation="vertical" h={16} mx={2} style={{ alignSelf: 'center' }} />
@@ -326,8 +337,7 @@ export default function MarkdownEditor({
                   </Menu.Dropdown>
                 </Menu>
               </div>
-            </Group>
-          )}
+          </Group>
 
           <Tabs.Panel value="write">
             <Textarea
@@ -373,6 +383,10 @@ export default function MarkdownEditor({
         <>
           <ImageUpload ref={imageUploadRef} onUpload={handleImageFile} />
           <CameraCapture ref={cameraRef} onCapture={handleImageFile} />
+          <AlbumImagePicker
+            ref={albumPickerRef}
+            onSelect={(httpPath, name) => insert(`![${safeAlt(name)}](${httpPath})`)}
+          />
         </>
       )}
     </InputWrapper>
