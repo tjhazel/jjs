@@ -34,6 +34,7 @@ import ManageRecipesPage from '@pages/admin/recipes';
 import EditRecipePage, { editRecipeLoader } from '@pages/admin/recipe-editor';
 import ManageUsersPage from '@pages/admin/users';
 import ManageAlbumPage from '@pages/admin/album';
+import ManageCommentsPage from '@pages/admin/comments';
 
 function RootErrorBoundary() {
   const error = useRouteError();
@@ -112,6 +113,7 @@ export const router = createBrowserRouter([
                   { path: "admin/posts", element: <ManagePostsPage /> },
                   { path: "admin/users", element: <ManageUsersPage /> },
                   { path: "admin/album", element: <ManageAlbumPage /> },
+                  { path: "admin/comments", element: <ManageCommentsPage /> },
                 ],
               },
             ]
