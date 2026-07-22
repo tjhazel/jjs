@@ -246,6 +246,16 @@ dotnet user-secrets set "Authentication:Google:ClientSecret" "your-secret" --pro
 
 ---
 
+## Mantine UI Reference
+
+Mantine provides AI-friendly documentation at:
+- **Compact:** `https://mantine.dev/llms.txt`
+- **Full (~1.8 MB):** `https://mantine.dev/llms-full.txt`
+
+When working on Mantine components or theming, fetch the compact URL for accurate, version-current API details rather than relying on training data.
+
+---
+
 ## Technical Debt & Notes
 
 - **No tests** — no unit, integration, or E2E test projects exist.
