@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLoaderData, useSearchParams, type LoaderFunctionArgs } from 'react-router';
-import { Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
-import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
+import { Stack, Title, Text, Alert, Group, Center, Loader } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { useAllPosts, savePost } from '@api/post/post-fetcher';
 import { useCategories } from '@api/post/category-fetcher';
 import { useApiContext } from '@api/ApiContext';
@@ -90,18 +90,6 @@ export default function EditPostPage() {
   return (
     <Stack gap={{ base: 'xs', sm: 'xl' }}>
         <Stack gap={4}>
-          <Group>
-            <Button
-              variant="subtle"
-              color="gray"
-              leftSection={<IconArrowLeft size={16} />}
-              onClick={() => navigate(backHref)}
-              styles={{ root: { paddingLeft: 0 } }}
-            >
-              Back to Posts
-            </Button>
-          </Group>
-
           <Title order={1} size="h2" fw={600} lh="sm" c="dark.9">
             {isNew ? 'Create New Post' : 'Edit Post'}
           </Title>

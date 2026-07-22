@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
-import { Stack, Title, Text, Button, Alert, Group, Center, Loader } from '@mantine/core';
-import { IconArrowLeft, IconAlertCircle } from '@tabler/icons-react';
+import { Stack, Title, Text, Alert, Group, Center, Loader } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { useSingleRecipe, saveRecipe } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import type { RecipeDetail } from '@api/recipe/recipe';
@@ -69,11 +69,6 @@ export default function EditRecipePage() {
   return (
     <Stack gap={{ base: 'xs', sm: 'xl' }}>
         <Stack gap={4}>
-          <Group>
-            <Button variant="subtle" color="gray" leftSection={<IconArrowLeft size={16} />} onClick={() => navigate('/admin/recipes')} styles={{ root: { paddingLeft: 0 } }}>
-              Back to Recipes
-            </Button>
-          </Group>
           <Title order={1} size="h2" fw={600} lh="sm" c="dark.9">
             {isNew ? 'Create New Recipe' : 'Edit Recipe'}
           </Title>

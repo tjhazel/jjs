@@ -47,7 +47,7 @@ export function AdminLayout() {
             <Image mt="xl" h={30} w="auto" fit="contain" alt="Logo" src="/images/logojjs.png" />
 
          </AppShell.Navbar>
-         <AppShell.Main className={classes.main} >
+         <AppShell.Main className={classes.main}>
             <Outlet />
          </AppShell.Main>
          <AppShell.Footer visibleFrom="sm">
