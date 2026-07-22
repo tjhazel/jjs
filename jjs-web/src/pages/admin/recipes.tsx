@@ -15,7 +15,7 @@ export default function ManageRecipesPage() {
         {/* Responsive Dashboard Control Banner Header */}
         <Group justify="space-between" align="center">
           <Stack gap={2}>
-            <Title order={1} size="h2" fw={600} lh="sm" c="dark.9">
+            <Title order={1} size="h2" fw={600} lh="sm">
               Recipes
             </Title>
             <Text size="xs" c="dimmed">

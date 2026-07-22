@@ -85,7 +85,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         {/* ─── Core Info ─── */}
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Core Content</Title>
+            <Title order={2} size="h4" fw={600}>Core Content</Title>
             <TextInput withAsterisk label="Recipe Name" radius="none"
               key={form.key('name')} {...form.getInputProps('name')} />
             <MarkdownEditor
@@ -104,7 +104,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         {/* ─── Classifications ─── */}
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Classifications</Title>
+            <Title order={2} size="h4" fw={600}>Classifications</Title>
             <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
               <TextInput withAsterisk label="Course" placeholder="e.g. Dinner" radius="none"
                 key={form.key('course')} {...form.getInputProps('course')} />
@@ -117,7 +117,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         {/* ─── Metrics ─── */}
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Cooking Metrics & Cost</Title>
+            <Title order={2} size="h4" fw={600}>Cooking Metrics & Cost</Title>
             <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
               <NumberInput label="Servings" min={1} radius="none"
                 key={form.key('numberServed')} {...form.getInputProps('numberServed')} />
@@ -138,7 +138,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         {/* ─── Ingredients ─── */}
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Ingredients</Title>
+            <Title order={2} size="h4" fw={600}>Ingredients</Title>
             <IngredientsEditor ingredients={ingredients} onChange={setIngredients} />
           </Stack>
         </Card>
@@ -146,7 +146,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         {/* ─── Instructions ─── */}
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Instructions</Title>
+            <Title order={2} size="h4" fw={600}>Instructions</Title>
             <InstructionsEditor instructions={instructions} onChange={setInstructions} />
           </Stack>
         </Card>
@@ -154,7 +154,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         {/* ─── Visibility ─── */}
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Visibility Settings</Title>
+            <Title order={2} size="h4" fw={600}>Visibility Settings</Title>
             <Switch
               labelPosition="left"
               label={
@@ -173,7 +173,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         {!isNew && (
           <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none" bg="var(--mantine-color-gray-0)">
             <Stack gap="md">
-              <Title order={2} size="h4" fw={600} c="dark.9">Audit Overview</Title>
+              <Title order={2} size="h4" fw={600}>Audit Overview</Title>
               <Grid>
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">Created By</Text>

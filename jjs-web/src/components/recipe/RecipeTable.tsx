@@ -82,7 +82,7 @@ export default function RecipeTable({ recipes, isLoading }: RecipeTableProps) {
     return (
       <Table.Th onClick={() => handleSort(field)} style={{ cursor: 'pointer' }}>
         <Group justify="space-between" wrap="nowrap">
-          <Text size="sm" fw={600} c="dark.9">{label}</Text>
+          <Text size="sm" fw={600}>{label}</Text>
           <Center>
             {!isCurrent && <IconSelector size={16} stroke={1.5} color="var(--mantine-color-gray-4)" />}
             {isCurrent && (reverseSortDirection 
@@ -137,17 +137,17 @@ export default function RecipeTable({ recipes, isLoading }: RecipeTableProps) {
             style={{ cursor: 'pointer' }}
             onClick={() => recipe.recipeId && navigate(`/recipe/${recipe.recipeId}`)}
           >
-            <Text fw={600} size="md" c="dark.9" mb="xs">
+            <Text fw={600} size="md" mb="xs">
               {recipe.name}
             </Text>
             <Stack gap={4}>
-              <Text size="sm" c="gray.7">
+              <Text size="sm" c="dimmed">
                 <strong>Course:</strong> {recipe.course}
               </Text>
-              <Text size="sm" c="gray.7">
+              <Text size="sm" c="dimmed">
                 <strong>Type:</strong> {recipe.dishType}
               </Text>
-              <Text size="sm" c="gray.7">
+              <Text size="sm" c="dimmed">
                 <strong>Created:</strong> {formatDate(recipe.createdDate)}
               </Text>
             </Stack>

@@ -122,7 +122,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
     return (
       <Table.Th onClick={() => handleSort(field)} style={{ cursor: 'pointer' }}>
         <Group justify="space-between" wrap="nowrap">
-          <Text size="sm" fw={600} c="dark.9">{label}</Text>
+          <Text size="sm" fw={600}>{label}</Text>
           <Center>
             {!isCurrent && <IconSelector size={16} stroke={1.5} color="var(--mantine-color-gray-4)" />}
             {isCurrent && (reverseSortDirection ? <IconChevronDown size={16} stroke={1.5} /> : <IconChevronUp size={16} stroke={1.5} />)}
@@ -169,7 +169,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
           <Table.Thead>
             <Table.Tr>
               {renderTh('title', 'Title')}
-              <Table.Th><Text size="sm" fw={600} c="dark.9">Categories</Text></Table.Th>
+              <Table.Th><Text size="sm" fw={600}>Categories</Text></Table.Th>
               {renderTh('approved', 'Status')}
               {renderTh('viewCount', 'Views')}
               {renderTh('commentCount', 'Comments')}
@@ -181,7 +181,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
             {paginatedData.map((post) => (
               <Table.Tr key={post.postId} style={{ cursor: 'pointer' }} onClick={() => navigate(editorHref(post.postId!))}>
                 <Table.Td><Text size="sm" truncate fw={500}>{post.title}</Text></Table.Td>
-                <Table.Td><Text size="sm" truncate c="gray.6">{post.categories?.join(', ') || '—'}</Text></Table.Td>
+                <Table.Td><Text size="sm" truncate c="dimmed">{post.categories?.join(', ') || '—'}</Text></Table.Td>
                 <Table.Td><Badge color={post.approved ? 'green' : 'gray'} radius="none" variant="light">{post.approved ? 'Approved' : 'Draft'}</Badge></Table.Td>
                 <Table.Td><Text size="sm">{post.viewCount.toLocaleString()}</Text></Table.Td>
                 <Table.Td><Text size="sm">{post.commentCount.toLocaleString()}</Text></Table.Td>
@@ -209,7 +209,7 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
         {paginatedData.map((post) => (
           <Card key={post.postId} withBorder padding="md" radius="none" style={{ cursor: 'pointer' }} onClick={() => navigate(editorHref(post.postId!))}>
             <Group justify="space-between" align="flex-start" mb="xs">
-              <Text fw={600} size="md" c="dark.9">{post.title}</Text>
+              <Text fw={600} size="md">{post.title}</Text>
               {post.commentCount > 0 && (
                 <Tooltip label={`${post.commentCount} comment${post.commentCount !== 1 ? 's' : ''}`} withArrow>
                   <ActionIcon variant="subtle" color="gray" size="sm" onClick={(e) => { e.stopPropagation(); setCommentsPost(post); }}>
@@ -219,14 +219,14 @@ export default function ManagePosts({ posts, isLoading }: ManagePostsProps) {
               )}
             </Group>
             <Stack gap={4}>
-              <Text size="sm" c="gray.7"><strong>Categories:</strong> {post.categories?.join(', ') || '—'}</Text>
+              <Text size="sm" c="dimmed"><strong>Categories:</strong> {post.categories?.join(', ') || '—'}</Text>
               <Group gap="xs">
-                <Text size="sm" c="gray.7"><strong>Status:</strong></Text>
+                <Text size="sm" c="dimmed"><strong>Status:</strong></Text>
                 <Badge color={post.approved ? 'green' : 'gray'} radius="none" size="xs" variant="light">{post.approved ? 'Approved' : 'Draft'}</Badge>
               </Group>
-              <Text size="sm" c="gray.7"><strong>Views:</strong> {post.viewCount.toLocaleString()}</Text>
-              <Text size="sm" c="gray.7"><strong>Comments:</strong> {post.commentCount.toLocaleString()}</Text>
-              <Text size="sm" c="gray.7"><strong>Created:</strong> {formatDate(post.createdDate)}</Text>
+              <Text size="sm" c="dimmed"><strong>Views:</strong> {post.viewCount.toLocaleString()}</Text>
+              <Text size="sm" c="dimmed"><strong>Comments:</strong> {post.commentCount.toLocaleString()}</Text>
+              <Text size="sm" c="dimmed"><strong>Created:</strong> {formatDate(post.createdDate)}</Text>
             </Stack>
           </Card>
         ))}

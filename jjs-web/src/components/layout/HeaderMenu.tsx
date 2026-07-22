@@ -1,5 +1,6 @@
-import { IconChevronDown, IconExternalLink } from '@tabler/icons-react';
+import { IconChevronDown, IconExternalLink, IconSun, IconMoon } from '@tabler/icons-react';
 import {
+   ActionIcon,
    Burger,
    Center,
    Collapse,
@@ -10,6 +11,8 @@ import {
    Image,
    Menu,
    ScrollArea,
+   useMantineColorScheme,
+   useComputedColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Link } from 'react-router'; 
@@ -40,6 +43,21 @@ const links: NavLink[] = [
    { link: '/about', label: 'About' },
    { link: '/login', label: 'Login' }
 ];
+
+function ThemeToggle() {
+   const { setColorScheme } = useMantineColorScheme();
+   const computed = useComputedColorScheme('light', { getInitialValueInEffect: true });
+   return (
+      <ActionIcon
+         variant="subtle"
+         size="sm"
+         onClick={() => setColorScheme(computed === 'light' ? 'dark' : 'light')}
+         aria-label="Toggle color scheme"
+      >
+         {computed === 'dark' ? <IconSun size={16} /> : <IconMoon size={16} />}
+      </ActionIcon>
+   );
+}
 
 export function HeaderMenu() {
    const { user, hasRole } = useAuth();
@@ -136,8 +154,12 @@ export function HeaderMenu() {
             <Image h={30} w="auto" fit="contain" alt="Logo" src="/images/logojjs.png" />
             <Group gap={5} visibleFrom="sm">
                {items}
+               <ThemeToggle />
             </Group>
-            <Burger opened={opened} onClick={toggle} size="sm" hiddenFrom="sm" aria-label="Toggle navigation" />
+            <Group gap="xs" hiddenFrom="sm">
+               <ThemeToggle />
+               <Burger opened={opened} onClick={toggle} size="sm" aria-label="Toggle navigation" />
+            </Group>
             </div>
          </Container>
 

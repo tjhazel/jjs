@@ -12,7 +12,7 @@ export default function RecipePage() {
         
         {/* Page Typography Header */}
         <Stack gap={4}>
-          <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">
+          <Title order={1} size="h1" fw={600} lh="sm">
             Recipes
           </Title>
           <Text size="sm" c="dimmed">

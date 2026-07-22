@@ -106,7 +106,7 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
       <Stack gap={{ base: 'xs', sm: 'xl' }}>
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Content</Title>
+            <Title order={2} size="h4" fw={600}>Content</Title>
             <TextInput withAsterisk label="Title" placeholder="Post title" radius="none" key={form.key('title')} {...form.getInputProps('title')} />
             <Textarea withAsterisk label="Preview Text" description="Shown in listings" placeholder="Short description shown in post listings…" rows={3} radius="none" key={form.key('previewText')} {...form.getInputProps('previewText')} />
             <MarkdownEditor
@@ -136,7 +136,7 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
 
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Media</Title>
+            <Title order={2} size="h4" fw={600}>Media</Title>
             <TextInput label="Image URL" placeholder="https://…" radius="none" key={form.key('imageUrl')} {...form.getInputProps('imageUrl')} />
             <Box>
               <Text size="xs" c="dimmed" mb={4}>Accepted formats:</Text>
@@ -151,7 +151,7 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
 
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Scheduling</Title>
+            <Title order={2} size="h4" fw={600}>Scheduling</Title>
             <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
                     <DateInput
                        label="Release Date"
@@ -204,7 +204,7 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
 
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
-            <Title order={2} size="h4" fw={600} c="dark.9">Settings</Title>
+            <Title order={2} size="h4" fw={600}>Settings</Title>
             <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="xl" my="xs">
               <Switch labelPosition="left" label={<Box><Text size="sm" fw={500}>Approved</Text><Text size="xs" c="dimmed">Visible to the public</Text></Box>} key={form.key('approved')} {...form.getInputProps('approved', { type: 'checkbox' })} />
               <Switch labelPosition="left" label={<Box><Text size="sm" fw={500}>Comments Enabled</Text><Text size="xs" c="dimmed">Allow readers to comment</Text></Box>} key={form.key('commentsEnabled')} {...form.getInputProps('commentsEnabled', { type: 'checkbox' })} />
@@ -219,7 +219,7 @@ export default function PostEditor({ post, categories = [], isSaving = false, on
         {!isNew && (
           <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none" bg="var(--mantine-color-gray-0)">
             <Stack gap="md">
-              <Title order={2} size="h4" fw={600} c="dark.9">Audit Overview</Title>
+              <Title order={2} size="h4" fw={600}>Audit Overview</Title>
               <Grid>
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">Created By</Text>

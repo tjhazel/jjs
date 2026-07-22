@@ -69,7 +69,7 @@ export default function EditRecipePage() {
   return (
     <Stack gap={{ base: 'xs', sm: 'xl' }}>
         <Stack gap={4}>
-          <Title order={1} size="h2" fw={600} lh="sm" c="dark.9">
+          <Title order={1} size="h2" fw={600} lh="sm">
             {isNew ? 'Create New Recipe' : 'Edit Recipe'}
           </Title>
           <Text size="xs" c="dimmed">

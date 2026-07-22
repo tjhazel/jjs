@@ -26,7 +26,7 @@ export default function ManageUsersPage() {
 
          <Group justify="space-between" align="center">
             <Stack gap={2}>
-               <Title order={1} size="h3" fw={600} lh="sm" c="dark.9">
+               <Title order={1} size="h3" fw={600} lh="sm">
                   Users
                </Title>
                <Text size="xs" c="dimmed">

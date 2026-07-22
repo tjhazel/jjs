@@ -30,7 +30,7 @@ export default function ManageCommentsPage() {
     <Stack gap="sm">
       <Group justify="space-between" align="center">
         <Stack gap={2}>
-          <Title order={1} size="h3" fw={600} lh="sm" c="dark.9">Comments</Title>
+          <Title order={1} size="h3" fw={600} lh="sm">Comments</Title>
           <Text size="xs" c="dimmed">Review and moderate all comments. Default sort: most recent first.</Text>
         </Stack>
       </Group>

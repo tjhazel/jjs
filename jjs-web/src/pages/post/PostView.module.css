@@ -1,5 +1,5 @@
 .prose {
-  color: var(--mantine-color-gray-8);
+  color: var(--mantine-color-text);
   font-size: var(--mantine-font-size-sm);
   line-height: 1.7;
 }
@@ -10,7 +10,7 @@
 }
 
 .prose h1, .prose h2, .prose h3 {
-  color: var(--mantine-color-dark-9);
+  color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-gray-1));
   font-weight: 600;
   margin-top: var(--mantine-spacing-xl);
   margin-bottom: var(--mantine-spacing-sm);

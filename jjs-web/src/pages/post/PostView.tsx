@@ -98,11 +98,11 @@ export default function PostView() {
             </Button>
           </Group>
 
-          <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">
+          <Title order={1} size="h1" fw={600} lh="sm">
             {post.title}
           </Title>
 
-          <Group gap="lg" c="gray.6">
+          <Group gap="lg" c="dimmed">
             <Text size="sm">
               <strong>By</strong> {post.createdBy}
             </Text>

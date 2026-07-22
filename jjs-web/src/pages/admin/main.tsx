@@ -35,7 +35,7 @@ export default function AdminPage() {
     <Stack gap="xl">
 
         <Stack gap={4}>
-          <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">Administration</Title>
+          <Title order={1} size="h1" fw={600} lh="sm">Administration</Title>
           <Text size="sm" c="dimmed">Manage your site content and settings.</Text>
         </Stack>
 
@@ -55,7 +55,7 @@ export default function AdminPage() {
         <Divider />
 
         <Stack gap="sm">
-          <Title order={2} size="h4" fw={600} c="dark.9">System Tools</Title>
+          <Title order={2} size="h4" fw={600}>System Tools</Title>
           <Text size="sm" c="dimmed">
             Rebuilds the album image cache from disk. Run this after adding or removing photos.
           </Text>

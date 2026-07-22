@@ -127,7 +127,7 @@ export default function ManageAlbumPage() {
       {/* Header */}
       <Group justify="space-between" align="center">
         <Stack gap={2}>
-          <Title order={1} size="h3" fw={600} lh="sm" c="dark.9">Album Upload</Title>
+          <Title order={1} size="h3" fw={600} lh="sm">Album Upload</Title>
           <Text size="xs" c="dimmed">Browse to a folder, then upload an image from your device.</Text>
         </Stack>
       </Group>

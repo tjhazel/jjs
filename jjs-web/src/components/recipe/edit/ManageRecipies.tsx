@@ -87,7 +87,7 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
     return (
       <Table.Th onClick={() => handleSort(field)} style={{ cursor: 'pointer' }}>
         <Group justify="space-between" wrap="nowrap">
-          <Text size="sm" fw={600} c="dark.9">{label}</Text>
+          <Text size="sm" fw={600}>{label}</Text>
           <Center>
             {!isCurrent && <IconSelector size={16} stroke={1.5} color="var(--mantine-color-gray-4)" />}
             {isCurrent && (reverseSortDirection
@@ -165,18 +165,18 @@ export default function ManageRecipes({ recipes, isLoading }: ManageRecipesProps
             style={{ cursor: 'pointer' }}
             onClick={() => recipe.recipeId && navigate(`/admin/recipe/${recipe.recipeId}`)}
           >
-            <Text fw={600} size="md" c="dark.9" mb="xs">
+            <Text fw={600} size="md" mb="xs">
               {recipe.name}
             </Text>
             <Stack gap={4}>
-              <Text size="sm" c="gray.7"><strong>Course:</strong> {recipe.course}</Text>
-              <Text size="sm" c="gray.7"><strong>Type:</strong> {recipe.dishType}</Text>
-              <Text size="sm" c="gray.7"><strong>Cost:</strong> ${(recipe.estimatedCost ?? 0).toFixed(2)}</Text>
-              <Text size="sm" c="gray.7">
+              <Text size="sm" c="dimmed"><strong>Course:</strong> {recipe.course}</Text>
+              <Text size="sm" c="dimmed"><strong>Type:</strong> {recipe.dishType}</Text>
+              <Text size="sm" c="dimmed"><strong>Cost:</strong> ${(recipe.estimatedCost ?? 0).toFixed(2)}</Text>
+              <Text size="sm" c="dimmed">
                 <strong>Modified:</strong> {recipe.modifiedDate ? new Date(recipe.modifiedDate).toLocaleDateString() : '—'}
               </Text>
               <Group gap="xs">
-                <Text size="sm" c="gray.7"><strong>Visibility:</strong></Text>
+                <Text size="sm" c="dimmed"><strong>Visibility:</strong></Text>
                 <Badge color={recipe.isViewableByPublic ? 'green' : 'orange'} radius="none" size="xs" variant="light">
                   {recipe.isViewableByPublic ? 'Public' : 'Private'}
                 </Badge>

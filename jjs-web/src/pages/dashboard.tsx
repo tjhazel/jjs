@@ -58,7 +58,7 @@ function DashboardPage() {
     <>
       <CarouselBanner />
 
-        <Box bg="var(--mantine-color-gray-0)">
+        <Box style={{ background: 'light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8))' }}>
           <Group justify="flex-end" px="md" py={6} wrap="nowrap">
             <TextInput
               placeholder="Search posts..."

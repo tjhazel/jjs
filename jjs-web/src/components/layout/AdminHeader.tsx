@@ -1,6 +1,6 @@
-import { Burger, Container, Group, Title, Button } from '@mantine/core';
+import { ActionIcon, Burger, Container, Group, Title, Button, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { useNavigate } from 'react-router';
-import { IconArrowLeft } from '@tabler/icons-react';
+import { IconArrowLeft, IconSun, IconMoon } from '@tabler/icons-react';
 
 interface AdminHeaderProps {
   navOpened: boolean;
@@ -9,6 +9,8 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ navOpened, onNavToggle }: AdminHeaderProps) {
   const navigate = useNavigate();
+  const { setColorScheme } = useMantineColorScheme();
+  const computed = useComputedColorScheme('light', { getInitialValueInEffect: true });
 
   return (
     <Container size="xl" h="100%">
@@ -27,15 +29,26 @@ export function AdminHeader({ navOpened, onNavToggle }: AdminHeaderProps) {
           </Title>
         </Group>
 
-        <Button
-          variant="subtle"
-          color="gray.4"
-          leftSection={<IconArrowLeft size={16} />}
-          onClick={() => navigate("/")}
-          style={{ flexShrink: 0 }}
-        >
-          Exit
-        </Button>
+        <Group gap="xs">
+          <ActionIcon
+            variant="subtle"
+            color="gray.4"
+            size="sm"
+            onClick={() => setColorScheme(computed === 'light' ? 'dark' : 'light')}
+            aria-label="Toggle color scheme"
+          >
+            {computed === 'dark' ? <IconSun size={16} /> : <IconMoon size={16} />}
+          </ActionIcon>
+          <Button
+            variant="subtle"
+            color="gray.4"
+            leftSection={<IconArrowLeft size={16} />}
+            onClick={() => navigate("/")}
+            style={{ flexShrink: 0 }}
+          >
+            Exit
+          </Button>
+        </Group>
       </Group>
     </Container>
   );

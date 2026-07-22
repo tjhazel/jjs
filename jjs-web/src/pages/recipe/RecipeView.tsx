@@ -68,9 +68,9 @@ export default function RecipeView() {
         </Group>
 
         <Stack gap={4}>
-          <Title order={1} size="h1" fw={600} lh="sm" c="dark.9">{recipe.name}</Title>
+          <Title order={1} size="h1" fw={600} lh="sm">{recipe.name}</Title>
           {recipe.recipeSource && (
-            <Text size="sm" c="gray.6"><strong>Source:</strong> {recipe.recipeSource}</Text>
+            <Text size="sm" c="dimmed"><strong>Source:</strong> {recipe.recipeSource}</Text>
           )}
         </Stack>
 
@@ -82,15 +82,15 @@ export default function RecipeView() {
 
         {recipe.description && (
           <Stack gap="xs">
-            <Title order={2} size="h3" fw={600} c="dark.9">Description</Title>
-            <Text size="sm" c="gray.8" style={{ lineHeight: 1.6 }}>{recipe.description}</Text>
+            <Title order={2} size="h3" fw={600}>Description</Title>
+            <Text size="sm" style={{ lineHeight: 1.6 }}>{recipe.description}</Text>
           </Stack>
         )}
 
         {/* 👉 Added printGrid fallback support class */}
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={32} className={classes.printGrid}>
           <Stack gap="md">
-            <Title order={3} size="h4" fw={600} c="dark.9">Recipe Details</Title>
+            <Title order={3} size="h4" fw={600}>Recipe Details</Title>
             <Stack gap={10} style={{ fontSize: 'var(--mantine-font-size-sm)' }}>
               <Group justify="space-between"><Text size="sm" fw={500}>Course:</Text><Text size="sm">{recipe.course}</Text></Group>
               <Group justify="space-between"><Text size="sm" fw={500}>Dish Type:</Text><Text size="sm">{recipe.dishType}</Text></Group>
@@ -107,7 +107,7 @@ export default function RecipeView() {
           </Stack>
 
           <Stack gap="md">
-            <Title order={3} size="h4" fw={600} c="dark.9">Categories</Title>
+            <Title order={3} size="h4" fw={600}>Categories</Title>
             {recipe.recipeCategories && recipe.recipeCategories.length > 0 ? (
               <Group gap="xs">
                 {recipe.recipeCategories.map((category, index) => (
@@ -125,16 +125,16 @@ export default function RecipeView() {
         {/* 👉 Added printGrid fallback support class */}
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={32} className={classes.printGrid}>
           <Stack gap="md">
-            <Title order={3} size="h4" fw={600} c="dark.9">Ingredients</Title>
+            <Title order={3} size="h4" fw={600}>Ingredients</Title>
             {recipe.ingredients && recipe.ingredients.length > 0 ? (
               <Stack gap="sm">
                 {recipe.ingredients.map((ingredient, index) => (
                   /* 👉 Added listItem class break optimization hook */
                   <Box key={index} pb="xs" className={classes.listItem} style={{ borderBottom: '1px solid var(--mantine-color-gray-1)' }}>
                     <Group align="flex-start" wrap="nowrap">
-                      <Text size="sm" fw={600} style={{ minWidth: 90 }} c="dark.9">{ingredient.amount} {ingredient.unitOfMeasure}</Text>
+                      <Text size="sm" fw={600} style={{ minWidth: 90 }}>{ingredient.amount} {ingredient.unitOfMeasure}</Text>
                       <Box style={{ flex: 1 }}>
-                        <Text size="sm" c="gray.8" fw={500}>{ingredient.ingredient}</Text>
+                        <Text size="sm" fw={500}>{ingredient.ingredient}</Text>
                         {ingredient.description && <Text size="xs" c="dimmed" mt={2}>{ingredient.description}</Text>}
                       </Box>
                     </Group>
@@ -147,16 +147,16 @@ export default function RecipeView() {
           </Stack>
 
           <Stack gap="md">
-            <Title order={3} size="h4" fw={600} c="dark.9">Instructions</Title>
+            <Title order={3} size="h4" fw={600}>Instructions</Title>
             {recipe.instructions && recipe.instructions.length > 0 ? (
               <Stack gap="md">
                 {recipe.instructions.map((instruction, index) => (
                   /* 👉 Added listItem class break optimization hook */
                   <Group key={index} align="flex-start" wrap="nowrap" gap="sm" className={classes.listItem}>
-                    <Text size="sm" fw={700} c="dark.9" style={{ minWidth: 20 }}>{index + 1}.</Text>
+                    <Text size="sm" fw={700} style={{ minWidth: 20 }}>{index + 1}.</Text>
                     <Box style={{ flex: 1 }}>
-                      <Text size="sm" fw={600} c="dark.9" mb={2}>{instruction.name}</Text>
-                      <Text size="sm" c="gray.7" style={{ lineHeight: 1.5 }}>{instruction.instruction}</Text>
+                      <Text size="sm" fw={600} mb={2}>{instruction.name}</Text>
+                      <Text size="sm" c="dimmed" style={{ lineHeight: 1.5 }}>{instruction.instruction}</Text>
                     </Box>
                   </Group>
                 ))}

@@ -52,7 +52,7 @@ export default function ImageCard(props: ImageCardProps) {
       )}
 
       <Box style={{ display: 'flex', flexDirection: 'column', flex: 1, paddingTop: 'var(--mantine-spacing-md)' }}>
-        <Text component="h3" fw={600} size="xl" lh="sm" c="dark.9" mb="xs">
+        <Text component="h3" fw={600} size="xl" lh="sm" mb="xs">
           {title}
         </Text>
 
@@ -64,7 +64,7 @@ export default function ImageCard(props: ImageCardProps) {
 
         <Text
           size="sm"
-          c="gray.7"
+          c="dimmed"
           style={{
             flex: 1,
             display: '-webkit-box',
@@ -79,7 +79,7 @@ export default function ImageCard(props: ImageCardProps) {
         {(footerText || footerSlot) && (
           <Box mt="lg" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
             {footerText && (
-              <Text fw={500} size="sm" c="dark.9" className={classes.footerText}>
+              <Text fw={500} size="sm" className={classes.footerText}>
                 {footerText}
               </Text>
             )}
