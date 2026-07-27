@@ -1,4 +1,5 @@
 using Dapper;
+using JJS.Api.Extensions;
 using JJS.Api.Models;
 using JJS.Api.Models.Comment;
 using JJS.Api.Models.Configuration;
@@ -20,6 +21,7 @@ public partial class CommentRepository(AppConfig appConfig) : ICommentRepository
 
    public async Task Add(CommentInput input)
    {
+      input.ScreenResult = input.ScreenResult.Truncate(255);
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
       await db.ExecuteAsync(Add_Sql, input);
@@ -29,7 +31,7 @@ public partial class CommentRepository(AppConfig appConfig) : ICommentRepository
    {
       await using var db = new SqlConnection(_appConfig.DbConnectionString);
       await db.OpenAsync();
-      await db.ExecuteAsync(Hide_Sql, new { commentId, screenedBy, screenResult });
+      await db.ExecuteAsync(Hide_Sql, new { commentId, screenedBy, screenResult = screenResult.Truncate(255) });
    }
 
    public async Task Unhide(int commentId)

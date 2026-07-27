@@ -43,7 +43,7 @@ export default function PostView() {
   useEffect(() => {
     if (post?.postId && !viewTracked.current) {
       viewTracked.current = true;
-      viewPost(httpPatch, post.postId);
+      viewPost(httpPatch, post.postId).catch(() => {});
     }
   }, [post?.postId]);
 

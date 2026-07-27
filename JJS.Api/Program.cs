@@ -82,18 +82,21 @@ app.MapGet("/diag", () => {
 })
 .WithMetadata(new Microsoft.AspNetCore.Mvc.ProducesResponseTypeAttribute(200)); //show in swagger
 
-app.MapGet("/api/debug-auth", (HttpContext context) =>
+if (IS_DEBUG)
 {
-   var user = context.User;
-   return Results.Ok(new
+   app.MapGet("/api/debug-auth", (HttpContext context) =>
    {
-      IsAuthenticated = user.Identity?.IsAuthenticated,
-      AuthenticationType = user.Identity?.AuthenticationType, // If null or empty, Authorize fails!
-      HasAdminRole = user.IsInRole("Admin"),
-      Claims = user.Claims.Select(c => new { c.Type, c.Value }).ToList()
-   });
-})
-.WithMetadata(new Microsoft.AspNetCore.Mvc.ProducesResponseTypeAttribute(200));
+      var user = context.User;
+      return Results.Ok(new
+      {
+         IsAuthenticated = user.Identity?.IsAuthenticated,
+         AuthenticationType = user.Identity?.AuthenticationType,
+         HasAdminRole = user.IsInRole("Admin"),
+         Claims = user.Claims.Select(c => new { c.Type, c.Value }).ToList()
+      });
+   })
+   .WithMetadata(new Microsoft.AspNetCore.Mvc.ProducesResponseTypeAttribute(200));
+}
 
 // 2. Map standard API endpoints natively
 app.MapControllers();

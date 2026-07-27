@@ -34,9 +34,9 @@ public class CommentModerationService(
    {
       if (string.IsNullOrWhiteSpace(_appSetting.GeminiApiKey) || string.IsNullOrWhiteSpace(_appSetting.GeminiApiUrl))
       {
-         _logger.LogWarning("Gemini moderation not configured — allowing comment through");
-         throw new Exception($"{_appSetting.GeminiApiUrl}, Key Is Empty: {string.IsNullOrWhiteSpace(_appSetting.GeminiApiKey)}");
-         //return new ModerationResult();
+         var reason = "Gemini moderation not configured — allowing comment through";
+         _logger.LogWarning(reason);
+         return new ModerationResult { WasProcessed = false, Reason = reason };
       }
 
       var url = $"{_appSetting.GeminiApiUrl}?key={_appSetting.GeminiApiKey}";
@@ -84,13 +84,12 @@ public class CommentModerationService(
       }
       catch (Exception ex)
       {
-         _logger.LogWarning(ex, "Gemini moderation check failed — allowing comment through");
+         var reason = "Gemini moderation check failed — allowing comment through";
+         _logger.LogWarning(ex, reason);
          if (!string.IsNullOrWhiteSpace(responseString))
             _logger.LogWarning(responseString);
 
-         throw new Exception($"wasProcessed: {wasProcessed}, [{responseString}] \r\n {ex}");
-
-         //return new ModerationResult { WasProcessed = wasProcessed };
+         return new ModerationResult { WasProcessed = wasProcessed, Reason = responseString ?? reason};
       }
    }
 

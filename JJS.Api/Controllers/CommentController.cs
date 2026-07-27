@@ -39,13 +39,7 @@ public class CommentController(ICommentService commentService, IHttpContextAcces
       }
       catch (Exception ex)
       {
-         return BadRequest(new
-         {
-            message = ex.Message,
-            inner   = ex.InnerException?.Message,
-            type    = ex.GetType().Name,
-            stack   = ex.StackTrace
-         });
+         return BadRequest(new { message = "Failed to submit comment. Please try again." });
       }
    }
 

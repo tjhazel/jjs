@@ -53,14 +53,11 @@ public class CommentService(
 
       var moderation = await _commentModerationService.CheckCommentAsync($"{request.Title} {request.EntryText}".Trim());
       if (moderation.WasProcessed)
-      {
          input.ScreenedBy = "Gemini AI";
-         input.ScreenResult = moderation.Reason;
-      }
       if (moderation.IsFlagged)
-      {
          input.AdminHidden = true;
-      }
+      if (!string.IsNullOrWhiteSpace(moderation.Reason))
+         input.ScreenResult = moderation.Reason;
 
       await _commentRepository.Add(input);
       if (request.ParentCommentFk.HasValue)

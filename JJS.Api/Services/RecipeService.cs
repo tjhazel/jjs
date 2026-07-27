@@ -58,10 +58,10 @@ public class RecipeService(IRecipeRepository recipeRepository,
       if (model.RecipeId == 0)
       {
          model.CreatedDate = DateTime.UtcNow;
-         model.CreatedByFk = existingUser!.Id;
+         model.CreatedByFk = existingUser?.Id;
       }
       model.ModifiedDate = DateTime.UtcNow;
-      model.ModifiedByFk = existingUser!.Id;
+      model.ModifiedByFk = existingUser?.Id;
 
       var recipeId = await _recipeRepository.Save(model);
 
