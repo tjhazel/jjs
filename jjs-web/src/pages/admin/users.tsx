@@ -2,7 +2,7 @@ import { Stack, Group, Title, Text, Alert } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useUsers, blockUser, unblockUser, setUserRole } from '@api/user/user-fetcher';
 import { useApiContext } from '@api/ApiContext';
-import type { UserSummary } from '@api/user/user';
+import type { UserSummary, UserRole } from '@api/user/user';
 import ManageUsers from '@components/user/ManageUsers';
 
 export default function ManageUsersPage() {
@@ -17,7 +17,7 @@ export default function ManageUsersPage() {
       }
    };
 
-   const handleSetRole = async (user: UserSummary, role: string) => {
+   const handleSetRole = async (user: UserSummary, role: UserRole) => {
       await setUserRole(httpPatch, user.email, role);
    };
 

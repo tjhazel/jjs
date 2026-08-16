@@ -1,5 +1,5 @@
 import type { HttpError, TGet, TPatch } from "@/lib/httpClient";
-import type { UserSummary } from "./user";
+import type { UserSummary, UserRole } from "./user";
 import useSWR, { mutate } from "swr";
 import { swrOptions } from "@/lib/swr.functions";
 
@@ -15,7 +15,7 @@ export const unblockUser = async (httpPatch: TPatch, email: string): Promise<voi
    await mutate(USERS_KEY);
 };
 
-export const setUserRole = async (httpPatch: TPatch, email: string, role: string): Promise<void> => {
+export const setUserRole = async (httpPatch: TPatch, email: string, role: UserRole): Promise<void> => {
    await httpPatch(`api/user/setrole`, { email, role });
    await mutate(USERS_KEY);
 };

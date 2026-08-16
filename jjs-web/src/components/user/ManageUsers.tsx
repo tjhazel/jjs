@@ -1,21 +1,35 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Table, Group, Text, Button, Select, Stack, Center, Loader, Card, Badge, Anchor, ActionIcon, Tooltip } from '@mantine/core';
-import { IconChevronUp, IconChevronDown, IconSelector, IconExternalLink, IconUserX, IconBan, IconUserMinus, IconUserPlus, IconMessageCircle } from '@tabler/icons-react';
+import { IconChevronUp, IconChevronDown, IconSelector, IconExternalLink, IconUserX, IconBan, IconUser, IconHeartHandshake, IconShieldLock, IconMessageCircle } from '@tabler/icons-react';
 import { formatDate } from '@lib/time.functions';
-import type { UserSummary } from '@api/user/user';
+import type { UserSummary, UserRole } from '@api/user/user';
 import { ROLE_ADMIN, ROLE_CIRCLE_OF_TRUST, ROLE_GUEST } from '@lib/auth/roles';
 import InlineAlert from '@components/ui/InlineAlert';
 import CommentsModal from '@components/comment/CommentsModal';
+import { useAuth } from "@/lib/auth/authContext";
 
 interface ManageUsersProps {
    users: UserSummary[] | undefined;
    isLoading: boolean;
    onToggleBlock: (user: UserSummary) => Promise<void>;
-   onSetRole: (user: UserSummary, role: string) => Promise<void>;
+   onSetRole: (user: UserSummary, role: UserRole) => Promise<void>;
 }
 
 type SortKey = 'displayName' | 'email' | 'role' | 'commentCount' | 'lastCommentDate' | 'lastActivityDate' | 'blocked';
+
+interface RoleOption {
+   role: UserRole;
+   label: string;
+   icon: typeof IconUser;
+   color: string;
+}
+
+const ROLES: readonly RoleOption[] = [
+   { role: ROLE_GUEST, label: ROLE_GUEST, icon: IconUser, color: 'gray' },
+   { role: ROLE_CIRCLE_OF_TRUST, label: ROLE_CIRCLE_OF_TRUST, icon: IconHeartHandshake, color: 'grape' },
+   { role: ROLE_ADMIN, label: ROLE_ADMIN, icon: IconShieldLock, color: 'blue' },
+] as const;
 
 function getUserStatus(user: UserSummary) {
    if (user.blocked) return { label: 'Blocked', color: 'red' };
@@ -29,9 +43,10 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
    const [activePage, setActivePage] = useState(1);
    const [pageSize, setPageSize] = useState(10);
    const [loadingEmails, setLoadingEmails] = useState<Set<string>>(new Set());
-   const [loadingRoleEmails, setLoadingRoleEmails] = useState<Set<string>>(new Set());
+   const [loadingRoleMap, setLoadingRoleMap] = useState<Record<string, UserRole | null>>({});
    const [commentsUser, setCommentsUser] = useState<UserSummary | null>(null);
    const [rowErrors, setRowErrors] = useState<Record<string, string | null>>({});
+   const { user: _user,  } = useAuth();
 
    if (isLoading) {
       return (
@@ -57,15 +72,15 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
       }
    };
 
-   const handleSetRole = async (user: UserSummary, role: string) => {
-      setLoadingRoleEmails((prev) => new Set(prev).add(user.email));
+   const handleSetRole = async (user: UserSummary, role: UserRole) => {
+      setLoadingRoleMap((prev) => ({ ...prev, [user.email]: role }));
       setRowErrors((prev) => ({ ...prev, [user.email]: null }));
       try {
          await onSetRole(user, role);
       } catch (e) {
          setRowErrors((prev) => ({ ...prev, [user.email]: (e as Error).message || 'Role change failed.' }));
       } finally {
-         setLoadingRoleEmails((prev) => { const next = new Set(prev); next.delete(user.email); return next; });
+         setLoadingRoleMap((prev) => ({ ...prev, [user.email]: null }));
       }
    };
 
@@ -140,43 +155,46 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
       );
    };
 
-   const renderRoleToggle = (user: UserSummary) => {
-      if (user.role === ROLE_ADMIN) return null;
-      const isRoleLoading = loadingRoleEmails.has(user.email);
+   const renderRoleButtons = (user: UserSummary) => {
+      const pendingRole = loadingRoleMap[user.email];
+      const isRoleLoading = pendingRole != null;
+      const isCurrentUser = user.email.toLocaleLowerCase() === _user?.email?.toLocaleLowerCase();
 
-      if (user.role === ROLE_CIRCLE_OF_TRUST) {
-         return (
-            <Tooltip label="Demote to Guest" withArrow>
-               <ActionIcon
-                  variant="subtle"
-                  color="orange"
-                  size="sm"
-                  loading={isRoleLoading}
-                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, ROLE_GUEST); }}
-               >
-                  <IconUserMinus size={15} />
-               </ActionIcon>
-            </Tooltip>
-         );
-      }
+      return (
+         <ActionIcon.Group>
+            {ROLES.map(({ role, label, icon: Icon, color }) => {
+               const isActive = user.role === role;
+               const isTargetLoading = pendingRole === role;
 
-      if (user.role === ROLE_GUEST) {
-         return (
-            <Tooltip label="Promote to Circle of Trust" withArrow>
-               <ActionIcon
-                  variant="subtle"
-                  color="green"
-                  size="sm"
-                  loading={isRoleLoading}
-                  onClick={(e) => { e.stopPropagation(); handleSetRole(user, ROLE_CIRCLE_OF_TRUST); }}
-               >
-                  <IconUserPlus size={15} />
-               </ActionIcon>
-            </Tooltip>
-         );
-      }
-
-      return null;
+               return (
+                  <Tooltip key={role} label={label + ' ' + isCurrentUser} withArrow fz="xs">
+                     <ActionIcon
+                        variant={isActive ? 'filled' : 'default'}
+                        color={isActive ? color : 'gray'}
+                        size="sm"
+                        radius="none"
+                        loading={isTargetLoading}
+                        disabled={isRoleLoading}
+                        style={{
+                           opacity: isActive ? 1 : 0.45,
+                           cursor: isActive || isCurrentUser ? 'default' : 'pointer',
+                        }}
+                        onClick={(e) => {
+                           e.stopPropagation();
+                           if (!isActive && !isRoleLoading && !isCurrentUser) {
+                              handleSetRole(user, role);
+                           }
+                        }}
+                        aria-label={label}
+                        aria-pressed={isActive}
+                     >
+                        <Icon size={14} />
+                     </ActionIcon>
+                  </Tooltip>
+               );
+            })}
+         </ActionIcon.Group>
+      );
    };
 
    const renderBlockToggle = (user: UserSummary) => {
@@ -239,11 +257,11 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                            </Table.Td>
                            <Table.Td><Text size="sm" truncate c="gray.6">{user.email}</Text></Table.Td>
                            <Table.Td>
-                              <Group gap={4} wrap="nowrap" align="center">
-                                 <Badge color={user.role === ROLE_ADMIN ? 'blue' : 'gray'} radius="none" variant="light" size="sm">
+                              <Group gap="xs" wrap="nowrap" align="center">
+                                 <Badge color={user.role === ROLE_ADMIN ? 'blue' : user.role === ROLE_CIRCLE_OF_TRUST ? 'grape' : 'gray'} radius="none" variant="light" size="sm">
                                     {user.role}
                                  </Badge>
-                                 {renderRoleToggle(user)}
+                                 {renderRoleButtons(user)}
                               </Group>
                            </Table.Td>
                            <Table.Td>
@@ -297,10 +315,10 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                      )}
                      <Stack gap={4}>
                         <Text size="sm" c="gray.7"><strong>Email:</strong> {user.email}</Text>
-                        <Group gap="xs">
+                        <Group gap="xs" wrap="nowrap" align="center">
                            <Text size="sm" c="gray.7"><strong>Role:</strong></Text>
-                           <Badge color={user.role === ROLE_ADMIN ? 'blue' : 'gray'} radius="none" size="xs" variant="light">{user.role}</Badge>
-                           {renderRoleToggle(user)}
+                           <Badge color={user.role === ROLE_ADMIN ? 'blue' : user.role === ROLE_CIRCLE_OF_TRUST ? 'grape' : 'gray'} radius="none" size="xs" variant="light">{user.role}</Badge>
+                           {renderRoleButtons(user)}
                         </Group>
                         <Group gap="xs">
                            <Text size="sm" c="gray.7"><strong>Status:</strong></Text>

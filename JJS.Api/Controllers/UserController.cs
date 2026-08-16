@@ -1,4 +1,5 @@
 using JJS.Api.Extensions;
+using JJS.Api.Models.People;
 using JJS.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,8 +48,12 @@ public class UserController(IUserService userService) : Controller
    [Authorize(Roles = "Admin")]
    public async Task<IActionResult> SetRole([FromBody] SetRoleRequest request)
    {
-      if (request.Role is not "CircleOfTrust" and not "Guest")
-         return BadRequest(new { message = "Invalid role. Must be CircleOfTrust or Guest." });
+      if (request.Role is not UserRoles.Admin and not UserRoles.CircleOfTrust and not UserRoles.Guest)
+         return BadRequest(new { message = $"Invalid role '{request.Role}'. Must be valid role." });
+
+      var admin = User.GetUserFromClaims();
+      if (request.Email.Equals(admin.Email, StringComparison.OrdinalIgnoreCase))
+         return BadRequest(new { message = "Unable to change current user's role." });
 
       await _userService.SetRole(request.Email, request.Role);
       return Ok();
