@@ -30,6 +30,9 @@ const AlbumImagePicker = forwardRef<AlbumImagePickerHandle, AlbumImagePickerProp
       ? findFolderByPath(data?.folders ?? [], folderPath)
       : data;
 
+    const folders = currentFolder?.folders ?? [];
+    const files = currentFolder?.files ?? [];
+
     const crumbs = folderPath
       ? folderPath.replace(IMAGE_PREFIX, '').split('/').filter(Boolean)
       : [];
@@ -74,9 +77,9 @@ const AlbumImagePicker = forwardRef<AlbumImagePickerHandle, AlbumImagePickerProp
 
         {!isLoading && !error && currentFolder && (
           <Stack gap="md">
-            {currentFolder.folders.length > 0 && (
+            {folders.length > 0 && (
               <SimpleGrid cols={{ base: 3, sm: 4, md: 5 }} spacing="xs">
-                {currentFolder.folders.map((folder, i) => (
+                {folders.map((folder, i) => (
                   <Box
                     key={i}
                     style={{
@@ -94,9 +97,9 @@ const AlbumImagePicker = forwardRef<AlbumImagePickerHandle, AlbumImagePickerProp
               </SimpleGrid>
             )}
 
-            {currentFolder.files.length > 0 && (
+            {files.length > 0 && (
               <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="sm">
-                {currentFolder.files.map((file, i) => (
+                {files.map((file, i) => (
                   <Box
                     key={i}
                     style={{ cursor: 'pointer' }}
@@ -129,7 +132,7 @@ const AlbumImagePicker = forwardRef<AlbumImagePickerHandle, AlbumImagePickerProp
               </SimpleGrid>
             )}
 
-            {currentFolder.folders.length === 0 && currentFolder.files.length === 0 && (
+            {folders.length === 0 && files.length === 0 && (
               <Center py="xl">
                 <Text c="dimmed" size="sm">This folder is empty.</Text>
               </Center>

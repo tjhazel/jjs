@@ -146,7 +146,7 @@ export default function MarkdownEditor({
       const fd = new FormData();
       fd.append('file', uploadFile);
       const result = await httpPostFormData<{ url: string; fileName: string }>(uploadEndpoint, fd);
-      handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${safeAlt(uploadFile.name)}](${result.url})`));
+      handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${safeAlt(uploadFile.name)}](${encodeURI(result.url)})`));
       onImageUploaded?.(result);
     } catch (e) {
       console.error('[MarkdownEditor] Image upload failed:', e);
@@ -385,7 +385,7 @@ export default function MarkdownEditor({
           <CameraCapture ref={cameraRef} onCapture={handleImageFile} />
           <AlbumImagePicker
             ref={albumPickerRef}
-            onSelect={(httpPath, name) => insert(`![${safeAlt(name)}](${httpPath})`)}
+            onSelect={(httpPath, name) => insert(`![${safeAlt(name)}](${encodeURI(httpPath)})`)}
           />
         </>
       )}
