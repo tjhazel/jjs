@@ -94,7 +94,7 @@ export default function ManageComments({
       <Table.Th style={width ? { width } : undefined}>
         <UnstyledButton onClick={() => setSorting(field)}>
           <Group gap={4} wrap="nowrap">
-            <Text size="sm" fw={600} c="dark.9">{label}</Text>
+            <Text size="sm" fw={600}>{label}</Text>
             <Icon size={14} color="var(--mantine-color-gray-6)" />
           </Group>
         </UnstyledButton>
@@ -211,7 +211,7 @@ export default function ManageComments({
             <Table.Tr>
               {renderTh('postTitle',   'Post',    180)}
               {renderTh('authorName',  'Author',  150)}
-              <Table.Th><Text size="sm" fw={600} c="dark.9">Comment</Text></Table.Th>
+              <Table.Th><Text size="sm" fw={600}>Comment</Text></Table.Th>
               {renderTh('createdDate', 'Date',    110)}
               {renderTh('adminHidden', 'Status',  120)}
               <Table.Th style={{ width: 68 }} />

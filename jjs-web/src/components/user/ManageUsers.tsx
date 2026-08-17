@@ -127,7 +127,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
       return (
          <Table.Th onClick={() => handleSort(field)} style={{ cursor: 'pointer' }}>
             <Group justify="space-between" wrap="nowrap">
-               <Text size="sm" fw={600} c="dark.9">{label}</Text>
+               <Text size="sm" fw={600}>{label}</Text>
                <Center>
                   {!isCurrent && <IconSelector size={16} stroke={1.5} color="var(--mantine-color-gray-4)" />}
                   {isCurrent && (reverseSortDirection ? <IconChevronDown size={16} stroke={1.5} /> : <IconChevronUp size={16} stroke={1.5} />)}
@@ -298,7 +298,7 @@ export default function ManageUsers({ users, isLoading, onToggleBlock, onSetRole
                return (
                   <Card key={user.email} withBorder padding="md" radius="none">
                      <Group justify="space-between" align="flex-start" mb="xs">
-                        <Text fw={600} size="md" c="dark.9">{user.displayName}</Text>
+                        <Text fw={600} size="md">{user.displayName}</Text>
                         <Group gap={4} wrap="nowrap">
                            {renderBlockToggle(user)}
                            {user.commentCount > 0 && (

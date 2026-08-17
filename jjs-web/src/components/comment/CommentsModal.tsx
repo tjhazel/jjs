@@ -244,8 +244,8 @@ export default function CommentsModal({ opened, onClose, title = 'Comments', ema
                <Table variant="simple" withTableBorder>
                   <Table.Thead>
                      <Table.Tr>
-                        <Table.Th><Text size="sm" fw={600} c="dark.9">Post</Text></Table.Th>
-                        <Table.Th style={{ width: 110 }}><Text size="sm" fw={600} c="dark.9">Comments</Text></Table.Th>
+                        <Table.Th><Text size="sm" fw={600}>Post</Text></Table.Th>
+                        <Table.Th style={{ width: 110 }}><Text size="sm" fw={600}>Comments</Text></Table.Th>
                         <Table.Th style={{ width: 40 }} />
                      </Table.Tr>
                   </Table.Thead>
