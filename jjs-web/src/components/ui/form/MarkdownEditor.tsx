@@ -15,6 +15,7 @@ import { useApiContext } from '@api/ApiContext';
 import CameraCapture, { type CameraCaptureHandle } from './CameraCapture';
 import ImageUpload, { type ImageUploadHandle } from './ImageUpload';
 import AlbumImagePicker, { type AlbumImagePickerHandle } from './AlbumImagePicker';
+import { IMAGE_PREFIX } from '@api/album/album-models';
 import classes from './MarkdownEditor.module.css';
 
 export interface MarkdownEditorProps extends Omit<InputWrapperProps, 'children'> {
@@ -146,7 +147,9 @@ export default function MarkdownEditor({
       const fd = new FormData();
       fd.append('file', uploadFile);
       const result = await httpPostFormData<{ url: string; fileName: string }>(uploadEndpoint, fd);
-      handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${safeAlt(uploadFile.name)}](${encodeURI(result.url)})`));
+      // Use server-provided URL as-is to avoid double-encoding percent sequences.
+      // Append a default width hint to the alt text so the viewer can size the image.
+      handleChange(withPlaceholder.replace(UPLOAD_PLACEHOLDER, `![${safeAlt(uploadFile.name)} | 500](${result.url})`));
       onImageUploaded?.(result);
     } catch (e) {
       console.error('[MarkdownEditor] Image upload failed:', e);
@@ -385,7 +388,26 @@ export default function MarkdownEditor({
           <CameraCapture ref={cameraRef} onCapture={handleImageFile} />
           <AlbumImagePicker
             ref={albumPickerRef}
-            onSelect={(httpPath, name) => insert(`![${safeAlt(name)}](${encodeURI(httpPath)})`)}
+            onSelect={(httpPath, name) => {
+              // Normalize album image URLs: if the path refers to the album Image prefix,
+              // remove host information and insert a root-relative /Image/... path.
+              const normalize = (p: string) => {
+                try {
+                  const u = new URL(p);
+                  if (u.pathname.startsWith(IMAGE_PREFIX)) return u.pathname + u.search + u.hash;
+                  // If not an album path, return original href (keep absolute)
+                  return p;
+                } catch (e) {
+                  // Not an absolute URL — if it already starts with IMAGE_PREFIX, use it as-is
+                  if (p.startsWith(IMAGE_PREFIX)) return p;
+                  return p;
+                }
+              };
+              const rawPath = normalize(httpPath);
+              // If the path already contains percent-encoding (e.g. %20) avoid encoding again.
+              const pathToInsert = rawPath.includes('%') ? rawPath : encodeURI(rawPath);
+              insert(`![${safeAlt(name)} | 500](${pathToInsert})`);
+            }}
           />
         </>
       )}
