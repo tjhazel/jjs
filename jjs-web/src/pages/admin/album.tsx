@@ -121,8 +121,10 @@ export default function ManageAlbumPage() {
         setFileStates(prev => prev.map(s => s.id === item.id ? { ...s, status: 'uploading', message: undefined, progress: 0 } : s));
         try {
           await uploadAlbumImage(httpPostFormData, item.file, uploadTarget, (percent: number) => {
-            setFileStates(prev => prev.map(s => s.id === item.id ? { ...s, progress: percent } : s));
-          });
+                      // avoid showing 100% while server is still processing; show 99% until upload completes
+                      const visible = percent === 100 ? 99 : percent;
+                      setFileStates(prev => prev.map(s => s.id === item.id ? { ...s, progress: visible } : s));
+                    });
           successes.push(item.file.name);
           setFileStates(prev => prev.map(s => s.id === item.id ? { ...s, status: 'success', progress: 100 } : s));
         } catch (e: unknown) {
