@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import {
   Stack, Group, Title, Text, Grid, Paper, Anchor, Divider,
   TextInput, ActionIcon, Tooltip, Box, Image, Button, Alert,
-  Loader, Center, UnstyledButton, Badge,
+  Loader, Center, UnstyledButton, Badge, Progress,
 } from '@mantine/core';
 import {
   IconUpload, IconFolderPlus, IconFolder, IconChevronRight,
@@ -28,6 +28,15 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+type FileState = {
+  id: string;
+  file: File;
+  previewUrl: string;
+  status: 'idle' | 'uploading' | 'success' | 'error';
+  progress?: number;
+  message?: string;
+};
+
 export default function ManageAlbumPage() {
   const { httpGet, httpPost, httpPostFormData } = useApiContext();
   const { data, isLoading, error: albumError } = useAlbum(httpGet);
@@ -39,17 +48,18 @@ export default function ManageAlbumPage() {
   const [folderError, setFolderError] = useState<string | null>(null);
   const [folderSuccess, setFolderSuccess] = useState<string | null>(null);
 
-  // Upload state
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // Upload state (support multiple files with per-file status)
+  const [fileStates, setFileStates] = useState<FileState[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<{ msg: string; ok: boolean } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Revoke preview object URL on unmount
-  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
+  // Revoke preview object URLs on unmount
+  useEffect(() => {
+    return () => { fileStates.forEach(s => URL.revokeObjectURL(s.previewUrl)); };
+  }, [fileStates]);
 
   const currentFolder: Folder | undefined = currentPath
     ? findFolderByPath(data?.folders ?? [], currentPath)
@@ -64,36 +74,83 @@ export default function ManageAlbumPage() {
 
   // ── File selection ──────────────────────────────────────────────────────────
 
-  const handleFileSelect = (file: File) => {
-    if (!file.type.startsWith('image/')) return;
-    setSelectedFile(file);
+  const handleFilesSelect = (files: FileList | File[]) => {
+    const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (arr.length === 0) return;
     setUploadStatus(null);
-    const next = URL.createObjectURL(file);
-    setPreviewUrl(prev => { if (prev) URL.revokeObjectURL(prev); return next; });
+    const newStates = arr.map(f => ({
+      id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`,
+      file: f,
+      previewUrl: URL.createObjectURL(f),
+      status: 'idle' as const,
+      progress: 0,
+    }));
+    setFileStates(prev => [...prev, ...newStates]);
   };
 
-  const clearFile = () => {
-    setSelectedFile(null);
-    setPreviewUrl(prev => { if (prev) URL.revokeObjectURL(prev); return null; });
+  const removeFileAt = (index: number) => {
+    setFileStates(prev => {
+      const toRemove = prev[index];
+      if (toRemove) URL.revokeObjectURL(toRemove.previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
-  // ── Upload ──────────────────────────────────────────────────────────────────
+  const clearAllFiles = () => {
+    fileStates.forEach(s => URL.revokeObjectURL(s.previewUrl));
+    setFileStates([]);
+  };
+
+  // ── Upload (concurrent, max 5) ──────────────────────────────────────────────
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (fileStates.length === 0) return;
     setUploading(true);
     setUploadStatus(null);
-    try {
-      await uploadAlbumImage(httpPostFormData, selectedFile, uploadTarget);
-      setUploadStatus({ msg: `"${selectedFile.name}" uploaded successfully.`, ok: true });
-      clearFile();
-    } catch (e: unknown) {
-      const data = (e as { responseData?: unknown })?.responseData;
-      const msg = typeof data === 'string' ? data : 'Upload failed. Please try again.';
-      setUploadStatus({ msg, ok: false });
-    } finally {
-      setUploading(false);
+
+    const queue = [...fileStates]; // shallow copy
+    const successes: string[] = [];
+    const failures: { name: string; msg: string }[] = [];
+
+    // worker that processes items from queue until empty
+    const worker = async () => {
+      while (true) {
+        const item = queue.shift();
+        if (!item) return;
+        // mark uploading
+        setFileStates(prev => prev.map(s => s.id === item.id ? { ...s, status: 'uploading', message: undefined, progress: 0 } : s));
+        try {
+          await uploadAlbumImage(httpPostFormData, item.file, uploadTarget, (percent: number) => {
+            setFileStates(prev => prev.map(s => s.id === item.id ? { ...s, progress: percent } : s));
+          });
+          successes.push(item.file.name);
+          setFileStates(prev => prev.map(s => s.id === item.id ? { ...s, status: 'success', progress: 100 } : s));
+        } catch (e: unknown) {
+          const data = (e as { responseData?: unknown })?.responseData;
+          const msg = typeof data === 'string' ? data : 'Upload failed.';
+          failures.push({ name: item.file.name, msg });
+          setFileStates(prev => prev.map(s => s.id === item.id ? { ...s, status: 'error', message: msg } : s));
+        }
+      }
+    };
+
+    // start up to 5 workers in parallel
+    const workers: Promise<void>[] = [];
+    const concurrency = 5;
+    for (let i = 0; i < concurrency; i++) workers.push(worker());
+    await Promise.all(workers);
+
+    // After processing, remove successful items from state and keep failures
+    if (failures.length === 0) {
+      setUploadStatus({ msg: `${successes.length} file(s) uploaded successfully.`, ok: true });
+      clearAllFiles();
+    } else {
+      const failedNames = failures.map(f => f.name);
+      setFileStates(prev => prev.filter(s => failedNames.includes(s.file.name)));
+      setUploadStatus({ msg: `${successes.length} uploaded, ${failures.length} failed: ${failedNames.join(', ')}`, ok: false });
     }
+
+    setUploading(false);
   };
 
   // ── Create folder ───────────────────────────────────────────────────────────
@@ -290,28 +347,26 @@ export default function ManageAlbumPage() {
                 onDrop={e => {
                   e.preventDefault();
                   setDragOver(false);
-                  const f = e.dataTransfer.files[0];
-                  if (f) handleFileSelect(f);
+                  const files = Array.from(e.dataTransfer.files);
+                  if (files.length) handleFilesSelect(files);
                 }}
                 onDragOver={e => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onClick={() => fileInputRef.current?.click()}
               >
-                {previewUrl
+                {fileStates.length > 0
                   ? (
-                    <Image
-                      src={previewUrl}
-                      fit="contain"
-                      mah={320}
-                      w="100%"
-                      alt="Selected image preview"
-                    />
+                    <Group style={{ gap: 8, padding: 8, overflowX: 'auto' }} wrap="nowrap">
+                      {fileStates.map((s, i) => (
+                        <Image key={s.id} src={s.previewUrl} fit="cover" mah={160} w={160} alt={`Preview ${i + 1}`} />
+                      ))}
+                    </Group>
                   )
                   : (
                     <Stack align="center" gap="xs" p="xl">
                       <IconPhoto size={40} color="var(--mantine-color-gray-4)" />
                       <Text size="sm" c="dimmed" ta="center">
-                        Drop an image here, or click to browse
+                        Drop images here, or click to browse
                       </Text>
                       <Text size="xs" c="dimmed">JPEG, PNG, GIF</Text>
                     </Stack>
@@ -323,35 +378,54 @@ export default function ManageAlbumPage() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 style={{ display: 'none' }}
                 onChange={e => {
-                  const f = e.target.files?.[0];
-                  if (f) handleFileSelect(f);
+                  const files = e.target.files;
+                  if (files && files.length) handleFilesSelect(files);
                   e.target.value = '';
                 }}
               />
 
-              {/* Selected file info */}
-              {selectedFile && (
-                <Group justify="space-between" align="center">
-                  <Stack gap={0}>
-                    <Text size="sm" fw={500} truncate maw={400}>{selectedFile.name}</Text>
-                    <Text size="xs" c="dimmed">{formatBytes(selectedFile.size)}</Text>
-                  </Stack>
-                  <ActionIcon
-                    variant="subtle" color="red" size="sm"
-                    onClick={clearFile}
-                    aria-label="Remove selected file"
-                  >
-                    <IconX size={14} />
-                  </ActionIcon>
-                </Group>
+              {/* Selected files info */}
+              {fileStates.length > 0 && (
+                <Stack gap="xs">
+                  {fileStates.map((s, i) => (
+                    <Group key={s.id} justify="space-between" align="center">
+                      <Group align="center" spacing="sm" style={{ minWidth: 0 }}>
+                        <Stack gap={0} style={{ minWidth: 0 }}>
+                          <Text size="sm" fw={500} truncate maw={400}>{s.file.name}</Text>
+                          <Text size="xs" c="dimmed">{formatBytes(s.file.size)}</Text>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, minWidth: 200 }}>
+                            <Progress value={s.progress ?? (s.status === 'success' ? 100 : 0)} size="xs" style={{ flex: 1 }} />
+                            <Text size="xs" c="dimmed" style={{ width: 40, textAlign: 'right' }}>{(s.progress ?? (s.status === 'success' ? 100 : 0))}%</Text>
+                          </div>
+                        </Stack>
+                      </Group>
+                      <Group spacing="xs">
+                        {s.status === 'error' && s.message && <Text size="xs" c="red">{s.message}</Text>}
+                        <ActionIcon
+                          variant="subtle" color="red" size="sm"
+                          onClick={() => removeFileAt(i)}
+                          aria-label={`Remove ${s.file.name}`}
+                          disabled={s.status === 'uploading'}
+                        >
+                          <IconX size={14} />
+                        </ActionIcon>
+                      </Group>
+                    </Group>
+                  ))}
+                  <Group spacing="xs">
+                    <Button variant="subtle" size="xs" onClick={clearAllFiles} disabled={uploading}>Clear</Button>
+                    <Text size="xs" c="dimmed">{fileStates.length} file(s) selected</Text>
+                  </Group>
+                </Stack>
               )}
 
               <Button
                 onClick={handleUpload}
                 loading={uploading}
-                disabled={!selectedFile}
+                disabled={fileStates.length === 0 || uploading}
                 leftSection={<IconUpload size={16} />}
                 radius="none"
                 variant="default"
