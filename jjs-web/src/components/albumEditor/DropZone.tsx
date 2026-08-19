@@ -2,26 +2,12 @@ import React from 'react';
 import { Box, Group, Stack, Text } from '@mantine/core';
 import { IconPhoto } from '@tabler/icons-react';
 import { Image } from '@mantine/core';
+import { useAlbumEditorContext } from './AlbumEditorContext';
 
-type FileState = {
-  id: string;
-  file: File;
-  previewUrl: string;
-  status: 'idle' | 'uploading' | 'success' | 'error';
-  progress?: number;
-  message?: string;
-};
+export default function DropZone() {
+  const ctx = useAlbumEditorContext();
+  const { fileStates, dragOver, handleFilesSelect, setDragOver, fileInputRef } = ctx;
 
-type Props = {
-  fileStates: FileState[];
-  dragOver: boolean;
-  onDrop: (files: File[]) => void;
-  onDragOver: (e: React.DragEvent) => void;
-  onDragLeave: () => void;
-  onClick: () => void;
-};
-
-export default function DropZone({ fileStates, dragOver, onDrop, onDragOver, onDragLeave, onClick }: Props) {
   return (
     <Box
       style={{
@@ -38,12 +24,13 @@ export default function DropZone({ fileStates, dragOver, onDrop, onDragOver, onD
       }}
       onDrop={e => {
         e.preventDefault();
+        setDragOver(false);
         const files = Array.from(e.dataTransfer.files);
-        if (files.length) onDrop(files);
+        if (files.length) handleFilesSelect(files);
       }}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onClick={onClick}
+      onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onClick={() => fileInputRef.current?.click()}
     >
       {fileStates.length > 0
         ? (

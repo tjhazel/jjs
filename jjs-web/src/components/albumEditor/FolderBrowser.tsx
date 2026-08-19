@@ -1,23 +1,22 @@
 import React from 'react';
 import { Stack, Group, Text, Anchor, Box, Divider, Center, Loader, UnstyledButton, Badge } from '@mantine/core';
 import { IconFolder, IconChevronRight } from '@tabler/icons-react';
-import { IMAGE_PREFIX, type Folder } from '@api/album/album-models';
+import { IMAGE_PREFIX } from '@api/album/album-models';
+import { useAlbumEditorContext } from './AlbumEditorContext';
+import NewFolderForm from './NewFolderForm';
 
-type Props = {
-  isLoading: boolean;
-  albumError?: string | null;
-  currentFolder?: Folder | undefined;
-  crumbs: string[];
-  onRootClick: () => void;
-  onCrumbClick: (path: string) => void;
-  onFolderClick: (path: string) => void;
-  displayTarget: string;
-  children?: React.ReactNode;
-};
+export default function FolderBrowser() {
+  const ctx = useAlbumEditorContext();
 
-export default function FolderBrowser({
-  isLoading, albumError, currentFolder, crumbs, onRootClick, onCrumbClick, onFolderClick, displayTarget, children,
-}: Props) {
+  const {
+    isLoading,
+    albumError,
+    currentFolder,
+    crumbs,
+    setCurrentPath,
+    displayTarget,
+  } = ctx;
+
   return (
     <Stack gap="sm" h="100%">
 
@@ -29,7 +28,7 @@ export default function FolderBrowser({
           component="button"
           type="button"
           size="sm"
-          onClick={onRootClick}
+          onClick={() => setCurrentPath(undefined)}
         >
           Album
         </Anchor>
@@ -46,7 +45,7 @@ export default function FolderBrowser({
                     component="button"
                     type="button"
                     size="sm"
-                    onClick={() => onCrumbClick(path)}
+                    onClick={() => setCurrentPath(path)}
                   >
                     {seg}
                   </Anchor>
@@ -83,7 +82,7 @@ export default function FolderBrowser({
             : (currentFolder?.folders ?? []).map((folder, i) => (
               <UnstyledButton
                 key={i}
-                onClick={() => onFolderClick(folder.relativePath)}
+                onClick={() => setCurrentPath(folder.relativePath)}
                 style={{
                   padding: '6px 8px',
                   borderRadius: 4,
@@ -95,8 +94,8 @@ export default function FolderBrowser({
                   },
                 }}
               >
-                <Group gap="xs" justify="space-between" wrap="nowrap">
-                  <Group gap="xs" wrap="nowrap" style={{ overflow: 'hidden' }}>
+                <Group gap={"xs"} justify="space-between" wrap="nowrap">
+                  <Group gap={"xs"} wrap="nowrap" style={{ overflow: 'hidden' }}>
                     <IconFolder size={14} color="var(--mantine-color-yellow-6)" style={{ flexShrink: 0 }} />
                     <Text size="sm" truncate>{folder.name}</Text>
                   </Group>
@@ -117,7 +116,8 @@ export default function FolderBrowser({
 
       <div style={{ flexGrow: 1 }} />
 
-      {children}
+      <Divider label="New Folder" labelPosition="left" />
+      <NewFolderForm />
 
     </Stack>
   );

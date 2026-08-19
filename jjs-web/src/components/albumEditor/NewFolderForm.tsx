@@ -1,17 +1,12 @@
 import React from 'react';
 import { Group, TextInput, Tooltip, ActionIcon, Text } from '@mantine/core';
 import { IconFolderPlus } from '@tabler/icons-react';
+import { useAlbumEditorContext } from './AlbumEditorContext';
 
-type Props = {
-  newFolderName: string;
-  setNewFolderName: (v: string) => void;
-  creatingFolder: boolean;
-  folderError: string | null;
-  folderSuccess: string | null;
-  onCreateFolder: () => void;
-};
+export default function NewFolderForm() {
+  const ctx = useAlbumEditorContext();
+  const { newFolderName, setNewFolderName, creatingFolder, folderError, folderSuccess, handleCreateFolder } = ctx;
 
-export default function NewFolderForm({ newFolderName, setNewFolderName, creatingFolder, folderError, folderSuccess, onCreateFolder }: Props) {
   return (
     <>
       <Group gap="xs" align="flex-start">
@@ -21,7 +16,7 @@ export default function NewFolderForm({ newFolderName, setNewFolderName, creatin
           placeholder="Folder name"
           value={newFolderName}
           onChange={e => setNewFolderName(e.currentTarget.value)}
-          onKeyDown={e => e.key === 'Enter' && onCreateFolder()}
+          onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
           error={folderError}
           disabled={creatingFolder}
         />
@@ -30,7 +25,7 @@ export default function NewFolderForm({ newFolderName, setNewFolderName, creatin
             variant="default"
             size="sm"
             style={{ marginTop: 1 }}
-            onClick={onCreateFolder}
+            onClick={handleCreateFolder}
             loading={creatingFolder}
             disabled={!newFolderName.trim()}
             aria-label="Create folder"
