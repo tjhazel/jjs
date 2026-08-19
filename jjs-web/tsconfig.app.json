@@ -8,7 +8,9 @@
       ],
       "module": "esnext",
       "types": [
-         "vite/client"
+         "vite/client",
+         "react",
+         "react-dom"
       ],
       "skipLibCheck": true,
       /*TODO: remove this - it is temp to get it deployed */
