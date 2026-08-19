@@ -11,6 +11,10 @@ import {
 import { useApiContext } from '@api/ApiContext';
 import { useAlbum, uploadAlbumImage, createAlbumFolder } from '@api/album/album-fetcher';
 import { IMAGE_PREFIX, type Folder } from '@api/album/album-models';
+import FolderBrowser from '@components/albumEditor/FolderBrowser';
+import NewFolderForm from '@components/albumEditor/NewFolderForm';
+import DropZone from '@components/albumEditor/DropZone';
+import SelectedFilesList from '@components/albumEditor/SelectedFilesList';
 
 function findFolderByPath(folders: Folder[] | null | undefined, path: string): Folder | undefined {
   if (!folders) return undefined;
@@ -90,7 +94,7 @@ export default function ManageAlbumPage() {
 
   const removeFileAt = (index: number) => {
     setFileStates(prev => {
-      const toRemove = prev[index];
+      const toRemove = prev[index];ye
       if (toRemove) URL.revokeObjectURL(toRemove.previewUrl);
       return prev.filter((_, i) => i !== index);
     });
@@ -196,132 +200,26 @@ export default function ManageAlbumPage() {
         {/* ── Left: Folder browser ── */}
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Paper withBorder p="md" h="100%">
-            <Stack gap="sm" h="100%">
-
-              <Text fw={600} size="sm">Upload Destination</Text>
-
-              {/* Breadcrumb */}
-              <Group gap={4} wrap="nowrap" style={{ overflowX: 'auto' }}>
-                <Anchor
-                  component="button" type="button" size="sm"
-                  onClick={() => setCurrentPath(undefined)}
-                >
-                  Album
-                </Anchor>
-                {crumbs.map((seg, i) => {
-                  const path = IMAGE_PREFIX + '/' + crumbs.slice(0, i + 1).join('/');
-                  const isLast = i === crumbs.length - 1;
-                  return (
-                    <Group gap={4} key={i} wrap="nowrap">
-                      <Text size="sm" c="dimmed">/</Text>
-                      {isLast
-                        ? <Text size="sm" fw={500}>{seg}</Text>
-                        : (
-                          <Anchor
-                            component="button" type="button" size="sm"
-                            onClick={() => setCurrentPath(path)}
-                          >
-                            {seg}
-                          </Anchor>
-                        )}
-                    </Group>
-                  );
-                })}
-              </Group>
-
-              {/* Current target callout */}
-              <Box
-                px="sm" py={6}
-                style={{
-                  background: 'var(--mantine-color-blue-0)',
-                  borderRadius: 4,
-                  border: '1px solid var(--mantine-color-blue-2)',
-                }}
-              >
-                <Text size="xs" c="blue.7">
-                  <strong>Uploading to:</strong> {displayTarget}
-                </Text>
-              </Box>
-
-              <Divider label="Subfolders" labelPosition="left" />
-
-              {/* Folder list */}
-              {isLoading && <Center py="md"><Loader size="sm" type="dots" /></Center>}
-              {albumError && <Text size="xs" c="red">{albumError}</Text>}
-
-              {!isLoading && !albumError && (
-                <Stack gap={2}>
-                  {(currentFolder?.folders ?? []).length === 0
-                    ? <Text size="xs" c="dimmed" ta="center" py="xs">No subfolders here</Text>
-                    : (currentFolder?.folders ?? []).map((folder, i) => (
-                      <UnstyledButton
-                        key={i}
-                        onClick={() => setCurrentPath(folder.relativePath)}
-                        style={{
-                          padding: '6px 8px',
-                          borderRadius: 4,
-                          width: '100%',
-                        }}
-                        styles={{
-                          root: {
-                            '&:hover': { background: 'var(--mantine-color-gray-0)' },
-                          },
-                        }}
-                      >
-                        <Group gap="xs" justify="space-between" wrap="nowrap">
-                          <Group gap="xs" wrap="nowrap" style={{ overflow: 'hidden' }}>
-                            <IconFolder size={14} color="var(--mantine-color-yellow-6)" style={{ flexShrink: 0 }} />
-                            <Text size="sm" truncate>{folder.name}</Text>
-                          </Group>
-                          <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
-                            {(folder.files?.length ?? 0) > 0 && (
-                              <Badge size="xs" variant="light" color="gray">
-                                {folder.files!.length}
-                              </Badge>
-                            )}
-                            <IconChevronRight size={12} color="var(--mantine-color-gray-5)" />
-                          </Group>
-                        </Group>
-                      </UnstyledButton>
-                    ))
-                  }
-                </Stack>
-              )}
-
-              <div style={{ flexGrow: 1 }} />
-
-              {/* New folder */}
+            <FolderBrowser
+              isLoading={isLoading}
+              albumError={albumError}
+              currentFolder={currentFolder}
+              crumbs={crumbs}
+              onRootClick={() => setCurrentPath(undefined)}
+              onCrumbClick={(path) => setCurrentPath(path)}
+              onFolderClick={(path) => setCurrentPath(path)}
+              displayTarget={displayTarget}
+            >
               <Divider label="New Folder" labelPosition="left" />
-              <Group gap="xs" align="flex-start">
-                <TextInput
-                  flex={1}
-                  size="xs"
-                  placeholder="Folder name"
-                  value={newFolderName}
-                  onChange={e => { setNewFolderName(e.currentTarget.value); setFolderError(null); setFolderSuccess(null); }}
-                  onKeyDown={e => e.key === 'Enter' && handleCreateFolder()}
-                  error={folderError}
-                  disabled={creatingFolder}
-                />
-                <Tooltip label="Create folder" withArrow fz="xs">
-                  <ActionIcon
-                    variant="default"
-                    size="sm"
-                    style={{ marginTop: 1 }}
-                    onClick={handleCreateFolder}
-                    loading={creatingFolder}
-                    disabled={!newFolderName.trim()}
-                    aria-label="Create folder"
-                  >
-                    <IconFolderPlus size={14} />
-                  </ActionIcon>
-                </Tooltip>
-              </Group>
-              {folderSuccess && (
-                <Text size="xs" c="teal">{folderSuccess}</Text>
-              )}
-
-            </Stack>
+              <NewFolderForm
+                newFolderName={newFolderName}
+                setNewFolderName={(v) => { setNewFolderName(v); setFolderError(null); setFolderSuccess(null); }}
+                creatingFolder={creatingFolder}
+                folderError={folderError}
+                folderSuccess={folderSuccess}
+                onCreateFolder={handleCreateFolder}
+              />
+            </FolderBrowser>
           </Paper>
         </Grid.Col>
 
@@ -333,48 +231,14 @@ export default function ManageAlbumPage() {
               <Text fw={600} size="sm">Image File</Text>
 
               {/* Drop zone */}
-              <Box
-                style={{
-                  border: `2px dashed ${dragOver ? 'var(--mantine-color-blue-5)' : 'var(--mantine-color-gray-4)'}`,
-                  borderRadius: 8,
-                  background: dragOver ? 'var(--mantine-color-blue-0)' : undefined,
-                  cursor: 'pointer',
-                  minHeight: 220,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  overflow: 'hidden',
-                  transition: 'border-color 120ms ease, background 120ms ease',
-                }}
-                onDrop={e => {
-                  e.preventDefault();
-                  setDragOver(false);
-                  const files = Array.from(e.dataTransfer.files);
-                  if (files.length) handleFilesSelect(files);
-                }}
-                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+              <DropZone
+                fileStates={fileStates}
+                dragOver={dragOver}
+                onDrop={(files) => { setDragOver(false); handleFilesSelect(files); }}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onClick={() => fileInputRef.current?.click()}
-              >
-                {fileStates.length > 0
-                  ? (
-                    <Group style={{ gap: 8, padding: 8, overflowX: 'auto' }} wrap="nowrap">
-                      {fileStates.map((s, i) => (
-                        <Image key={s.id} src={s.previewUrl} fit="cover" mah={160} w={160} alt={`Preview ${i + 1}`} />
-                      ))}
-                    </Group>
-                  )
-                  : (
-                    <Stack align="center" gap="xs" p="xl">
-                      <IconPhoto size={40} color="var(--mantine-color-gray-4)" />
-                      <Text size="sm" c="dimmed" ta="center">
-                        Drop images here, or click to browse
-                      </Text>
-                      <Text size="xs" c="dimmed">JPEG, PNG, GIF</Text>
-                    </Stack>
-                  )
-                }
-              </Box>
+              />
 
               <input
                 ref={fileInputRef}
@@ -391,37 +255,12 @@ export default function ManageAlbumPage() {
 
               {/* Selected files info */}
               {fileStates.length > 0 && (
-                <Stack gap="xs">
-                  {fileStates.map((s, i) => (
-                    <Group key={s.id} justify="space-between" align="center">
-                      <Group align="center" spacing="sm" style={{ minWidth: 0 }}>
-                        <Stack gap={0} style={{ minWidth: 0 }}>
-                          <Text size="sm" fw={500} truncate maw={400}>{s.file.name}</Text>
-                          <Text size="xs" c="dimmed">{formatBytes(s.file.size)}</Text>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, minWidth: 200 }}>
-                            <Progress value={s.progress ?? (s.status === 'success' ? 100 : 0)} size="xs" style={{ flex: 1 }} />
-                            <Text size="xs" c="dimmed" style={{ width: 40, textAlign: 'right' }}>{(s.progress ?? (s.status === 'success' ? 100 : 0))}%</Text>
-                          </div>
-                        </Stack>
-                      </Group>
-                      <Group spacing="xs">
-                        {s.status === 'error' && s.message && <Text size="xs" c="red">{s.message}</Text>}
-                        <ActionIcon
-                          variant="subtle" color="red" size="sm"
-                          onClick={() => removeFileAt(i)}
-                          aria-label={`Remove ${s.file.name}`}
-                          disabled={s.status === 'uploading'}
-                        >
-                          <IconX size={14} />
-                        </ActionIcon>
-                      </Group>
-                    </Group>
-                  ))}
-                  <Group spacing="xs">
-                    <Button variant="subtle" size="xs" onClick={clearAllFiles} disabled={uploading}>Clear</Button>
-                    <Text size="xs" c="dimmed">{fileStates.length} file(s) selected</Text>
-                  </Group>
-                </Stack>
+                <SelectedFilesList
+                  fileStates={fileStates}
+                  removeFileAt={removeFileAt}
+                  clearAllFiles={clearAllFiles}
+                  uploading={uploading}
+                />
               )}
 
               <Button
