@@ -1,4 +1,3 @@
-import React from 'react';
 import { Stack, Group, Text, Anchor, Box, Divider, Center, Loader, UnstyledButton, Badge } from '@mantine/core';
 import { IconFolder, IconChevronRight } from '@tabler/icons-react';
 import { IMAGE_PREFIX } from '@api/album/album-models';

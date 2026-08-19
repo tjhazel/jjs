@@ -1,16 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
-  Stack, Group, Title, Text, Grid, Paper, Divider, Box,
-  Button, Alert, Loader, Center
+  Stack, Group, Title, Text, Grid, Paper,
+  Button, Alert
 } from '@mantine/core';
 import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
-import AlbumEditorContext, { useAlbumEditorContext } from './AlbumEditorContext';
+import AlbumEditorContext from './AlbumEditorContext';
 import type { FileState } from './AlbumEditorContext';
 import { useApiContext } from '@api/ApiContext';
 import { useAlbum, uploadAlbumImage, createAlbumFolder } from '@api/album/album-fetcher';
 import { IMAGE_PREFIX, type Folder } from '@api/album/album-models';
 import FolderBrowser from './FolderBrowser';
-import NewFolderForm from './NewFolderForm';
 import DropZone from './DropZone';
 import SelectedFilesList from './SelectedFilesList';
 

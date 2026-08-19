@@ -1,4 +1,3 @@
-import React from 'react';
 import { Group, TextInput, Tooltip, ActionIcon, Text } from '@mantine/core';
 import { IconFolderPlus } from '@tabler/icons-react';
 import { useAlbumEditorContext } from './AlbumEditorContext';

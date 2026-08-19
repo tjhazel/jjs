@@ -1,4 +1,3 @@
-import React from 'react';
 import { Stack, Group, Text, Progress, ActionIcon, Button } from '@mantine/core';
 import { IconX } from '@tabler/icons-react';
 import { useAlbumEditorContext } from './AlbumEditorContext';
