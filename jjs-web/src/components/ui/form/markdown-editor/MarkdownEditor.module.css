@@ -13,7 +13,6 @@
   overflow-x: hidden;
 }
 
-/* Ensure ActionIcon buttons are readable against the themed toolbar background */
 .toolbar button[data-variant="subtle"] {
   --ai-color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-3));
 }

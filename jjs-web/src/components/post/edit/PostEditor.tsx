@@ -8,7 +8,7 @@ import { postSchema, DEFAULT_POST, type FormValues } from '@api/post/postSchema'
 import type { PostDetail } from '@api/post/post';
 import type { Category } from '@api/post/category';
 import { formatDate } from '@lib/time.functions';
-import MarkdownEditor from '@components/ui/form/MarkdownEditor';
+import MarkdownEditor from '@components/ui/form/markdown-editor';
 
 interface PostEditorProps {
   post?: PostDetail;

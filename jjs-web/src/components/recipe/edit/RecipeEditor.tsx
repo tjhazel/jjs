@@ -8,7 +8,7 @@ import {
 import { recipeSchema, DEFAULT_RECIPE } from '@api/recipe/recipeSchema';
 import type { RecipeDetail, Ingredient, Instruction } from '@api/recipe/recipe';
 import { formatDate } from '@lib/time.functions';
-import MarkdownEditor from '@components/ui/form/MarkdownEditor';
+import MarkdownEditor from '@components/ui/form/markdown-editor';
 import IngredientsEditor from './IngredientsEditor';
 import InstructionsEditor from './InstructionsEditor';
 
