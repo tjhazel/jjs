@@ -8,6 +8,7 @@ export function MarkdownEditorContent() {
   const {
     text, tab, setTab, textareaRef, placeholder, minRows, maxHeight,
     disabled, uploading, uploadEndpoint, handleChange, handleImageFile,
+    undo, redo,
   } = useMarkdownEditorContext();
 
   return (
@@ -31,6 +32,18 @@ export function MarkdownEditorContent() {
           disabled={disabled || uploading}
           classNames={{ input: classes.textareaInput }}
           styles={maxHeight ? { input: { maxHeight, overflowY: 'auto' } } : undefined}
+          onKeyDown={event => {
+            const modifier = event.ctrlKey || event.metaKey;
+            if (!modifier || event.altKey) return;
+            if (event.key.toLowerCase() === 'z') {
+              event.preventDefault();
+              if (event.shiftKey) redo();
+              else undo();
+            } else if (event.key.toLowerCase() === 'y' && !event.shiftKey) {
+              event.preventDefault();
+              redo();
+            }
+          }}
           onPaste={uploadEndpoint ? event => {
             const imageItem = Array.from(event.clipboardData.items)
               .find(item => item.kind === 'file' && item.type.startsWith('image/'));

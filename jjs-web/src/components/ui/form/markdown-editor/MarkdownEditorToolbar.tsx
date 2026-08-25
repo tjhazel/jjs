@@ -19,7 +19,7 @@ export function MarkdownEditorToolbar() {
         color="gray"
         size="sm"
         onMouseDown={event => { event.preventDefault(); tool.action(); }}
-        disabled={disabled || uploading}
+        disabled={disabled || uploading || tool.disabled}
         loading={tool.loading}
         aria-label={tool.label}
       >
@@ -66,7 +66,15 @@ export function MarkdownEditorToolbar() {
             {overflowTools.map((tool, index) =>
               tool === null
                 ? <Menu.Divider key={index} />
-                : <Menu.Item key={index} leftSection={tool.icon} fz="sm" onClick={tool.action}>{tool.label}</Menu.Item>
+                : <Menu.Item
+                  key={index}
+                  leftSection={tool.icon}
+                  fz="sm"
+                  disabled={disabled || uploading || tool.disabled}
+                  onClick={tool.action}
+                >
+                  {tool.label}
+                </Menu.Item>
             )}
           </Menu.Dropdown>
         </Menu>

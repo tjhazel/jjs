@@ -24,6 +24,7 @@ export interface MarkdownTool {
   label: string;
   action: () => void;
   loading?: boolean;
+  disabled?: boolean;
 }
 
 export interface MarkdownEditorContextValue {
@@ -38,6 +39,8 @@ export interface MarkdownEditorContextValue {
   visibleTools: (MarkdownTool | null)[];
   overflowTools: (MarkdownTool | null)[];
   hasOverflow: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
   toolbarRef: RefObject<HTMLDivElement | null>;
   dotsWrapperRef: RefObject<HTMLDivElement | null>;
@@ -46,6 +49,8 @@ export interface MarkdownEditorContextValue {
   albumPickerRef: RefObject<AlbumImagePickerHandle | null>;
   setTab: (tab: MarkdownEditorTab) => void;
   handleChange: (value: string) => void;
+  undo: () => void;
+  redo: () => void;
   mutate: (fn: (text: string, selection: [number, number]) => { next: string; cursor: [number, number] }) => void;
   handleImageFile: (file: File, isPaste?: boolean) => Promise<void>;
   insert: (snippet: string) => void;

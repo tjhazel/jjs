@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   IconBold, IconItalic, IconStrikethrough, IconH1, IconH2, IconBlockquote,
   IconCode, IconLink, IconList, IconListNumbers, IconMinus, IconPhoto,
-  IconCamera, IconFolderOpen,
+  IconCamera, IconFolderOpen, IconArrowBackUp, IconArrowForwardUp,
 } from '@tabler/icons-react';
 import { useApiContext } from '@api/ApiContext';
 import { IMAGE_PREFIX } from '@api/album/album-models';
@@ -27,7 +27,10 @@ export function useMarkdownEditor({
 }: MarkdownEditorProps) {
   const [tab, setTab] = useState<MarkdownEditorTab>('write');
   const [uploading, setUploading] = useState(false);
-  const [text, setText] = useState(value ?? defaultValue);
+  const initialText = value ?? defaultValue;
+  const [text, setText] = useState(initialText);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   const [visibleCount, setVisibleCount] = useState(Number.MAX_SAFE_INTEGER);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
@@ -36,17 +39,54 @@ export function useMarkdownEditor({
   const dotsWrapperRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<CameraCaptureHandle>(null);
   const itemRightsRef = useRef<number[]>([]);
+  const historyRef = useRef<string[]>([initialText]);
+  const historyIndexRef = useRef(0);
+  const lastChangeRef = useRef(initialText);
   const { httpPostFormData } = useApiContext();
 
   useEffect(() => {
     // Controlled values may change independently of editor input.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (value !== undefined) setText(value);
+    if (value !== undefined && value !== lastChangeRef.current) {
+      setText(value);
+      historyRef.current = [value];
+      historyIndexRef.current = 0;
+      lastChangeRef.current = value;
+      setCanUndo(false);
+      setCanRedo(false);
+    }
   }, [value]);
 
   const handleChange = (next: string) => {
+    if (next === text) return;
+    const history = historyRef.current.slice(0, historyIndexRef.current + 1);
+    history.push(next);
+    historyRef.current = history;
+    historyIndexRef.current = history.length - 1;
+    lastChangeRef.current = next;
     setText(next);
     onChange?.(next);
+    setCanUndo(true);
+    setCanRedo(false);
+  };
+
+  const applyHistoryValue = (next: string) => {
+    lastChangeRef.current = next;
+    setText(next);
+    onChange?.(next);
+    setCanUndo(historyIndexRef.current > 0);
+    setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
+  };
+
+  const undo = () => {
+    if (historyIndexRef.current === 0) return;
+    historyIndexRef.current -= 1;
+    applyHistoryValue(historyRef.current[historyIndexRef.current]);
+  };
+
+  const redo = () => {
+    if (historyIndexRef.current >= historyRef.current.length - 1) return;
+    historyIndexRef.current += 1;
+    applyHistoryValue(historyRef.current[historyIndexRef.current]);
   };
 
   const mutate = (fn: (text: string, selection: [number, number]) => { next: string; cursor: [number, number] }) => {
@@ -150,6 +190,9 @@ export function useMarkdownEditor({
   }, []);
 
   const allTools: (MarkdownTool | null)[] = [
+    { icon: <IconArrowBackUp size={14} />, label: 'Undo', action: undo, disabled: !canUndo },
+    { icon: <IconArrowForwardUp size={14} />, label: 'Redo', action: redo, disabled: !canRedo },
+    null,
     { icon: <IconH1 size={14} />, label: 'Heading 1', action: () => prependLines('# ') },
     { icon: <IconH2 size={14} />, label: 'Heading 2', action: () => prependLines('## ') },
     null,
@@ -194,10 +237,11 @@ export function useMarkdownEditor({
 
   return {
     text, tab, uploading, disabled, placeholder, minRows, maxHeight, uploadEndpoint,
+    canUndo, canRedo,
     visibleTools: allVisible.slice(0, visibleEnd + 1),
     overflowTools: allOverflow.slice(overflowStart),
     hasOverflow: allOverflow.slice(overflowStart).some(tool => tool !== null),
     textareaRef, toolbarRef, dotsWrapperRef, imageUploadRef, cameraRef, albumPickerRef,
-    setTab, handleChange, mutate, handleImageFile, insert, safeAlt, normalizeAlbumPath,
+    setTab, handleChange, undo, redo, mutate, handleImageFile, insert, safeAlt, normalizeAlbumPath,
   };
 }
