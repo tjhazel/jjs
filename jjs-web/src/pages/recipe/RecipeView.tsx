@@ -169,7 +169,7 @@ export default function RecipeView() {
 
         {/* 👉 Added footerImage target hide class parameter */}
         <Image
-          src="http://johnandjeri.com"
+          src={window.location.origin}
           alt="Recipe Footer decoration"
           fit="contain"
           w="auto"

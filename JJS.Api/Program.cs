@@ -18,6 +18,13 @@ builder.AddServiceDefaults();
 
 var app = AppBuilder.BuildApp(builder, builder.Environment.EnvironmentName == "Development");
 
+app.UseForwardedHeaders();
+if (!app.Environment.IsDevelopment())
+{
+   app.UseHsts();
+   app.UseHttpsRedirection();
+}
+
 // ==========================================
 // 1. GLOBAL HTTP PIPELINE CONFIGURATIONS
 // ==========================================
