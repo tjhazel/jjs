@@ -2,6 +2,7 @@
 using JJS.Api.Models;
 using JJS.Api.Models.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Configuration;
@@ -18,6 +19,7 @@ public class AppBuilder
       System.Console.WriteLine($"Building API with environment: {builder.Environment.EnvironmentName}");
       AddAuthentication(builder);
       AddAuthorization(builder);
+      AddForwardedHeaders(builder);
       AddSwagger(builder);
       AddCors(builder);
       AddLogging(builder);
@@ -56,6 +58,18 @@ public class AppBuilder
          //NOTE: not using policies at this time, but leaving in place for future use
          options.AddPolicy("ArticleAdmin", policy =>
              policy.RequireRole("Admin"));
+      });
+   }
+
+   static void AddForwardedHeaders(WebApplicationBuilder builder)
+   {
+      builder.Services.Configure<ForwardedHeadersOptions>(options =>
+      {
+         options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
+             | ForwardedHeaders.XForwardedProto
+             | ForwardedHeaders.XForwardedHost;
+         options.KnownNetworks.Clear();
+         options.KnownProxies.Clear();
       });
    }
 
@@ -111,6 +125,7 @@ public class AppBuilder
                      "http://localhost:44301",
                      "http://johnandjeri.com",
                      "https://johnandjeri.com",
+                     "https://www.johnandjeri.com",
                      "https://*.johnandjeri.com",
                      "http://*.johnandjeri.com")
                  .SetIsOriginAllowedToAllowWildcardSubdomains()
