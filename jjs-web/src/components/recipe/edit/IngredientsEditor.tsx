@@ -8,9 +8,10 @@ import { useApiContext } from '@api/ApiContext';
 interface Props {
   ingredients: Ingredient[];
   onChange: (ingredients: Ingredient[]) => void;
+  showValidationErrors?: boolean;
 }
 
-export default function IngredientsEditor({ ingredients, onChange }: Props) {
+export default function IngredientsEditor({ ingredients, onChange, showValidationErrors = false }: Props) {
   const { httpGet, httpPost } = useApiContext();
   const { data: allIngredients } = useIngredients(httpGet);
   const { data: allUoms } = useUnitOfMeasures(httpGet);
@@ -113,6 +114,7 @@ export default function IngredientsEditor({ ingredients, onChange }: Props) {
                 <Table.Td><Text size="sm" c="dimmed" ta="center">{i + 1}</Text></Table.Td>
                 <Table.Td>
                   <TextInput size="xs" radius="none" value={ing.amount}
+                    error={showValidationErrors && !ing.amount.trim() ? 'Amount is required' : undefined}
                     onChange={e => set(i, { amount: e.currentTarget.value })} />
                 </Table.Td>
                 <Table.Td>
@@ -123,6 +125,7 @@ export default function IngredientsEditor({ ingredients, onChange }: Props) {
                     clearable
                     data={uomOptions}
                     value={ing.unitOfMeasureFk > 0 ? ing.unitOfMeasureFk.toString() : null}
+                    error={showValidationErrors && ing.unitOfMeasureFk <= 0 ? 'Unit is required' : undefined}
                     onChange={val => handleUomChange(i, val)}
                     comboboxProps={{ withinPortal: true }}
                   />
@@ -133,6 +136,7 @@ export default function IngredientsEditor({ ingredients, onChange }: Props) {
                     radius="none"
                     data={ingredientOptions}
                     value={ing.ingredient}
+                    error={showValidationErrors && ing.ingredientFk <= 0 ? 'Ingredient is required' : undefined}
                     onChange={value => set(i, { ingredient: value })}
                     onBlur={() => handleIngredientBlur(i, ing.ingredient)}
                     comboboxProps={{ withinPortal: true }}
@@ -161,6 +165,7 @@ export default function IngredientsEditor({ ingredients, onChange }: Props) {
             <Stack gap="xs">
               <Group grow gap="xs">
                 <TextInput size="xs" label="Amount" radius="none" value={ing.amount}
+                  error={showValidationErrors && !ing.amount.trim() ? 'Amount is required' : undefined}
                   onChange={e => set(i, { amount: e.currentTarget.value })} />
                 <Select
                   size="xs"
@@ -170,6 +175,7 @@ export default function IngredientsEditor({ ingredients, onChange }: Props) {
                   clearable
                   data={uomOptions}
                   value={ing.unitOfMeasureFk > 0 ? ing.unitOfMeasureFk.toString() : null}
+                  error={showValidationErrors && ing.unitOfMeasureFk <= 0 ? 'Unit is required' : undefined}
                   onChange={val => handleUomChange(i, val)}
                   comboboxProps={{ withinPortal: true }}
                 />
@@ -180,6 +186,7 @@ export default function IngredientsEditor({ ingredients, onChange }: Props) {
                 radius="none"
                 data={ingredientOptions}
                 value={ing.ingredient}
+                error={showValidationErrors && ing.ingredientFk <= 0 ? 'Ingredient is required' : undefined}
                 onChange={value => set(i, { ingredient: value })}
                 onBlur={() => handleIngredientBlur(i, ing.ingredient)}
                 comboboxProps={{ withinPortal: true }}
@@ -191,7 +198,7 @@ export default function IngredientsEditor({ ingredients, onChange }: Props) {
         ))}
       </Stack>
 
-      <Button size="xs" variant="default" radius="none" leftSection={<IconPlus size={14} />} onClick={add}>
+      <Button type="button" size="xs" variant="default" radius="none" leftSection={<IconPlus size={14} />} onClick={add}>
         Add Ingredient
       </Button>
 

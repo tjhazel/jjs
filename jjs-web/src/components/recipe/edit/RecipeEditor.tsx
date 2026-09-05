@@ -32,6 +32,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
 
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [instructions, setInstructions] = useState<Instruction[]>([]);
+  const [showIngredientValidationErrors, setShowIngredientValidationErrors] = useState(false);
 
   useEffect(() => {
     if (recipe) {
@@ -58,6 +59,15 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
   const isNew = !recipe?.recipeId;
 
   const handleSubmit = (values: typeof DEFAULT_RECIPE) => {
+    const hasInvalidIngredient = ingredients.some(ingredient =>
+      !ingredient.amount.trim() ||
+      ingredient.unitOfMeasureFk <= 0 ||
+      ingredient.ingredientFk <= 0
+    );
+
+    setShowIngredientValidationErrors(hasInvalidIngredient);
+    if (hasInvalidIngredient) return;
+
     const payload: RecipeDetail = {
       // identity & system fields preserved from loaded recipe
       recipeId: recipe?.recipeId ?? 0,
@@ -145,7 +155,11 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600}>Ingredients</Title>
-            <IngredientsEditor ingredients={ingredients} onChange={setIngredients} />
+            <IngredientsEditor
+              ingredients={ingredients}
+              onChange={setIngredients}
+              showValidationErrors={showIngredientValidationErrors}
+            />
           </Stack>
         </Card>
 
