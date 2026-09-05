@@ -16,10 +16,10 @@ const theme = createTheme({
 
 export default function App() {
    return (
-      <RootContextProvider>
-         <MantineProvider theme={theme} defaultColorScheme="auto">
+      <MantineProvider theme={theme} defaultColorScheme="auto">
+         <RootContextProvider>
             <RouterProvider router={router} />
-         </MantineProvider>
-      </RootContextProvider>
+         </RootContextProvider>
+      </MantineProvider>
    );
 }

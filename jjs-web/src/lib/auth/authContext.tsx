@@ -19,6 +19,7 @@ import type {
    GoogleCredentialResponse,
    GoogleIdTokenPayload
 } from "./authUtils";
+import { SessionExpiryWarning } from "./SessionExpiryWarning";
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -104,6 +105,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    return (
       <AuthContext.Provider value={{ ...state, login, logout, getToken, hasRole }}>
          {children}
+         <SessionExpiryWarning
+            idToken={state.idToken}
+            isAuthenticated={state.isAuthenticated}
+            login={login}
+            logout={logout}
+         />
       </AuthContext.Provider>
    );
 }
