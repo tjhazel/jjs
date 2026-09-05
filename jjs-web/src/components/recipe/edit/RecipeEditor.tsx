@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import {
-  TextInput, Card, Title, Text, Stack,
+  Autocomplete, TextInput, Card, Title, Text, Stack,
   SimpleGrid, Grid, Switch, Group, Button, Box, NumberInput
 } from '@mantine/core';
 import { recipeSchema, DEFAULT_RECIPE } from '@api/recipe/recipeSchema';
 import type { RecipeDetail, Ingredient, Instruction } from '@api/recipe/recipe';
+import { useRecipeCourses } from '@api/recipe/recipe-fetcher';
+import { useApiContext } from '@api/ApiContext';
 import { formatDate } from '@lib/time.functions';
 import MarkdownEditor from '@components/ui/form/markdown-editor';
 import IngredientsEditor from './IngredientsEditor';
@@ -20,6 +22,8 @@ interface RecipeEditorProps {
 }
 
 export default function RecipeEditor({ recipe, isSaving = false, onSave, onCancel }: RecipeEditorProps) {
+  const { httpGet } = useApiContext();
+  const { data: courseOptions, isLoading: areCoursesLoading } = useRecipeCourses(httpGet);
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: DEFAULT_RECIPE,
@@ -106,7 +110,9 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
           <Stack gap="md">
             <Title order={2} size="h4" fw={600}>Classifications</Title>
             <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-              <TextInput withAsterisk label="Course" placeholder="e.g. Dinner" radius="none"
+              <Autocomplete withAsterisk label="Course" placeholder="e.g. Dinner" radius="none"
+                data={courseOptions} limit={20} autoSelect
+                loading={areCoursesLoading}
                 key={form.key('course')} {...form.getInputProps('course')} />
               <TextInput withAsterisk label="Dish Type" placeholder="e.g. Pasta" radius="none"
                 key={form.key('dishType')} {...form.getInputProps('dishType')} />

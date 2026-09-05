@@ -26,6 +26,11 @@ public class RecipeService(IRecipeRepository recipeRepository,
       return await _recipeRepository.GetRecipes();
    }
 
+   public async Task<IEnumerable<string>> GetCourses()
+   {
+      return await _recipeRepository.GetCourses();
+   }
+
    public async Task<RecipeDetailViewModel> GetSingleRecipe(int recipeId)
    {
       var recipe = await _recipeRepository.GetRecipe(recipeId);
@@ -76,6 +81,7 @@ public class RecipeService(IRecipeRepository recipeRepository,
 public interface IRecipeService
 {
    Task<IEnumerable<RecipeViewModel>> GetAll();
+   Task<IEnumerable<string>> GetCourses();
    Task<RecipeDetailViewModel> GetSingleRecipe(int recipeId);
    Task<IEnumerable<RecipeCategory>> GetRecipeCategories();
    Task<int> Save(RecipeDetailViewModel model, ClaimsUser user);

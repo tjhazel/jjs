@@ -17,6 +17,13 @@ public partial class RecipeRepository(AppConfig appConfig) : IRecipeRepository
       return await GetRecipeViewModel<RecipeViewModel>();
    }
 
+   public async Task<IEnumerable<string>> GetCourses()
+   {
+      await using var db = new SqlConnection(_appConfig.DbConnectionString);
+      await db.OpenAsync();
+      return await db.QueryAsync<string>(GetCourses_Sql);
+   }
+
    public async Task<RecipeDetailViewModel> GetRecipe(int recipeId)
    {
       var results = await GetRecipeViewModel<RecipeDetailViewModel>(recipeId);
@@ -61,6 +68,7 @@ public partial class RecipeRepository(AppConfig appConfig) : IRecipeRepository
 public interface IRecipeRepository
 {
    Task<IEnumerable<RecipeViewModel>> GetRecipes();
+   Task<IEnumerable<string>> GetCourses();
    Task<RecipeDetailViewModel> GetRecipe(int recipeId);
    Task<int> Save(RecipeModel model);
 }

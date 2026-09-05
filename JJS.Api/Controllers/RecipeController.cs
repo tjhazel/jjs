@@ -19,6 +19,12 @@ public class RecipeController(IRecipeService recipeService) : Controller
       return await _recipeService.GetAll();
    }
 
+   [HttpGet, Route("courses")]
+   public async Task<IEnumerable<string>> GetCourses()
+   {
+      return await _recipeService.GetCourses();
+   }
+
    // Route("[action]/{recipeId}")]
    [HttpGet, Route("{recipeId}")]
    public async Task<RecipeViewModel> Get(int recipeId)

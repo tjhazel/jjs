@@ -3,6 +3,14 @@ namespace JJS.Api.Repositories.Recipe;
 
 public partial class RecipeRepository
 {
+   const string GetCourses_Sql = """
+      select distinct ltrim(rtrim(Course)) as Course
+      from Recipes
+      where nullif(ltrim(rtrim(Course)), '') is not null
+      order by Course
+      ;
+      """;
+
    const string GetRecipeViewModel_Sql = """
       select r.RecipeId
           ,r.[Name]

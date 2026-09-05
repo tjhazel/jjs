@@ -5,6 +5,7 @@ import { swrOptions } from "@/lib/swr.functions";
 
 export const recipeBaseUrl = `api/recipe`;
 export const getRecipeUrl = (id: number) => `${recipeBaseUrl}/${id}`;
+export const recipeCoursesUrl = `${recipeBaseUrl}/courses`;
 export const recipeSaveUrl = `${recipeBaseUrl}`;
 
 export function useRecipe(httpGet: TGet) {
@@ -35,6 +36,20 @@ export function useSingleRecipe(httpGet: TGet, id: number | null) {
     data: data,
     isLoading: !error && !data && isValidating,
     error: error?.message
+  };
+}
+
+export function useRecipeCourses(httpGet: TGet) {
+  const { data, isValidating, error } = useSWR<string[], HttpError>(
+    recipeCoursesUrl,
+    httpGet,
+    { ...swrOptions }
+  );
+
+  return {
+    data: data ?? [],
+    isLoading: !error && !data && isValidating,
+    error: error?.message,
   };
 }
 
