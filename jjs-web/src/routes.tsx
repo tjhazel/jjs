@@ -35,6 +35,9 @@ import EditRecipePage, { editRecipeLoader } from '@pages/admin/recipe-editor';
 import ManageUsersPage from '@pages/admin/users';
 import ManageAlbumPage from '@pages/admin/album';
 import ManageCommentsPage from '@pages/admin/comments';
+import ManageCrossCountryPage from '@pages/admin/crosscountry';
+import CrossCountryEditorPage from '@pages/admin/crosscountry-editor';
+import { crossCountryEditorLoader } from '@pages/admin/crosscountry-editor-loader';
 
 function RootErrorBoundary() {
   const error = useRouteError();
@@ -114,6 +117,8 @@ export const router = createBrowserRouter([
                   { path: "admin/users", element: <ManageUsersPage /> },
                   { path: "admin/album", element: <ManageAlbumPage /> },
                   { path: "admin/comments", element: <ManageCommentsPage /> },
+                  { path: "admin/crosscountry/:id", loader: crossCountryEditorLoader, element: <CrossCountryEditorPage /> },
+                  { path: "admin/crosscountry", element: <ManageCrossCountryPage /> },
                 ],
               },
             ]
