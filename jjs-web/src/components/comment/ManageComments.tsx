@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Table, Text, Group, Stack, Badge, ActionIcon, Tooltip, Center,
-  Loader, Popover, TextInput, Button, Select, UnstyledButton,
+  Loader, Popover, TextInput, Button, Select, UnstyledButton, Card,
 } from '@mantine/core';
 import { Link } from 'react-router';
 import {
@@ -205,7 +205,7 @@ export default function ManageComments({
     <Stack gap="xs">
       <Text size="xs" c="dimmed">{sorted.length} comment{sorted.length !== 1 ? 's' : ''}</Text>
 
-      <Table.ScrollContainer minWidth={860}>
+      <Table.ScrollContainer minWidth={860} visibleFrom="sm">
         <Table variant="simple" layout="fixed" highlightOnHover withTableBorder>
           <Table.Thead>
             <Table.Tr>
@@ -332,6 +332,86 @@ export default function ManageComments({
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
+
+      <Stack gap="sm" hiddenFrom="sm">
+        {paginated.length === 0 ? (
+          <Center py="xl">
+            <Text c="dimmed" size="sm">No comments found.</Text>
+          </Center>
+        ) : paginated.map(c => (
+          <Card
+            key={c.commentId}
+            withBorder
+            padding="md"
+            radius="none"
+            style={{ opacity: c.adminHidden ? 0.7 : 1 }}
+          >
+            <Group justify="space-between" align="flex-start" mb="xs" wrap="nowrap">
+              <Stack gap={2} style={{ minWidth: 0 }}>
+                <Text
+                  component={Link}
+                  to={`/post/${c.postFk}`}
+                  size="sm"
+                  c="blue"
+                  truncate
+                >
+                  {c.postTitle}
+                </Text>
+                <Text size="sm" fw={500} truncate>{c.authorName}</Text>
+                {c.authorEmail && (
+                  <Text size="xs" c="dimmed" truncate>{c.authorEmail}</Text>
+                )}
+              </Stack>
+              <Group gap={4} wrap="nowrap">
+                <Text size="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                  {formatDate(c.createdDate)}
+                </Text>
+                {renderActions(c)}
+              </Group>
+            </Group>
+
+            <Stack gap="xs">
+              {c.title && <Text size="sm" fw={500}>{c.title}</Text>}
+              <Text size="sm" style={{ wordBreak: 'break-word' }}>{c.entryText}</Text>
+              <Group gap={4} wrap="wrap">
+                {c.adminHidden && (
+                  <Badge color="orange" size="xs" radius="none" variant="light">Hidden</Badge>
+                )}
+                {c.screenedBy === 'Gemini AI' && (
+                  <Badge color="blue" size="xs" radius="none" variant="light">AI</Badge>
+                )}
+                {c.authorBlocked && (
+                  <Badge color="red" size="xs" radius="none" variant="light">Banned</Badge>
+                )}
+                {!c.adminHidden && !c.authorBlocked && (
+                  <Badge color="teal" size="xs" radius="none" variant="light">Visible</Badge>
+                )}
+              </Group>
+
+              {c.adminHidden && (
+                <Stack gap={2} p="xs" bg="orange.0">
+                  <Text size="xs" c="dimmed">
+                    <strong>Screened by:</strong> {c.screenedBy ?? '—'}
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    <strong>Hidden:</strong> {c.hiddenDate ? formatDate(c.hiddenDate) : '—'}
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    <strong>Reason:</strong> {c.screenResult || '—'}
+                  </Text>
+                </Stack>
+              )}
+
+              {rowErrors[c.commentId] && (
+                <InlineAlert
+                  message={rowErrors[c.commentId]}
+                  onClose={() => clearError(c.commentId)}
+                />
+              )}
+            </Stack>
+          </Card>
+        ))}
+      </Stack>
 
       {/* Pagination footer */}
       <Group justify="space-between" align="center" px={2}>
