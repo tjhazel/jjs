@@ -34,6 +34,13 @@ public class RecipeController(IRecipeService recipeService) : Controller
       return await _recipeService.GetCourses();
    }
 
+   [HttpGet, Route("categories")]
+   [Authorize(Roles = "Admin")]
+   public async Task<IEnumerable<RecipeCategory>> GetCategories()
+   {
+      return await _recipeService.GetRecipeCategories();
+   }
+
    // Route("[action]/{recipeId}")]
    [HttpGet, Route("{recipeId}")]
    public async Task<RecipeViewModel> Get(int recipeId)

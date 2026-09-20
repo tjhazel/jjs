@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { zodResolver } from 'mantine-form-zod-resolver';
 import {
-  Autocomplete, TextInput, Card, Title, Text, Stack,
+  Autocomplete, MultiSelect, TextInput, Card, Title, Text, Stack,
   SimpleGrid, Grid, Switch, Group, Button, Box, NumberInput
 } from '@mantine/core';
 import { recipeSchema, DEFAULT_RECIPE } from '@api/recipe/recipeSchema';
 import type { RecipeDetail, Ingredient, Instruction } from '@api/recipe/recipe';
-import { useRecipeCourses } from '@api/recipe/recipe-fetcher';
+import { useRecipeCategories, useRecipeCourses } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import { formatDate } from '@lib/time.functions';
 import MarkdownEditor from '@components/ui/form/markdown-editor';
@@ -24,6 +24,7 @@ interface RecipeEditorProps {
 export default function RecipeEditor({ recipe, isSaving = false, onSave, onCancel }: RecipeEditorProps) {
   const { httpGet } = useApiContext();
   const { data: courseOptions, isLoading: areCoursesLoading } = useRecipeCourses(httpGet);
+  const { data: recipeCategories, isLoading: areCategoriesLoading } = useRecipeCategories(httpGet);
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: DEFAULT_RECIPE,
@@ -32,6 +33,7 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
 
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [instructions, setInstructions] = useState<Instruction[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [showIngredientValidationErrors, setShowIngredientValidationErrors] = useState(false);
 
   useEffect(() => {
@@ -51,6 +53,11 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         isViewableByPublic: recipe.isViewableByPublic ?? false,
         recipeCategoryIds: recipe.recipeCategoryIds ?? [],
       });
+      // Keep the controlled MultiSelect synchronized when editing a different recipe.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedCategoryIds((recipe.recipeCategoryIds ?? []).map(String));
+    } else {
+      setSelectedCategoryIds([]);
     }
     setIngredients(recipe?.ingredients ?? []);
     setInstructions(recipe?.instructions ?? []);
@@ -127,6 +134,26 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
               <TextInput withAsterisk label="Dish Type" placeholder="e.g. Pasta" radius="none"
                 key={form.key('dishType')} {...form.getInputProps('dishType')} />
             </SimpleGrid>
+            <MultiSelect
+              label="Main Recipe Categories"
+              description="Select zero or more categories for this recipe"
+              placeholder={areCategoriesLoading ? 'Loading categories...' : 'Select categories'}
+              data={recipeCategories.map(category => ({
+                value: String(category.recipeCategoryId),
+                label: category.name,
+              }))}
+              value={selectedCategoryIds}
+              onChange={(values) => {
+                setSelectedCategoryIds(values);
+                form.setFieldValue('recipeCategoryIds', values.map(Number));
+              }}
+              disabled={areCategoriesLoading}
+              clearable
+              searchable
+              radius="none"
+              key={form.key('recipeCategoryIds')}
+              error={form.errors.recipeCategoryIds}
+            />
           </Stack>
         </Card>
 

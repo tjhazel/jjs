@@ -34,6 +34,11 @@ export interface RecipeDetail extends Recipe {
    picture: AttachmentViewModel | null;
 }
 
+export interface RecipeCategory {
+  recipeCategoryId: number;
+  name: string;
+}
+
 export interface Ingredient {
   ingredientsXrefId: number;
   ingredientFk: number;

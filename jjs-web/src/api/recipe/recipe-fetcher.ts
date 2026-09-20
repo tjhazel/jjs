@@ -1,5 +1,5 @@
 import type { HttpError, TGet, TPost } from "@/lib/httpClient";
-import type { RecipeDetail } from "./recipe";
+import type { RecipeCategory, RecipeDetail } from "./recipe";
 import useSWR, { mutate } from "swr";
 import { swrOptions } from "@/lib/swr.functions";
 
@@ -8,6 +8,7 @@ export const allRecipesUrl = `${recipeBaseUrl}/getall`;
 
 export const getRecipeUrl = (id: number) => `${recipeBaseUrl}/${id}`;
 export const recipeCoursesUrl = `${recipeBaseUrl}/courses`;
+export const recipeCategoriesUrl = `${recipeBaseUrl}/categories`;
 export const recipeSaveUrl = `${recipeBaseUrl}`;
 
 export function useRecipe(httpGet: TGet) {
@@ -58,6 +59,20 @@ export function useSingleRecipe(httpGet: TGet, id: number | null) {
 export function useRecipeCourses(httpGet: TGet) {
   const { data, isValidating, error } = useSWR<string[], HttpError>(
     recipeCoursesUrl,
+    httpGet,
+    { ...swrOptions }
+  );
+
+  return {
+    data: data ?? [],
+    isLoading: !error && !data && isValidating,
+    error: error?.message,
+  };
+}
+
+export function useRecipeCategories(httpGet: TGet) {
+  const { data, isValidating, error } = useSWR<RecipeCategory[], HttpError>(
+    recipeCategoriesUrl,
     httpGet,
     { ...swrOptions }
   );
