@@ -13,10 +13,19 @@ public class RecipeController(IRecipeService recipeService) : Controller
 {
    private readonly IRecipeService _recipeService = recipeService;
 
-   [HttpGet]
+   [HttpGet, Route("[action]")]
+   [Authorize(Roles = "Admin")]
    public async Task<IEnumerable<RecipeViewModel>> GetAll()
    {
       return await _recipeService.GetAll();
+   }
+
+   [HttpGet]
+   public async Task<IEnumerable<RecipeViewModel>> GetPublic()
+   {
+      //var user = User.GetUserFromClaims();
+      //Console.WriteLine($"User: {user?.DisplayName}, {user?.Role}");
+      return await _recipeService.GetPublic();
    }
 
    [HttpGet, Route("courses")]

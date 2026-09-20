@@ -1,14 +1,14 @@
 import { useNavigate } from 'react-router';
 import { Stack, Group, Title, Button, Alert, Text } from '@mantine/core';
 import { IconPlus, IconAlertCircle } from '@tabler/icons-react';
-import { useRecipe } from '@api/recipe/recipe-fetcher';
+import { useAllRecipes } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import ManageRecipes from '@components/recipe/edit/ManageRecipies';
 
 export default function ManageRecipesPage() {
   const navigate = useNavigate();
   const { httpGet } = useApiContext();
-  const { data: recipes, error, isLoading } = useRecipe(httpGet);
+   const { data: recipes, error, isLoading } = useAllRecipes(httpGet);
 
   return (
     <Stack gap="sm">

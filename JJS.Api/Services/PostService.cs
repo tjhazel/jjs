@@ -63,12 +63,16 @@ public class PostService(
       model.ModifiedDate = DateTime.UtcNow;
       model.ModifiedByFk = existingUser?.Id;
 
-      var postId = await _postRepository.Save(model);
-
-      await _cacheService.Clear(CacheKey.PostAllCacheName);
-      await _cacheService.Clear(CacheKey.PostPublicCacheName);
-
-      return postId;
+      try
+      {
+         var postId = await _postRepository.Save(model);
+         return postId;
+      }
+      finally
+      {
+         await _cacheService.Clear(CacheKey.PostAllCacheName);
+         await _cacheService.Clear(CacheKey.PostPublicCacheName);
+      }
    }
 }
 
