@@ -71,6 +71,9 @@ export function useRecipeCourses(httpGet: TGet) {
 
 export const saveRecipe = async (httpPost: TPost, model: RecipeDetail) => {
    const result = await httpPost(recipeSaveUrl, model)
-      .then(() => mutate(recipeBaseUrl));
+      .then(() => {
+         mutate(recipeBaseUrl);
+         mutate(allRecipesUrl);
+      });
    return result;
 }
