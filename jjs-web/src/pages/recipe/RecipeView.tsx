@@ -1,23 +1,14 @@
-import { useNavigate, useLoaderData, type LoaderFunctionArgs } from 'react-router';
+import { useNavigate, useLoaderData } from 'react-router';
 import { 
   Container, Button, Title, Text, Group, Divider, 
   Center, Loader, Stack, SimpleGrid, Badge, Box, Image 
 } from '@mantine/core';
+import MarkdownViewer from '@components/ui/MarkdownViewer';
 import { IconArrowLeft, IconPrinter } from '@tabler/icons-react';
 import { useSingleRecipe } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import { formatDate } from '../../lib/time.functions';
-import classes from './RecipeView.module.css'; // 👉 IMPORT PRINT STYLES
-
-export const recipeLoader = async ({ params }: LoaderFunctionArgs) => {
-  const idStr = params.id;
-  if (!idStr) throw new Response("Missing Recipe Identifier", { status: 400 });
-
-  const parsedId = parseInt(idStr, 10);
-  if (isNaN(parsedId)) throw new Response("Invalid Identification Format", { status: 400 });
-
-  return { id: parsedId };
-};
+import classes from './RecipeView.module.css';
 
 export default function RecipeView() {
   const navigate = useNavigate();
@@ -83,7 +74,7 @@ export default function RecipeView() {
         {recipe.description && (
           <Stack gap="xs">
             <Title order={2} size="h3" fw={600}>Description</Title>
-            <Text size="sm" style={{ lineHeight: 1.6 }}>{recipe.description}</Text>
+           <MarkdownViewer>{recipe.description}</MarkdownViewer>
           </Stack>
         )}
 

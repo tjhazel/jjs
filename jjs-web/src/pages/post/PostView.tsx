@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate, useLoaderData, useLocation, type LoaderFunctionArgs  } from 'react-router';
+import { useNavigate, useLoaderData, useLocation } from 'react-router';
 import MarkdownViewer from '@components/ui/MarkdownViewer';
 import CommentList from '@components/comment/CommentList';
 import PostReactions from '@components/post/PostReactions';
@@ -8,22 +8,6 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import { usePosts, viewPost } from '@api/post/post-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import classes from './PostView.module.css';
-
-// 🟢 1. EXPORT THE LOADER FROM HERE
-export const postLoader = async ({ params }: LoaderFunctionArgs) => {
-  const idStr = params.id; // Matches the ":id" segment in your route path
-
-  if (!idStr) {
-    throw new Response("Missing Post Identifier", { status: 400 });
-  }
-
-  const parsedId = parseInt(idStr, 10);
-  if (isNaN(parsedId)) {
-    throw new Response("Invalid Identification Format", { status: 400 });
-  }
-
-  return { id: parsedId };
-};
 
 export default function PostView() {
   const navigate = useNavigate();
