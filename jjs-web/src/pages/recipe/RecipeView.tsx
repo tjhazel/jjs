@@ -1,7 +1,7 @@
 import { useNavigate, useLoaderData } from 'react-router';
-import { 
-  Container, Button, Title, Text, Group, Divider, 
-  Center, Loader, Stack, SimpleGrid, Badge, Box, Image 
+import {
+  Container, Button, Title, Text, Group, Divider,
+  Center, Loader, Stack, SimpleGrid, Badge, Box, Image
 } from '@mantine/core';
 import MarkdownViewer from '@components/ui/MarkdownViewer';
 import { IconArrowLeft, IconPrinter } from '@tabler/icons-react';
@@ -39,15 +39,17 @@ export default function RecipeView() {
     );
   }
 
-  const recipePicture = recipe.picture?.contentBase64 
-    ? `data:image/jpeg;base64,${recipe.picture?.contentBase64}` 
+  const recipePicture = recipe.picture?.contentBase64
+    ? `data:${recipe.picture.contentType};base64,${recipe.picture.contentBase64}`
+    : recipe.pictureFk
+      ? `/api/attachment/${recipe.pictureFk}/content`
     : undefined;
 
   return (
     /* 👉 Added container styling class hook */
     <Container size="md" py="xl" className={classes.recipeContainer}>
       <Stack gap="xl">
-        
+
         {/* 👉 Added actionHeader visibility print hook wrapper */}
         <Group gap="sm" pb="md" className={classes.actionHeader} style={{ borderBottom: '1px solid var(--mantine-color-gray-2)' }}>
           <Button onClick={() => navigate(-1)} variant="default" radius="none" leftSection={<IconArrowLeft size={16} />}>

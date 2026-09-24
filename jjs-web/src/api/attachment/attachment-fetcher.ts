@@ -10,9 +10,8 @@ interface UploadResult {
 export const uploadAttachment = async (
   httpPostFormData: TPostFormData,
   file: File
-): Promise<string> => {
+): Promise<UploadResult> => {
   const fd = new FormData();
   fd.append('file', file);
-  const result = await httpPostFormData<UploadResult>(attachmentUrl, fd);
-  return `/api/attachment/${result.attachmentId}/content`;
+  return httpPostFormData<UploadResult>(attachmentUrl, fd);
 };

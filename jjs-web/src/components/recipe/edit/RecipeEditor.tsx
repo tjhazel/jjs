@@ -7,12 +7,14 @@ import {
 } from '@mantine/core';
 import { recipeSchema, DEFAULT_RECIPE } from '@api/recipe/recipeSchema';
 import type { RecipeDetail, Ingredient, Instruction } from '@api/recipe/recipe';
+import type { AttachmentViewModel } from '@api/attachment/attachment-models';
 import { useRecipeCategories, useRecipeCourses } from '@api/recipe/recipe-fetcher';
 import { useApiContext } from '@api/ApiContext';
 import { formatDate } from '@lib/time.functions';
 import MarkdownEditor from '@components/ui/form/markdown-editor';
 import IngredientsEditor from './IngredientsEditor';
 import InstructionsEditor from './InstructionsEditor';
+import RecipeImageUpload from './RecipeImageUpload';
 
 interface RecipeEditorProps {
   recipe?: RecipeDetail | null;
@@ -22,7 +24,7 @@ interface RecipeEditorProps {
 }
 
 export default function RecipeEditor({ recipe, isSaving = false, onSave, onCancel }: RecipeEditorProps) {
-  const { httpGet } = useApiContext();
+  const { httpGet, httpPostFormData } = useApiContext();
   const { data: courseOptions, isLoading: areCoursesLoading } = useRecipeCourses(httpGet);
   const { data: recipeCategories, isLoading: areCategoriesLoading } = useRecipeCategories(httpGet);
   const form = useForm({
@@ -35,6 +37,9 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
   const [instructions, setInstructions] = useState<Instruction[]>([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [showIngredientValidationErrors, setShowIngredientValidationErrors] = useState(false);
+  const [showInstructionValidationErrors, setShowInstructionValidationErrors] = useState(false);
+  const [currentPicture, setCurrentPicture] = useState<AttachmentViewModel | null>(null);
+  const [pictureFk, setPictureFk] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     if (recipe) {
@@ -56,8 +61,13 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
       // Keep the controlled MultiSelect synchronized when editing a different recipe.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedCategoryIds((recipe.recipeCategoryIds ?? []).map(String));
+      // Initialize picture state
+      setCurrentPicture(recipe.picture ?? null);
+      setPictureFk(recipe.pictureFk);
     } else {
       setSelectedCategoryIds([]);
+      setCurrentPicture(null);
+      setPictureFk(undefined);
     }
     setIngredients(recipe?.ingredients ?? []);
     setInstructions(recipe?.instructions ?? []);
@@ -71,14 +81,16 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
       ingredient.unitOfMeasureFk <= 0 ||
       ingredient.ingredientFk <= 0
     );
+    const hasInvalidInstruction = instructions.some(instruction => !instruction.name.trim());
 
     setShowIngredientValidationErrors(hasInvalidIngredient);
-    if (hasInvalidIngredient) return;
+    setShowInstructionValidationErrors(hasInvalidInstruction);
+    if (hasInvalidIngredient || hasInvalidInstruction) return;
 
     const payload: RecipeDetail = {
       // identity & system fields preserved from loaded recipe
       recipeId: recipe?.recipeId ?? 0,
-      pictureFk: recipe?.pictureFk,
+      pictureFk: pictureFk,
       viewCount: recipe?.viewCount ?? 0,
       createdDate: recipe?.createdDate,
       createdByFk: recipe?.createdByFk,
@@ -87,7 +99,8 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
       modifiedByFk: recipe?.modifiedByFk,
       modifiedBy: recipe?.modifiedBy,
       recipeCategories: recipe?.recipeCategories ?? [],
-      picture: recipe?.picture ?? null,
+      // The API only needs PictureFk when saving; picture content is read-only.
+      picture: null,
       // user-edited fields from form
       ...values,
       prepTime: values.prepTime ?? '',
@@ -178,6 +191,26 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
           </Stack>
         </Card>
 
+        {/* Picture Upload */}
+        <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
+          <Stack gap="md">
+            <Title order={2} size="h4" fw={600}>Recipe Picture</Title>
+            <RecipeImageUpload
+              currentPicture={currentPicture}
+              currentPictureId={pictureFk}
+              onUploadSuccess={(attachmentId, picture) => {
+                setPictureFk(attachmentId);
+                setCurrentPicture(picture);
+              }}
+              onClear={() => {
+                setPictureFk(undefined);
+                setCurrentPicture(null);
+              }}
+              httpPostFormData={httpPostFormData}
+            />
+          </Stack>
+        </Card>
+
         {/* ─── Ingredients ─── */}
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
@@ -194,6 +227,9 @@ export default function RecipeEditor({ recipe, isSaving = false, onSave, onCance
         <Card withBorder padding={{ base: 'xs', sm: 'xl' }} radius="none">
           <Stack gap="md">
             <Title order={2} size="h4" fw={600}>Instructions</Title>
+            {showInstructionValidationErrors && (
+              <Text c="red" size="sm">Each instruction must have a step name before the recipe can be saved.</Text>
+            )}
             <InstructionsEditor instructions={instructions} onChange={setInstructions} />
           </Stack>
         </Card>

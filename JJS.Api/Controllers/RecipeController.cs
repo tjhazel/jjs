@@ -43,7 +43,7 @@ public class RecipeController(IRecipeService recipeService) : Controller
 
    // Route("[action]/{recipeId}")]
    [HttpGet, Route("{recipeId}")]
-   public async Task<RecipeViewModel> Get(int recipeId)
+   public async Task<RecipeDetailViewModel> Get(int recipeId)
    {
       return await _recipeService.GetSingleRecipe(recipeId);
    }
