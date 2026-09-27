@@ -1,11 +1,10 @@
-import { Box, Group, Stack, Text } from '@mantine/core';
-import { IconPhoto } from '@tabler/icons-react';
-import { Image } from '@mantine/core';
+import { ActionIcon, Box, Group, Image, Stack, Text } from '@mantine/core';
+import { IconPhoto, IconX } from '@tabler/icons-react';
 import { useAlbumEditorContext } from './AlbumEditorContext';
 
 export default function DropZone() {
   const ctx = useAlbumEditorContext();
-  const { fileStates, dragOver, handleFilesSelect, setDragOver, fileInputRef } = ctx;
+  const { fileStates, dragOver, handleFilesSelect, removeFileAt, setDragOver, fileInputRef, uploading } = ctx;
 
   return (
     <Box
@@ -35,7 +34,24 @@ export default function DropZone() {
         ? (
           <Group style={{ gap: 8, padding: 8, overflowX: 'auto' }} wrap="nowrap">
             {fileStates.map((s, i) => (
-              <Image key={s.id} src={s.previewUrl} fit="cover" mah={160} w={160} alt={`Preview ${i + 1}`} />
+              <Box key={s.id} pos="relative" style={{ flex: '0 0 auto' }}>
+                <Image src={s.previewUrl} fit="cover" mah={160} w={160} alt={`Preview ${i + 1}`} />
+                <ActionIcon
+                  aria-label={`Remove ${s.file.name}`}
+                  color="red"
+                  disabled={uploading || s.status === 'uploading'}
+                  onClick={e => {
+                    e.stopPropagation();
+                    removeFileAt(i);
+                  }}
+                  pos="absolute"
+                  right={4}
+                  top={4}
+                  variant="filled"
+                >
+                  <IconX size={14} />
+                </ActionIcon>
+              </Box>
             ))}
           </Group>
         )
