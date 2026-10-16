@@ -1,11 +1,12 @@
 import type { HttpError, TGet, TPost, TPatch } from "@/lib/httpClient";
-import type { Comment, CommentSummary, PagedComments, NewCommentRequest } from "./comment";
+import type { Comment, CommentSummary, PagedComments, NewCommentRequest, CommentModerationResult } from "./comment";
 import useSWR from "swr";
 import { swrOptions, mutateKeysLike } from "@/lib/swr.functions";
 
 const commentsByPostBaseUrl = (postId: number) => `api/comment/getbypost/${postId}`;
 export const commentsByPostUrl = (postId: number, page: number) => `${commentsByPostBaseUrl(postId)}?page=${page}`;
 export const addCommentUrl = (postId: number) => `api/comment/addforpost/${postId}`;
+const testModerationUrl = "api/ai/test-moderation";
 
 const repliesByCommentUrl = (commentId: number) => `api/comment/getreplies/${commentId}`;
 
@@ -47,6 +48,9 @@ export const addComment = async (httpPost: TPost, postId: number, request: NewCo
    await httpPost(addCommentUrl(postId), request);
    mutateKeysLike(commentsByPostBaseUrl(postId));
 };
+
+export const testCommentModeration = (httpPost: TPost, commentText: string) =>
+   httpPost<CommentModerationResult>(testModerationUrl, { commentText });
 
 export const hideComment = async (httpPatch: TPatch, commentId: number, screenResult?: string) => {
    await httpPatch(`api/comment/hidecomment/${commentId}`, { screenResult: screenResult ?? null });

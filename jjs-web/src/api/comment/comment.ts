@@ -30,3 +30,11 @@ export interface PagedComments {
    items: Comment[];
    hasMore: boolean;
 }
+
+export interface CommentModerationResult {
+   isSpam: boolean;
+   isToxic: boolean;
+   isFlagged: boolean;
+   wasProcessed: boolean;
+   reason: string;
+}
