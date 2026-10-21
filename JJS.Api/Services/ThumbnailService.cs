@@ -83,8 +83,11 @@ public class ThumbnailService(IAlbumService albumService) : IThumbnailService
 
       image.Mutate(ctx =>
       {
-         ctx.DrawText(shadowOptions, CopyrightText, Color.FromRgba(0, 0, 0, 70));
-         ctx.DrawText(textOptions,   CopyrightText, Color.FromRgba(255, 255, 255, 85));
+         ctx.Paint(canvas =>
+         {
+            canvas.DrawText(shadowOptions, CopyrightText.AsSpan(), new SolidBrush(Color.Black.WithAlpha(70f / 255)), null);
+            canvas.DrawText(textOptions, CopyrightText.AsSpan(), new SolidBrush(Color.White.WithAlpha(85f / 255)), null);
+         });
       });
    }
 
