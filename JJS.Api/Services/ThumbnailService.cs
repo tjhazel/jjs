@@ -10,8 +10,36 @@ public class ThumbnailService(IAlbumService albumService) : IThumbnailService
    private readonly IAlbumService _albumService = albumService;
    private const int ThumbSize = 400;
    private const string ThumbFolder = ".thumbs";
-   private const string WatermarkVersion = "jjs-thumbnail-watermark-v6";
+   private const string WatermarkVersion = "jjs-thumbnail-watermark-v7";
    private static readonly string CopyrightText = $"© 2006 - {DateTime.Now.Year} johnandjeri.com";
+   private static readonly IReadOnlyDictionary<char, string[]> WatermarkGlyphs = new Dictionary<char, string[]>
+   {
+      ['©'] = ["01110", "10001", "10111", "10100", "10111", "10001", "01110"],
+      ['0'] = ["01110", "10001", "10011", "10101", "11001", "10001", "01110"],
+      ['1'] = ["00100", "01100", "00100", "00100", "00100", "00100", "01110"],
+      ['2'] = ["01110", "10001", "00001", "00010", "00100", "01000", "11111"],
+      ['3'] = ["11110", "00001", "00001", "01110", "00001", "00001", "11110"],
+      ['4'] = ["00010", "00110", "01010", "10010", "11111", "00010", "00010"],
+      ['5'] = ["11111", "10000", "10000", "11110", "00001", "00001", "11110"],
+      ['6'] = ["00110", "01000", "10000", "11110", "10001", "10001", "01110"],
+      ['7'] = ["11111", "00001", "00010", "00100", "01000", "01000", "01000"],
+      ['8'] = ["01110", "10001", "10001", "01110", "10001", "10001", "01110"],
+      ['9'] = ["01110", "10001", "10001", "01111", "00001", "00010", "01100"],
+      ['-'] = ["00000", "00000", "00000", "11111", "00000", "00000", "00000"],
+      ['a'] = ["00000", "01110", "00001", "01111", "10001", "10011", "01101"],
+      ['c'] = ["00000", "01110", "10000", "10000", "10000", "10001", "01110"],
+      ['d'] = ["00001", "00001", "01101", "10011", "10001", "10011", "01101"],
+      ['e'] = ["00000", "01110", "10001", "11111", "10000", "10001", "01110"],
+      ['h'] = ["10000", "10000", "10110", "11001", "10001", "10001", "10001"],
+      ['i'] = ["00100", "00000", "01100", "00100", "00100", "00100", "01110"],
+      ['j'] = ["00010", "00000", "00110", "00010", "00010", "10010", "01100"],
+      ['m'] = ["00000", "11010", "10101", "10101", "10101", "10101", "10101"],
+      ['n'] = ["00000", "10110", "11001", "10001", "10001", "10001", "10001"],
+      ['o'] = ["00000", "01110", "10001", "10001", "10001", "10001", "01110"],
+      ['r'] = ["00000", "10110", "11001", "10000", "10000", "10000", "10000"],
+      [' '] = ["00000", "00000", "00000", "00000", "00000", "00000", "00000"],
+      ['.'] = ["00000", "00000", "00000", "00000", "00000", "00110", "00110"],
+   };
 
    public Task<string?> GetOrCreateThumbPathAsync(string relativePath)
    {
@@ -57,24 +85,47 @@ public class ThumbnailService(IAlbumService albumService) : IThumbnailService
 
    private static void ApplyWatermark(MagickImage image)
    {
-      var fontSize = Math.Max(12, image.Width * 0.045);
-      image.Draw(new Drawables()
-         .Font(GetWatermarkFont())
-         .FontPointSize(fontSize)
-         .Gravity(Gravity.South)
-         .FillColor(MagickColor.FromRgb(0, 0, 0))
-         .FillOpacity(new Percentage(27))
-         .Text(1, 55, CopyrightText));
-      image.Draw(new Drawables()
-         .Font(GetWatermarkFont())
-         .FontPointSize(fontSize)
-         .Gravity(Gravity.South)
-         .FillColor(MagickColor.FromRgb(255, 255, 255))
-         .FillOpacity(new Percentage(33))
-         .Text(0, 56, CopyrightText));
+      var scale = Math.Max(1, image.Width * 0.0045);
+      DrawBitmapWatermark(image, scale, 55, MagickColor.FromRgb(0, 0, 0), new Percentage(27), 1);
+      DrawBitmapWatermark(image, scale, 56, MagickColor.FromRgb(255, 255, 255), new Percentage(33), 0);
    }
 
-   private static string GetWatermarkFont() => OperatingSystem.IsWindows() ? "Arial" : "DejaVu-Sans";
+   private static void DrawBitmapWatermark(
+      MagickImage image,
+      double scale,
+      int bottomOffset,
+      MagickColor color,
+      Percentage opacity,
+      int shadowOffset)
+   {
+      var cellSize = scale;
+      var characterWidth = cellSize * 6;
+      var textWidth = characterWidth * CopyrightText.Length;
+      var startX = (image.Width - textWidth) / 2 + shadowOffset;
+      var startY = image.Height - bottomOffset - cellSize * 7 + shadowOffset;
+      var drawables = new Drawables()
+         .FillColor(color)
+         .FillOpacity(opacity);
+
+      for (var characterIndex = 0; characterIndex < CopyrightText.Length; characterIndex++)
+      {
+         var glyph = WatermarkGlyphs[CopyrightText[characterIndex]];
+         for (var row = 0; row < glyph.Length; row++)
+         {
+            for (var column = 0; column < glyph[row].Length; column++)
+            {
+               if (glyph[row][column] != '1')
+                  continue;
+
+               var x = startX + characterIndex * characterWidth + column * cellSize;
+               var y = startY + row * cellSize;
+               drawables.Rectangle(x, y, x + cellSize, y + cellSize);
+            }
+         }
+      }
+
+      image.Draw(drawables);
+   }
 
    private static void ApplyCopyrightExif(MagickImage image)
    {

@@ -36,7 +36,7 @@ public class ThumbnailServiceTest
       {
          var exif = new ExifProfile();
          exif.SetValue(ExifTag.Copyright, "© 2006 - 2025 johnandjeri.com");
-         exif.SetValue(ExifTag.Software, "jjs-thumbnail-watermark-v5");
+         exif.SetValue(ExifTag.Software, "jjs-thumbnail-watermark-v6");
          staleThumbnail.SetProfile(exif);
          staleThumbnail.Write(staleThumbnailPath, MagickFormat.Jpeg);
       }
@@ -53,7 +53,7 @@ public class ThumbnailServiceTest
       Assert.That(thumbnail.Width, Is.EqualTo(200));
       Assert.That(thumbnail.Height, Is.EqualTo(400));
       Assert.That(thumbnail.GetExifProfile()?.GetValue(ExifTag.Copyright)?.Value, Does.Contain("johnandjeri.com"));
-      Assert.That(thumbnail.GetExifProfile()?.GetValue(ExifTag.Software)?.Value, Is.EqualTo("jjs-thumbnail-watermark-v6"));
+      Assert.That(thumbnail.GetExifProfile()?.GetValue(ExifTag.Software)?.Value, Is.EqualTo("jjs-thumbnail-watermark-v7"));
 
       var pixelDump = System.Text.Encoding.ASCII.GetString(thumbnail.ToByteArray(MagickFormat.Txt));
       var darkWatermarkPixels = pixelDump.Split('\n')
