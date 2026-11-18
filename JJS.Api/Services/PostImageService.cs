@@ -1,6 +1,5 @@
 using JJS.Api.Models;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
+using ImageMagick;
 
 namespace JJS.Api.Services;
 
@@ -11,7 +10,7 @@ public class PostImageService(IAlbumService albumService, IMetaDataService metaD
    private readonly IMetaDataService _metaDataService = metaDataService;
    private const int JpegQuality = 75;
 
-   public async Task<(string Url, string FileName)> Upload(IFormFile file)
+   public Task<(string Url, string FileName)> Upload(IFormFile file)
    {
       Directory.CreateDirectory(_postImagesPath);
 
@@ -20,14 +19,16 @@ public class PostImageService(IAlbumService albumService, IMetaDataService metaD
       var uniqueName   = ResolveUniqueFileName(jpegFileName);
       var fullPath     = Path.Combine(_postImagesPath, uniqueName);
 
-      await using var inputStream = file.OpenReadStream();
-      using var image = await Image.LoadAsync(inputStream);
+      using var inputStream = file.OpenReadStream();
+      using var image = new MagickImage(inputStream);
 
       _metaDataService.RefineImage(image);
 
-      await image.SaveAsJpegAsync(fullPath, new JpegEncoder { Quality = JpegQuality });
+      image.Format = MagickFormat.Jpeg;
+      image.Quality = JpegQuality;
+      image.Write(fullPath);
 
-      return ($"/api/post-image/{Uri.EscapeDataString(uniqueName)}", file.FileName);
+      return Task.FromResult(($"/api/post-image/{Uri.EscapeDataString(uniqueName)}", file.FileName));
    }
 
    public (Stream Content, string ContentType)? GetImage(string fileName)

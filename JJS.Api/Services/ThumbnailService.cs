@@ -1,10 +1,6 @@
 using JJS.Api.Models;
-using SixLabors.Fonts;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
-using SixLabors.ImageSharp.Processing;
+using ImageMagick;
+using ImageMagick.Drawing;
 
 namespace JJS.Api.Services;
 
@@ -14,87 +10,78 @@ public class ThumbnailService(IAlbumService albumService) : IThumbnailService
    private readonly IAlbumService _albumService = albumService;
    private const int ThumbSize = 400;
    private const string ThumbFolder = ".thumbs";
+   private const string WatermarkVersion = "jjs-thumbnail-watermark-v6";
    private static readonly string CopyrightText = $"© 2006 - {DateTime.Now.Year} johnandjeri.com";
 
-   public async Task<string?> GetOrCreateThumbPathAsync(string relativePath)
+   public Task<string?> GetOrCreateThumbPathAsync(string relativePath)
    {
       var normalizedPath = relativePath.Replace('/', Path.DirectorySeparatorChar);
       var sourceFullPath = Path.Combine(_albumService.AlbumRoot, normalizedPath);
 
       if (!File.Exists(sourceFullPath))
-         return null;
+         return Task.FromResult<string?>(null);
 
       var thumbRelDir = Path.GetDirectoryName(normalizedPath) ?? "";
       var thumbDir    = Path.Combine(_albumService.AlbumRoot, ThumbFolder, thumbRelDir);
       var thumbPath   = Path.Combine(thumbDir, Path.GetFileNameWithoutExtension(normalizedPath) + ".jpg");
 
-      if (!File.Exists(thumbPath) || !HasCopyrightTag(thumbPath))
+      if (!File.Exists(thumbPath) || !HasCurrentWatermark(thumbPath))
       {
          Directory.CreateDirectory(thumbDir);
          var tmpPath = thumbPath + ".tmp";
-         using var image = await Image.LoadAsync(sourceFullPath);
-         image.Mutate(x => x.Resize(new ResizeOptions
-         {
-            Mode = ResizeMode.Max,
-            Size = new Size(ThumbSize, ThumbSize),
-         }));
+         using var image = new MagickImage(sourceFullPath);
+         var scale = Math.Min((double)ThumbSize / image.Width, (double)ThumbSize / image.Height);
+         image.Resize(
+            (uint)Math.Max(1, Math.Round(image.Width * scale)),
+            (uint)Math.Max(1, Math.Round(image.Height * scale)));
          ApplyWatermark(image);
          ApplyCopyrightExif(image);
-         await image.SaveAsJpegAsync(tmpPath, new JpegEncoder { Quality = 75 });
+         image.Format = MagickFormat.Jpeg;
+         image.Quality = 75;
+         image.Write(tmpPath, MagickFormat.Jpeg);
          File.Move(tmpPath, thumbPath, overwrite: true);
       }
 
-      return thumbPath;
+      return Task.FromResult<string?>(thumbPath);
    }
 
-   private static bool HasCopyrightTag(string path)
+   private static bool HasCurrentWatermark(string path)
    {
       try
       {
-         var info = Image.Identify(path);
-         return info?.Metadata.ExifProfile?.Values
-            .Any(v => v.Tag == ExifTag.Copyright) ?? false;
+         using var image = new MagickImage(path);
+         return image.GetExifProfile()?.GetValue(ExifTag.Software)?.Value == WatermarkVersion;
       }
       catch { return false; }
    }
 
-   private static void ApplyWatermark(Image image)
+   private static void ApplyWatermark(MagickImage image)
    {
-      if (!SystemFonts.Collection.TryGet("Arial", out var fontFamily))
-         fontFamily = SystemFonts.Families.First();
-
-      var fontSize = Math.Max(10f, image.Width * 0.032f);
-      var font = fontFamily.CreateFont(fontSize, FontStyle.Regular);
-
-      var centerX   = image.Width / 2f;
-      var baselineY = image.Height - 6;
-
-      var textOptions = new RichTextOptions(font)
-      {
-         HorizontalAlignment = HorizontalAlignment.Center,
-         VerticalAlignment   = VerticalAlignment.Bottom,
-         Origin              = new PointF(centerX, baselineY),
-      };
-
-      var shadowOptions = new RichTextOptions(textOptions)
-      {
-         Origin = new PointF(centerX + 1, baselineY + 1),
-      };
-
-      image.Mutate(ctx =>
-      {
-         ctx.Paint(canvas =>
-         {
-            canvas.DrawText(shadowOptions, CopyrightText.AsSpan(), new SolidBrush(Color.Black.WithAlpha(70f / 255)), null);
-            canvas.DrawText(textOptions, CopyrightText.AsSpan(), new SolidBrush(Color.White.WithAlpha(85f / 255)), null);
-         });
-      });
+      var fontSize = Math.Max(12, image.Width * 0.045);
+      image.Draw(new Drawables()
+         .Font(GetWatermarkFont())
+         .FontPointSize(fontSize)
+         .Gravity(Gravity.South)
+         .FillColor(MagickColor.FromRgb(0, 0, 0))
+         .FillOpacity(new Percentage(27))
+         .Text(1, 55, CopyrightText));
+      image.Draw(new Drawables()
+         .Font(GetWatermarkFont())
+         .FontPointSize(fontSize)
+         .Gravity(Gravity.South)
+         .FillColor(MagickColor.FromRgb(255, 255, 255))
+         .FillOpacity(new Percentage(33))
+         .Text(0, 56, CopyrightText));
    }
 
-   private static void ApplyCopyrightExif(Image image)
+   private static string GetWatermarkFont() => OperatingSystem.IsWindows() ? "Arial" : "DejaVu-Sans";
+
+   private static void ApplyCopyrightExif(MagickImage image)
    {
-      var exif = image.Metadata.ExifProfile ??= new ExifProfile();
+      var exif = image.GetExifProfile() ?? new ExifProfile();
       exif.SetValue(ExifTag.Copyright, CopyrightText);
+      exif.SetValue(ExifTag.Software, WatermarkVersion);
+      image.SetProfile(exif);
    }
 }
 

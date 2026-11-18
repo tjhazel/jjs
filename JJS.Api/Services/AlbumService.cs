@@ -4,8 +4,7 @@ using JJS.Api.Models.Album;
 using JJS.Api.Models.Configuration;
 using JJS.Api.Repositories;
 using JJS.Api.Services.Cache;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
+using ImageMagick;
 using File = JJS.Api.Models.Album.File;
 
 namespace JJS.Api.Services;
@@ -210,10 +209,12 @@ public class AlbumService(IMetaDataService tagData,
       if (System.IO.File.Exists(fullPath))
          throw new InvalidOperationException($"A file named '{jpegFileName}' already exists in this folder.");
 
-      await using var inputStream = file.OpenReadStream();
-      using var image = await Image.LoadAsync(inputStream);
+      using var inputStream = file.OpenReadStream();
+      using var image = new MagickImage(inputStream);
       _tagData.RefineImage(image);
-      await image.SaveAsJpegAsync(fullPath, new JpegEncoder { Quality = 85 });
+      image.Format = MagickFormat.Jpeg;
+      image.Quality = 85;
+      image.Write(fullPath);
 
       await BuildAndSaveCacheAsync();
       return GetRelativePath(fullPath);

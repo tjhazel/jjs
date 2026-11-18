@@ -1,8 +1,7 @@
 using JJS.Api.Models;
 using JJS.Api.Models.Album;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
-using SixLabors.ImageSharp.Processing;
+using ImageMagick;
+using System.Text;
 
 namespace JJS.Api.Services;
 
@@ -12,75 +11,73 @@ public class MetaDataService() : IMetaDataService
    private const int MaxDimension = 1920;
    private static readonly string CopyrightText = $"© 2006 - {DateTime.Now.Year} johnandjeri.com";
 
-   public async Task<ImageTag?> GetMetadata(string filePath)
+   public Task<ImageTag?> GetMetadata(string filePath)
    {
       try
       {
-         var info = await Image.IdentifyAsync(filePath);
-         var exif = info.Metadata.ExifProfile;
+         using var image = new MagickImage();
+         image.Ping(filePath);
+         var exif = image.GetExifProfile();
 
          string? title = null, comment = null;
 
          if (exif is not null)
          {
-            // XPTitle is the Windows "Title" field; fall back to standard ImageDescription
-            if (exif.TryGetValue(ExifTag.XPTitle, out var xpTitle) && !string.IsNullOrWhiteSpace(xpTitle.Value))
-               title = xpTitle.Value.Replace("\0", "").Trim();
-            else if (exif.TryGetValue(ExifTag.ImageDescription, out var imgDesc))
-               title = imgDesc.Value?.Replace("\0", "").Trim();
-
-            if (exif.TryGetValue(ExifTag.XPComment, out var xpComment))
-               comment = xpComment.Value.Replace("\0", "").Trim();
+            var xpTitle = GetXpText(exif.GetValue(ExifTag.XPTitle)?.Value);
+            title = string.IsNullOrWhiteSpace(xpTitle)
+               ? Normalize(exif.GetValue(ExifTag.ImageDescription)?.Value)
+               : xpTitle;
+            comment = GetXpText(exif.GetValue(ExifTag.XPComment)?.Value);
          }
 
          if (string.IsNullOrWhiteSpace(title))
             title = Path.GetFileNameWithoutExtension(filePath);
 
-         return new ImageTag { Title = title, Comment = comment ?? "" };
+         return Task.FromResult<ImageTag?>(new ImageTag { Title = title, Comment = comment ?? "" });
       }
       catch (Exception ex)
       {
          Console.WriteLine($"Skipping corrupted or invalid image file: {filePath}. Error: {ex.Message}");
-         return null;
+         return Task.FromResult<ImageTag?>(null);
       }
    }
 
-   public void RefineImage(Image image)
+   public void RefineImage(MagickImage image)
    {
-      // Snapshot Exif title / comment before any processing.
-      var srcExif = image.Metadata.ExifProfile;
-      IExifValue<string>? imageDescription = null;
-      IExifValue<string>? xpTitle          = null;
-      IExifValue<string>? xpComment        = null;
-
-      if (srcExif is not null)
-      {
-         srcExif.TryGetValue(ExifTag.ImageDescription, out imageDescription);
-         srcExif.TryGetValue(ExifTag.XPTitle,          out xpTitle);
-         srcExif.TryGetValue(ExifTag.XPComment,        out xpComment);
-      }
+      var srcExif = image.GetExifProfile();
+      var imageDescription = Normalize(srcExif?.GetValue(ExifTag.ImageDescription)?.Value);
+      var xpTitle = GetXpText(srcExif?.GetValue(ExifTag.XPTitle)?.Value);
+      var xpComment = GetXpText(srcExif?.GetValue(ExifTag.XPComment)?.Value);
 
       // Resize so neither dimension exceeds 1920 px (preserves aspect ratio).
       if (image.Width > MaxDimension || image.Height > MaxDimension)
       {
-         image.Mutate(ctx => ctx.Resize(new ResizeOptions
-         {
-            Mode = ResizeMode.Max,
-            Size = new Size(MaxDimension, MaxDimension),
-         }));
+         var scale = Math.Min((double)MaxDimension / image.Width, (double)MaxDimension / image.Height);
+         image.Resize(
+            (uint)Math.Max(1, Math.Round(image.Width * scale)),
+            (uint)Math.Max(1, Math.Round(image.Height * scale)));
       }
 
-      // Re-apply title / comment in case the resize/format-change stripped them.
-      var outExif = image.Metadata.ExifProfile ??= new ExifProfile();
-      if (imageDescription is not null) outExif.SetValue(ExifTag.ImageDescription, imageDescription.Value.Replace("\0", "").Trim());
-      if (xpTitle          is not null) outExif.SetValue(ExifTag.XPTitle,          xpTitle.Value.Replace("\0", "").Trim());
-      if (xpComment        is not null) outExif.SetValue(ExifTag.XPComment,        xpComment.Value.Replace("\0", "").Trim());
+      var outExif = image.GetExifProfile() ?? new ExifProfile();
+      if (imageDescription is not null) outExif.SetValue(ExifTag.ImageDescription, imageDescription);
+      if (xpTitle is not null) outExif.SetValue(ExifTag.XPTitle, Encoding.Unicode.GetBytes(xpTitle + "\0"));
+      if (xpComment is not null) outExif.SetValue(ExifTag.XPComment, Encoding.Unicode.GetBytes(xpComment + "\0"));
       outExif.SetValue(ExifTag.Copyright, CopyrightText);
+      image.SetProfile(outExif);
    }
+
+   private static string? GetXpText(object? value) => value switch
+   {
+      byte[] bytes => Normalize(Encoding.Unicode.GetString(bytes)),
+      string text => Normalize(text),
+      _ => null
+   };
+
+   private static string? Normalize(string? value) => value?.Replace("\0", "").Trim();
 }
 
 public interface IMetaDataService
 {
    Task<ImageTag?> GetMetadata(string filePath);
-   void RefineImage(Image image);
+   void RefineImage(MagickImage image);
 }
