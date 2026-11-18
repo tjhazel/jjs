@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import { useApiContext } from "@api/ApiContext";
 import { useAlbumByPath } from "@api/album/album-fetcher";
 import { IMAGE_PREFIX, POST_IMAGES_FOLDER } from "@api/album/album-models";
+import type { File as AlbumFile } from "@api/album/album-models";
 import { useAuth } from "@lib/auth/authContext";
 import { ROLE_ADMIN, ROLE_CIRCLE_OF_TRUST } from "@lib/auth/roles";
 import {
+   Modal,
    Title,
    Text,
    SimpleGrid,
@@ -16,14 +18,19 @@ import {
    Image,
    Card,
    Stack,
-   Group
+   Group,
+   Button
 } from "@mantine/core";
+import classes from "./album.module.css";
+
+const formatMetadataDate = (value: string) => new Date(value).toLocaleString();
 
 export default function AlbumPage() {
    const { httpGet } = useApiContext();
    const [searchParams] = useSearchParams();
    const navigate = useNavigate();
    const { hasRole } = useAuth();
+   const [selectedFile, setSelectedFile] = useState<AlbumFile | null>(null);
 
    const path = searchParams.get("path") || undefined;
 
@@ -31,6 +38,27 @@ export default function AlbumPage() {
    const logicalPath = path?.replace(new RegExp("^" + IMAGE_PREFIX), "") || undefined;
 
    const { filteredData, isLoading, error } = useAlbumByPath(httpGet, path);
+   const albumFiles = useMemo(() => filteredData?.files ?? [], [filteredData?.files]);
+   const selectedFileIndex = selectedFile
+      ? albumFiles.findIndex(file => file.relativePath === selectedFile.relativePath)
+      : -1;
+
+   useEffect(() => {
+      if (selectedFileIndex < 0) return;
+
+      const handleKeyDown = (event: KeyboardEvent) => {
+         if (event.key === "ArrowLeft" && selectedFileIndex > 0) {
+            event.preventDefault();
+            setSelectedFile(albumFiles[selectedFileIndex - 1]);
+         } else if (event.key === "ArrowRight" && selectedFileIndex < albumFiles.length - 1) {
+            event.preventDefault();
+            setSelectedFile(albumFiles[selectedFileIndex + 1]);
+         }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+   }, [albumFiles, selectedFileIndex]);
 
    // Only Admin and CircleOfTrust members may browse PostImages.
    const canSeePostImages = hasRole([ROLE_ADMIN, ROLE_CIRCLE_OF_TRUST]);
@@ -76,6 +104,7 @@ export default function AlbumPage() {
    }
 
    return (
+      <>
       <Stack gap="xl">
          {/* ─── Header & Breadcrumbs Section ─── */}
          <Stack gap="xs">
@@ -150,15 +179,13 @@ export default function AlbumPage() {
                <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
                   {filteredData.files.map((file, index) => (
                      <Box key={index}>
-                        <a href={file.httpPath} target="_blank" rel="noopener noreferrer" style={{ display: "block", textDecoration: "none" }}>
-                           <Box
-                              style={{
-                                 aspectRatio: "1 / 1",
-                                 overflow: "hidden",
-                                 borderRadius: "4px",
-                                 border: "1px solid var(--mantine-color-gray-3)"
-                              }}
-                           >
+                        <button
+                           type="button"
+                           className={classes.imageButton}
+                           onClick={() => setSelectedFile(file)}
+                           aria-label={`View ${file.title || file.name}`}
+                        >
+                           <Box className={classes.thumbnailFrame}>
                               <Image
                                  src={file.thumbHttpPath}
                                  alt={file.title || file.name}
@@ -166,14 +193,10 @@ export default function AlbumPage() {
                                  w="100%"
                                  h="100%"
                                  loading="lazy"
-                                 style={{
-                                    transition: "transform 200ms ease",
-                                 }}
-                                 onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-                                 onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+                                 className={classes.thumbnailImage}
                               />
                            </Box>
-                        </a>
+                        </button>
                         <Box mt="xs">
                            <Text size="sm" fw={500} truncate>
                               {file.title || file.name}
@@ -197,5 +220,65 @@ export default function AlbumPage() {
             </Center>
          )}
       </Stack>
+      <Modal
+         opened={selectedFile !== null}
+         onClose={() => setSelectedFile(null)}
+         title={selectedFile?.title || selectedFile?.name}
+         centered
+         size="90vw"
+         classNames={{ body: classes.modalBody }}
+      >
+         {selectedFile && (
+            <Stack gap="md">
+               <Box className={classes.fullImageFrame}>
+                  <Image
+                     src={selectedFile.httpPath}
+                     alt={selectedFile.title || selectedFile.name}
+                     fit="contain"
+                     className={classes.fullImage}
+                  />
+                  <Text className={classes.watermark} aria-hidden="true">
+                     © 2006 - {new Date().getFullYear()} johnandjeri.com
+                  </Text>
+               </Box>
+               <Group justify="space-between" align="center">
+                  <Button
+                     variant="default"
+                     onClick={() => setSelectedFile(albumFiles[selectedFileIndex - 1])}
+                     disabled={selectedFileIndex <= 0}
+                     aria-label="Previous image"
+                  >
+                     ← Previous
+                  </Button>
+                  <Text size="sm" c="dimmed" aria-live="polite">
+                     {selectedFileIndex + 1} of {albumFiles.length}
+                  </Text>
+                  <Button
+                     variant="default"
+                     onClick={() => setSelectedFile(albumFiles[selectedFileIndex + 1])}
+                     disabled={selectedFileIndex < 0 || selectedFileIndex >= albumFiles.length - 1}
+                     aria-label="Next image"
+                  >
+                     Next →
+                  </Button>
+               </Group>
+               <dl className={classes.metadata}>
+                  <dt>File name</dt>
+                  <dd>{selectedFile.name}</dd>
+                  <dt>Title</dt>
+                  <dd>{selectedFile.title || "—"}</dd>
+                  <dt>Description</dt>
+                  <dd>{selectedFile.comment || "—"}</dd>
+                  <dt>Created</dt>
+                  <dd>{formatMetadataDate(selectedFile.createdOn)}</dd>
+                  <dt>Modified</dt>
+                  <dd>{formatMetadataDate(selectedFile.modifiedOn)}</dd>
+                  <dt>Last accessed</dt>
+                  <dd>{formatMetadataDate(selectedFile.lastAccessTime)}</dd>
+               </dl>
+            </Stack>
+         )}
+      </Modal>
+      </>
    );
 }
